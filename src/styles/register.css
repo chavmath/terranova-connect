@@ -1,0 +1,90 @@
+.register-container {
+  display: flex;
+  height: 100vh;
+  background-color: #f4f4f4;
+  font-family: Arial, sans-serif;
+}
+
+/* FORMULARIO (lado izquierdo) */
+.register-form {
+  width: 35%; /* antes era 55% */
+  max-width: 700px;
+  margin: auto;
+  padding: 3rem 0;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 💡 Esto centra horizontalmente los hijos */
+  justify-content: center;
+}
+
+/* TÍTULO */
+.register-title {
+  text-align: center;
+  color: #031f7b;
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 2rem;
+}
+
+/* CAMPOS */
+.register-form label {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #031f7b;
+  font-size: 14px;
+  text-align: left;
+}
+
+.register-form input {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  margin-bottom: 1.2rem;
+  border: 2px solid #d2d9f2;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.register-form input:focus {
+  border-color: #031f7b;
+  outline: none;
+}
+
+.register-form button {
+  width: 100%;
+  max-width: 400px;
+  padding: 12px;
+  background-color: #031f7b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.register-form button:hover {
+  background-color: #002a61;
+}
+
+/* PANEL DECORATIVO (lado derecho) */
+.register-side-panel {
+  width: 35%; /* antes usaba flex: 1 */
+  min-width: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.register-image {
+  height: 100vh;
+  width: 95%;
+  object-fit: cover;
+}

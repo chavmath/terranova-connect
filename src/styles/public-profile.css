@@ -1,0 +1,183 @@
+.public-profile-main {
+  flex: 1;
+  padding: 2rem;
+  background-color: #f8f8f8;
+  font-family: Arial, sans-serif;
+  overflow-y: auto;
+  min-height: 100vh;
+}
+
+.public-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.public-avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+}
+
+.public-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.public-nombre {
+  font-size: 22px;
+  font-weight: bold;
+  color: #031f7b;
+  margin: 0;
+}
+
+.public-rol {
+  font-size: 14px;
+  color: #777;
+}
+
+.public-contadores {
+  display: flex;
+  gap: 2rem;
+  font-size: 14px;
+  margin-top: 0.5rem;
+}
+
+.public-divider {
+  margin: 1.5rem 0;
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+.public-galeria {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.public-post img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 6px;
+  transition: transform 0.2s;
+}
+
+.public-post img:hover {
+  transform: scale(1.03);
+  cursor: pointer;
+}
+
+/* Botón seguir */
+.follow-button {
+  background-color: #031f7b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-left: 1rem;
+}
+
+.follow-button:hover {
+  background-color: #213a91;
+}
+
+.follow-button.following {
+  background-color: #ccc;
+  color: #333;
+}
+
+/* Info superior */
+.public-info-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(10, 10, 10, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background-color: #fff;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.3s ease;
+  position: relative;
+}
+
+.modal-image-full {
+  width: 100%;
+  max-height: 480px;
+  object-fit: cover;
+}
+
+.modal-meta {
+  padding: 1rem 1.5rem;
+  background-color: #fff;
+}
+
+.modal-meta-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: #333;
+}
+
+.modal-user {
+  font-weight: bold;
+  color: #031f7b;
+}
+
+.modal-fecha {
+  color: #555;
+}
+
+.modal-likes {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 18px;
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.modal-close:hover {
+  background-color: #e74c3c;
+  color: white;
+}

@@ -1,0 +1,83 @@
+.sidebar {
+  width: 230px;
+  background-color: #f4f4f4;
+  height: 100vh;
+  padding: 1rem;
+  border-right: 1px solid #ddd;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar__top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 14px;
+  font-weight: bold;
+  color: #031F7B;
+  margin-bottom: 1rem;
+}
+
+.sidebar__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* esto empuja el logout al final */
+}
+
+.sidebar__user-icon {
+  font-size: 20px;
+  color: #2c3e50;
+}
+
+.sidebar__menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #031F7B;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.sidebar__icon {
+  font-size: 16px;
+}
+
+.sidebar__item:hover {
+  background-color: #ddd;
+}
+
+.sidebar__item.active {
+  background-color: #f39c12;
+  color: white;
+}
+
+.logout-item {
+  background-color: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #031F7B;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.logout-item:hover {
+  background-color: #f8d7da;
+  color: #c0392b;
+}

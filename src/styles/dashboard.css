@@ -1,0 +1,169 @@
+.dashboard-main {
+  flex: 1;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  font-family: Arial, sans-serif;
+}
+
+.dashboard-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-logo {
+  width: 100px;
+  height: 70px;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-title {
+  font-size: 36px;
+  color: #e67e22;
+  font-weight: bold;
+  text-align: center;
+  font-family: "College", sans-serif;
+  margin: 0 0 20px 0;
+}
+
+.welcome-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.welcome-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.welcome-text {
+  font-size: 18px;
+  margin-bottom: 4px;
+  color: #2c3e50;
+}
+
+.role-text {
+  font-size: 14px;
+  color: #666;
+}
+
+.card-container {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.dashboard-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  flex: 1;
+  min-width: 220px;
+  max-width: 300px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-align: center;
+  position: relative;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-card h3 {
+  color: #2c3e50;
+  font-size: 18px;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-card p {
+  font-size: 16px;
+  color: #555;
+}
+
+.dashboard-card .icon {
+  font-size: 32px;
+  color: #e67e22;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-subtitle {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.dashboard-section {
+  background-color: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.section-title {
+  font-size: 18px;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+  border-left: 4px solid #e67e22;
+  padding-left: 0.5rem;
+}
+
+.progress-bar-background {
+  width: 100%;
+  height: 18px;
+  background-color: #eee;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #e67e22;
+  border-radius: 9px 0 0 9px;
+  transition: width 0.6s ease-in-out;
+}
+
+.progress-text {
+  font-size: 14px;
+  color: #555;
+  margin-top: 0.5rem;
+}
+
+.recent-list {
+  list-style: none;
+  padding-left: 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.recent-list li {
+  margin-bottom: 0.5rem;
+  padding-left: 1.2rem;
+  position: relative;
+}
+
+.recent-list li::before {
+  content: "📌";
+  position: absolute;
+  left: 0;
+  top: 0;
+}
