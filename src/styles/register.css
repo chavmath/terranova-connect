@@ -29,6 +29,11 @@
   margin-bottom: 2rem;
 }
 
+.register-form form {
+  width: 100%;
+  max-width: 400px;
+}
+
 /* CAMPOS */
 .register-form label {
   width: 100%;
@@ -42,9 +47,8 @@
 
 .register-form input {
   width: 100%;
-  max-width: 400px;
   padding: 10px;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1rem;
   border: 2px solid #d2d9f2;
   border-radius: 6px;
   font-size: 14px;
@@ -54,6 +58,55 @@
   border-color: #031f7b;
   outline: none;
 }
+
+.register-form select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 1.2rem;
+  border: 2px solid #d2d9f2;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white;
+  color: #333;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2210%22%20height%3D%225%22%20viewBox%3D%220%200%2010%205%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M0%200l5%205%205-5z%22%20fill%3D%22%23031f7b%22/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+}
+
+.register-form select:focus {
+  border-color: #031f7b;
+  outline: none;
+}
+
+.register-form input[type="file"] {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  font-size: 14px;
+  margin-bottom: 1.2rem;
+  border: 2px solid #d2d9f2;
+  border-radius: 6px;
+  color: #333;
+  background-color: #fff;
+}
+
+.register-form input[type="file"]::file-selector-button {
+  padding: 6px 12px;
+  background-color: #031f7b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  margin-right: 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.register-form input[type="file"]::file-selector-button:hover {
+  background-color: #002a61;
+}
+
 
 .register-form button {
   width: 100%;
@@ -87,4 +140,49 @@
   height: 100vh;
   width: 95%;
   object-fit: cover;
+}
+
+.error-text {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 0px;
+  margin-bottom: 10px;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  padding: 0;
+  font-size: 1rem;
+  text-decoration: underline;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 0px;
+}
+
+.form-group {
+  flex: 1;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group input,
+.form-group label {
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+  }
 }

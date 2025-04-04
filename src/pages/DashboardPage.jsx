@@ -68,14 +68,6 @@ const DashboardPage = () => {
         {/* GRID DE CONTENIDO ADICIONAL */}
         <div className="dashboard-grid">
           <div className="dashboard-section">
-            <h3 className="section-title">Progreso General</h3>
-            <div className="progress-bar-background">
-              <div className="progress-bar-fill" style={{ width: "65%" }}></div>
-            </div>
-            <p className="progress-text">65% completado</p>
-          </div>
-
-          <div className="dashboard-section">
             <h3 className="section-title">Actividades recientes</h3>
             <ul className="recent-list">
               <li>✔ Participación en Feria de Ciencias</li>

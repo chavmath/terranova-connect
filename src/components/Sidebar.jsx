@@ -14,31 +14,41 @@ import {
 } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+const rol = usuario?.rol || "";
+
 const Sidebar = ({ active }) => {
   const navigate = useNavigate();
   const userEmail = "Matheo Chavez";
 
-  const items = [
-    { label: "Inicio", path: "/dashboard", icon: <FaHome /> },
-    {
-      label: "Participar en actividades",
-      path: "/participar",
-      icon: <FaTasks />,
-    },
-    { label: "Mi perfil", path: "/perfil", icon: <FaUser /> },
-    { label: "Publicaciones", path: "/publicaciones", icon: <FaBullhorn /> },
-    { label: "Recompensas", path: "/recompensas", icon: <FaMedal /> },
-    { label: "Configuración", path: "/configuracion", icon: <FaCog /> },
-    {
-      label: "Calendario de actividades",
-      path: "/calendario",
-      icon: <FaCalendarAlt />,
-    },
-    { label: "Estadísticas", path: "/estadisticas", icon: <FaChartBar /> },
-  ];
+
+  const itemsPorRol = {
+    estudiante: [
+      { label: "Inicio", path: "/dashboard", icon: <FaHome /> },
+      { label: "Participar en actividades", path: "/participar", icon: <FaTasks /> },
+      { label: "Mi perfil", path: "/perfil", icon: <FaUser /> },
+      { label: "Publicaciones", path: "/publicaciones", icon: <FaBullhorn /> },
+      { label: "Recompensas", path: "/recompensas", icon: <FaMedal /> },
+      { label: "Calendario de actividades", path: "/calendario", icon: <FaCalendarAlt /> },
+      { label: "Estadísticas", path: "/estadisticas", icon: <FaChartBar /> },    
+      { label: "Configuración", path: "/configuracion", icon: <FaCog /> },
+    ],
+    profesor: [
+      { label: "Inicio", path: "/dashboard", icon: <FaHome /> },
+      { label: "Publicaciones", path: "/publicaciones", icon: <FaBullhorn /> },
+      { label: "Calendario", path: "/calendario", icon: <FaCalendarAlt /> },
+    ],
+    representante: [
+      { label: "Inicio", path: "/dashboard", icon: <FaHome /> },
+      { label: "Mi representado", path: "/perfil", icon: <FaUser /> },
+      { label: "Calendario", path: "/calendario", icon: <FaCalendarAlt /> },
+    ],
+  };
+  
+  const items = itemsPorRol[rol] || [];
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    localStorage.removeItem("usuario");
     navigate("/");
   };
 
