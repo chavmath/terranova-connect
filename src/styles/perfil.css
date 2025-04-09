@@ -407,3 +407,26 @@
   color: #999;
   margin-top: 4px;
 }
+
+/* Botón seguir */
+.follow-button {
+  background-color: #031f7b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-left: 1rem;
+}
+
+.follow-button:hover {
+  background-color: #213a91;
+}
+
+.follow-button.following {
+  background-color: #ccc;
+  color: #333;
+}

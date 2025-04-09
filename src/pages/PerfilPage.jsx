@@ -14,10 +14,10 @@ const PerfilPage = () => {
     const cargarDatos = async () => {
       try {
         const [pubsRes, userRes] = await Promise.all([
-          fetch("http://localhost:4000/mis-publicaciones", {
+          fetch("http://localhost:3000/mis-publicaciones", {
             credentials: "include",
           }),
-          fetch("http://localhost:3000/api/profile", {
+          fetch("http://localhost:3000/profile", {
             credentials: "include",
           }),
         ]);
@@ -45,7 +45,7 @@ const PerfilPage = () => {
 
       try {
         const res = await fetch(
-          `http://localhost:4000/publicaciones/${selectedPost.id_publicacion}/comentarios`,
+          `http://localhost:3000/publicaciones/${selectedPost.id_publicacion}/comentarios`,
           { credentials: "include" }
         );
         const data = await res.json();
@@ -65,7 +65,7 @@ const PerfilPage = () => {
 
             if (!autor) {
               const resAutor = await fetch(
-                `http://localhost:3000/api/usuarios/${comentario.autorId}`,
+                `http://localhost:3000/usuarios/${comentario.autorId}`,
                 { credentials: "include" }
               );
               if (resAutor.ok) {
@@ -114,7 +114,7 @@ const PerfilPage = () => {
 
     // Llamada al backend
     fetch(
-      `http://localhost:4000/publicaciones/${selectedPost.id_publicacion}/like`,
+      `http://localhost:3000/publicaciones/${selectedPost.id_publicacion}/like`,
       {
         method: "POST",
         credentials: "include",
@@ -131,7 +131,7 @@ const PerfilPage = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:4000/publicaciones/${selectedPost.id_publicacion}/comentarios`,
+        `http://localhost:3000/publicaciones/${selectedPost.id_publicacion}/comentarios`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -149,7 +149,7 @@ const PerfilPage = () => {
 
         // Vuelve a cargar todos los comentarios incluyendo autor
         const resComentarios = await fetch(
-          `http://localhost:4000/publicaciones/${selectedPost.id_publicacion}/comentarios`,
+          `http://localhost:3000/publicaciones/${selectedPost.id_publicacion}/comentarios`,
           { credentials: "include" }
         );
         const dataComentarios = await resComentarios.json();
@@ -162,7 +162,7 @@ const PerfilPage = () => {
 
               if (!autor) {
                 const resAutor = await fetch(
-                  `http://localhost:3000/api/usuarios/${comentario.autorId}`,
+                  `http://localhost:3000/usuarios/${comentario.autorId}`,
                   { credentials: "include" }
                 );
                 if (resAutor.ok) {

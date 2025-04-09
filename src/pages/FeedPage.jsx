@@ -20,7 +20,7 @@ const FeedPage = () => {
   useEffect(() => {
     const obtenerPublicaciones = async () => {
       try {
-        const res = await fetch("http://localhost:4000/publicaciones", {
+        const res = await fetch("http://localhost:3000/publicaciones", {
           credentials: "include",
         });
         const publicacionesRaw = await res.json();
@@ -43,7 +43,7 @@ const FeedPage = () => {
             if (!autor) {
               try {
                 const resAutor = await fetch(
-                  `http://localhost:3000/api/usuarios/${pub.autorId}`,
+                  `http://localhost:3000/usuarios/${pub.autorId}`,
                   { credentials: "include" }
                 );
 
@@ -90,7 +90,7 @@ const FeedPage = () => {
 
     try {
       await fetch(
-        `http://localhost:4000/publicaciones/${id_publicacion}/like`,
+        `http://localhost:3000/publicaciones/${id_publicacion}/like`,
         {
           method: "POST",
           credentials: "include",
@@ -100,6 +100,8 @@ const FeedPage = () => {
       console.error("Error al dar like:", err);
     }
   };
+  const avatarPorDefecto =
+    "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
   // ➕ Crear publicación
   const handlePublicar = async () => {
@@ -122,7 +124,7 @@ const FeedPage = () => {
     });
 
     try {
-      const res = await fetch("http://localhost:4000/publicaciones", {
+      const res = await fetch("http://localhost:3000/publicaciones", {
         method: "POST",
         body: formData,
         credentials: "include",
@@ -133,13 +135,39 @@ const FeedPage = () => {
 
       if (res.ok) {
         Swal.fire("¡Publicado!", "Tu publicación ha sido guardada", "success");
-        setPublicaciones([data, ...publicaciones]);
+        try {
+          const resAutor = await fetch(
+            `http://localhost:3000/usuarios/${data.autorId}`,
+            { credentials: "include" }
+          );
+
+          const autor = resAutor.ok ? await resAutor.json() : null;
+
+          const nuevaPublicacion = {
+            ...data,
+            autor,
+          };
+
+          setPublicaciones([nuevaPublicacion, ...publicaciones]);
+        } catch (err) {
+          console.warn(
+            "No se pudo cargar el autor de la nueva publicación",
+            err
+          );
+          setPublicaciones([{ ...data, autor: null }, ...publicaciones]);
+        }
+
         setNuevaDescripcion("");
         setArchivos(null);
         setPreviews([]);
         setPreviewActivo(null);
       } else {
         Swal.fire("Error", data.error || "No se pudo publicar", "error");
+
+        setNuevaDescripcion("");
+        setArchivos(null);
+        setPreviews([]);
+        setPreviewActivo(null);
       }
     } catch (error) {
       console.error(error);
@@ -148,10 +176,18 @@ const FeedPage = () => {
     }
   };
 
+  const cerrarModalPublicacion = () => {
+    setMostrarModal(false);
+    setNuevaDescripcion("");
+    setArchivos(null);
+    setPreviews([]);
+    setPreviewActivo(null);
+  };
+
   const cargarComentarios = async (id_publicacion) => {
     try {
       const res = await fetch(
-        `http://localhost:4000/publicaciones/${id_publicacion}/comentarios`,
+        `http://localhost:3000/publicaciones/${id_publicacion}/comentarios`,
         { credentials: "include" }
       );
       const data = await res.json();
@@ -180,6 +216,11 @@ const FeedPage = () => {
               }
             } catch (err) {
               console.warn("Error al obtener autor del comentario", err);
+              Swal.fire(
+                "Error",
+                "No se pudo cargar el autor del comentario",
+                "error"
+              );
             }
           }
 
@@ -196,6 +237,7 @@ const FeedPage = () => {
       }));
     } catch (err) {
       console.error("Error al cargar comentarios:", err);
+      Swal.fire("Error", "Fallo la conexión con el servidor", "error");
     }
   };
 
@@ -206,7 +248,7 @@ const FeedPage = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:4000/publicaciones/${id_publicacion}/comentarios`,
+        `http://localhost:3000/publicaciones/${id_publicacion}/comentarios`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -224,9 +266,15 @@ const FeedPage = () => {
         }));
       } else {
         console.error("Error al comentar:", data.error);
+        Swal.fire(
+          "Error",
+          data.error || "No se pudo enviar el comentario",
+          "error"
+        );
       }
     } catch (err) {
       console.error("Error al enviar comentario:", err);
+      Swal.fire("Error", "Hubo un problema con el servidor", "error");
     }
   };
 
@@ -258,12 +306,14 @@ const FeedPage = () => {
             <div className="feed-header">
               <img
                 src={
-                  pub.autor?.foto_perfil?.[0]?.url ||
-                  "https://via.placeholder.com/150"
+                  pub.autor?.foto_perfil?.[0]?.url
+                    ? pub.autor.foto_perfil[0].url
+                    : avatarPorDefecto
                 }
                 alt="avatar"
                 className="feed-avatar"
               />
+
               <div>
                 <p
                   className="feed-author clickable"
@@ -377,7 +427,7 @@ const FeedPage = () => {
 
       {/* MODAL */}
       {mostrarModal && (
-        <div className="modal-overlay" onClick={() => setMostrarModal(false)}>
+        <div className="modal-overlay" onClick={cerrarModalPublicacion}>
           <div className="modal-publicar" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <img
@@ -466,10 +516,7 @@ const FeedPage = () => {
               <button className="publicar-btn" onClick={handlePublicar}>
                 Publicar
               </button>
-              <button
-                className="cancelar"
-                onClick={() => setMostrarModal(false)}
-              >
+              <button className="cancelar" onClick={cerrarModalPublicacion}>
                 Cancelar
               </button>
             </div>

@@ -29,7 +29,7 @@ const LoginPage = () => {
     });
 
     try {
-      const res = await fetch("http://localhost:3000/api/login", {
+      const res = await fetch("http://localhost:3000/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -81,7 +81,7 @@ const LoginPage = () => {
     });
 
     try {
-      const res = await fetch("http://localhost:3000/api/2fa", {
+      const res = await fetch("http://localhost:3000/2fa", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

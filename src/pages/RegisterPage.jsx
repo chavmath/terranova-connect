@@ -88,7 +88,7 @@ const RegisterPage = () => {
     await new Promise((resolve) => setTimeout(resolve, 100)); // <- ¡importante!
 
     try {
-      const response = await fetch("http://localhost:3000/api/register-temp", {
+      const response = await fetch("http://localhost:3000/register-temp", {
         method: "POST",
         body: formToSend,
         credentials: "include",
@@ -138,7 +138,7 @@ const RegisterPage = () => {
     });
 
     try {
-      const res = await fetch("http://localhost:3000/api/verify-email", {
+      const res = await fetch("http://localhost:3000/verify-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
