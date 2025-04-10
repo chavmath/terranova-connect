@@ -3,6 +3,8 @@ import Sidebar from "../components/Sidebar";
 import "../styles/feed.css";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import Cookies from 'js-cookie'; // agrego esto matias
+
 
 const FeedPage = () => {
   const [publicaciones, setPublicaciones] = useState([]);
@@ -20,11 +22,26 @@ const FeedPage = () => {
   useEffect(() => {
     const obtenerPublicaciones = async () => {
       try {
+        // Obtener el token de la cookie
+        const token = Cookies.get('token'); // Suponiendo que el token está en la cookie bajo el nombre 'token' // yo agrege matias
+  
+        // Si no hay token, puedes manejarlo como un error o redirigir al usuario a iniciar sesión
+        if (!token) {
+          Swal.fire("Error", "No se encuentra el token de autenticación", "error");
+          return;
+        }
+  
         const res = await fetch("http://localhost:3000/publicaciones", {
-          credentials: "include",
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
+            'Content-Type': 'application/json',
+          },
+          credentials: "include", // Si necesitas enviar cookies junto con la solicitud
         });
+  
         const publicacionesRaw = await res.json();
-
+  
         if (!res.ok) {
           Swal.fire(
             "Error",
@@ -33,47 +50,53 @@ const FeedPage = () => {
           );
           return;
         }
-
-        const autorCache = new Map(); // 🧠 Cache para no repetir fetch
-
+  
+        const autorCache = new Map(); // Cache para no repetir fetch
+  
         const publicacionesConAutor = await Promise.all(
           publicacionesRaw.map(async (pub) => {
             let autor = autorCache.get(pub.autorId);
-
+  
             if (!autor) {
               try {
                 const resAutor = await fetch(
                   `http://localhost:3000/usuarios/${pub.autorId}`,
-                  { credentials: "include" }
+                  { 
+                    method: 'GET',
+                    headers: {
+                      'Authorization': `Bearer ${token}`, // Agregar el token para el autor también
+                      'Content-Type': 'application/json',
+                    },
+                    credentials: "include", 
+                  }
                 );
-
+  
                 if (resAutor.ok) {
                   autor = await resAutor.json();
-                  autorCache.set(pub.autorId, autor); // guardamos en cache
+                  autorCache.set(pub.autorId, autor); // Guardamos en cache
                 }
               } catch (err) {
                 console.warn("Error al obtener autor", pub.autorId, err);
               }
             }
-
+  
             return {
               ...pub,
               autor: autor || null,
             };
           })
         );
-
+  
         setPublicaciones(publicacionesConAutor);
       } catch (err) {
         console.error("Error al obtener publicaciones:", err);
         Swal.fire("Error", "Fallo la conexión con el servidor", "error");
       }
     };
-
+  
     obtenerPublicaciones();
   }, []);
-
-  // ❤️ Like a publicación
+  // Like a publicación
   const toggleLike = async (id_publicacion) => {
     const updated = publicaciones.map((pub) =>
       pub.id_publicacion === id_publicacion

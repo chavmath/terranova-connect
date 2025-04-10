@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "../styles/login.css";
 import logo from "../assets/logo_azul.png";
 import Swal from "sweetalert2";
+import Cookies from "js-cookie";
 
 const LoginPage = () => {
   const [form, setForm] = useState({ correo: "", contrasenia: "" });
@@ -69,6 +70,7 @@ const LoginPage = () => {
 
   const handleCodigoSubmit = async (e) => {
     e.preventDefault();
+
     Swal.fire({
       title: "Cargando...",
       text: "Verificando el código",
@@ -79,8 +81,12 @@ const LoginPage = () => {
         Swal.showLoading();
       },
     });
+  
 
     try {
+      
+  
+      
       const res = await fetch("http://localhost:3000/2fa", {
         method: "POST",
         headers: {
@@ -91,10 +97,12 @@ const LoginPage = () => {
       });
 
       const data = await res.json();
+      console.log(res);
       Swal.close();
 
       if (res.ok) {
         localStorage.setItem("usuario", JSON.stringify(data.usuario));
+        Cookies.set('token', data.usuario.token);// cambio mio matias
         Swal.fire({
           icon: "success",
           title: "¡Bienvenido!",
