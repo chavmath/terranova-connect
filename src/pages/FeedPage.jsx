@@ -146,9 +146,15 @@ const FeedPage = () => {
       didOpen: () => Swal.showLoading(),
     });
 
+    const token = Cookies.get('token');
+
     try {
       const res = await fetch("http://localhost:3000/publicaciones", {
         method: "POST",
+        headers: {
+          'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
+          'Content-Type': 'application/json',
+        },
         body: formData,
         credentials: "include",
       });
@@ -208,10 +214,16 @@ const FeedPage = () => {
   };
 
   const cargarComentarios = async (id_publicacion) => {
+    const token = Cookies.get('token');
     try {
       const res = await fetch(
         `http://localhost:3000/publicaciones/${id_publicacion}/comentarios`,
-        { credentials: "include" }
+        {
+          headers: {
+          'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
+          'Content-Type': 'application/json',
+        },
+           credentials: "include" }
       );
       const data = await res.json();
 
@@ -231,7 +243,12 @@ const FeedPage = () => {
             try {
               const resAutor = await fetch(
                 `http://localhost:3000/api/usuarios/${comentario.autorId}`,
-                { credentials: "include" }
+                {
+                  headers: {
+                    'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
+                    'Content-Type': 'application/json',
+                  },
+                   credentials: "include" }
               );
               if (resAutor.ok) {
                 autor = await resAutor.json();
@@ -270,11 +287,15 @@ const FeedPage = () => {
     if (!texto?.trim()) return;
 
     try {
+      const token = Cookies.get('token');
       const res = await fetch(
         `http://localhost:3000/publicaciones/${id_publicacion}/comentarios`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
+            'Content-Type': 'application/json',
+          },
           credentials: "include",
           body: JSON.stringify({ texto, publicacionId: id_publicacion }), // 👈 Incluido aquí
         }

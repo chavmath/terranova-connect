@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import "../styles/perfil.css";
+import Cookies from "js-cookie";
 
 const PerfilPage = () => {
   const [publicaciones, setPublicaciones] = useState([]);
@@ -13,11 +14,20 @@ const PerfilPage = () => {
   useEffect(() => {
     const cargarDatos = async () => {
       try {
+        const token = Cookies.get('token');
         const [pubsRes, userRes] = await Promise.all([
           fetch("http://localhost:3000/mis-publicaciones", {
+            headers: {
+              'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
+              'Content-Type': 'application/json',
+            },
             credentials: "include",
           }),
           fetch("http://localhost:3000/profile", {
+            headers: {
+              'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
+              'Content-Type': 'application/json',
+            },
             credentials: "include",
           }),
         ]);
@@ -42,11 +52,17 @@ const PerfilPage = () => {
   useEffect(() => {
     const cargarComentarios = async () => {
       if (!selectedPost) return;
+      const token = Cookies.get('token');
 
       try {
         const res = await fetch(
           `http://localhost:3000/publicaciones/${selectedPost.id_publicacion}/comentarios`,
-          { credentials: "include" }
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
+              'Content-Type': 'application/json',
+            },
+            credentials: "include" }
         );
         const data = await res.json();
 
@@ -66,7 +82,12 @@ const PerfilPage = () => {
             if (!autor) {
               const resAutor = await fetch(
                 `http://localhost:3000/usuarios/${comentario.autorId}`,
-                { credentials: "include" }
+                {
+                  headers: {
+                    'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
+                    'Content-Type': 'application/json',
+                  },
+                  credentials: "include" }
               );
               if (resAutor.ok) {
                 autor = await resAutor.json();
@@ -111,11 +132,15 @@ const PerfilPage = () => {
       pub.id_publicacion === selectedPost.id_publicacion ? nuevoEstado : pub
     );
     setPublicaciones(publicacionesActualizadas);
-
+    const token = Cookies.get('token');
     // Llamada al backend
     fetch(
       `http://localhost:3000/publicaciones/${selectedPost.id_publicacion}/like`,
       {
+        headers: {
+          'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
+          'Content-Type': 'application/json',
+        },
         method: "POST",
         credentials: "include",
       }
@@ -128,13 +153,16 @@ const PerfilPage = () => {
     e.preventDefault();
     const texto = nuevoComentario.trim();
     if (!texto || !selectedPost) return;
-
+    const token = Cookies.get('token');
     try {
       const res = await fetch(
         `http://localhost:3000/publicaciones/${selectedPost.id_publicacion}/comentarios`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
+            'Content-Type': 'application/json',
+          },
           credentials: "include",
           body: JSON.stringify({
             texto,
@@ -150,7 +178,12 @@ const PerfilPage = () => {
         // Vuelve a cargar todos los comentarios incluyendo autor
         const resComentarios = await fetch(
           `http://localhost:3000/publicaciones/${selectedPost.id_publicacion}/comentarios`,
-          { credentials: "include" }
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
+              'Content-Type': 'application/json',
+            },
+            credentials: "include" }
         );
         const dataComentarios = await resComentarios.json();
         if (resComentarios.ok) {
@@ -163,7 +196,12 @@ const PerfilPage = () => {
               if (!autor) {
                 const resAutor = await fetch(
                   `http://localhost:3000/usuarios/${comentario.autorId}`,
-                  { credentials: "include" }
+                  {
+                    headers: {
+                      'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
+                      'Content-Type': 'application/json',
+                    },
+                    credentials: "include" }
                 );
                 if (resAutor.ok) {
                   autor = await resAutor.json();
