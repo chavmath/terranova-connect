@@ -95,6 +95,9 @@ const Sidebar = () => {
       { label: "Mi representado", path: "/perfil", icon: <FaUser /> },
       { label: "Calendario", path: "/calendario", icon: <FaCalendarAlt /> },
     ],
+    administrador: [
+      { label: "Configuración", path: "/configuracion", icon: <FaCog /> },
+    ],
   };
   const items = itemsPorRol[rol.toLowerCase()] || [];
 

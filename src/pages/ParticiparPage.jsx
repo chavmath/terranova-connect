@@ -15,7 +15,7 @@ const ParticiparPage = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [actividades, setActividades] = useState([]);
+  const [misiones, setMisiones] = useState([]);
   const [inscritas, setInscritas] = useState([]);
   const [actividadSeleccionada, setActividadSeleccionada] = useState(null);
   const [toast, setToast] = useState({
@@ -29,14 +29,7 @@ const ParticiparPage = () => {
       try {
         const token = Cookies.get("token");
 
-        const [actRes, misRes, activasRes] = await Promise.all([
-          fetch("http://localhost:3000/actividades", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-          }),
+        const [misRes, activasRes] = await Promise.all([
           fetch("http://localhost:3000/misiones", {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -53,35 +46,18 @@ const ParticiparPage = () => {
           }),
         ]);
 
-        const actividadesData = await actRes.json();
         const misionesData = await misRes.json();
         const activasData = await activasRes.json();
 
         setInscritas(activasData); // Guardamos inscripciones para el select
 
-        const actividadesInscritas = new Set(
-          activasData.map((a) => a.id_actividad)
-        );
         const misionesInscritas = new Set(activasData.map((a) => a.id_mision));
-
-        const actividadesFormateadas = actividadesData.map((a) => ({
-          id: a.id_actividad,
-          nombre: a.titulo,
-          descripcion: a.descripcion,
-          puntos: a.puntos ?? 0,
-          duracion: a.duracion ?? "No especificada",
-          modalidad: a.modalidad ?? "Individual",
-          tipo: "Actividad",
-          estado: actividadesInscritas.has(a.id_actividad)
-            ? "En progreso"
-            : "Inscribirse",
-        }));
 
         const misionesFormateadas = misionesData.misiones.map((m) => ({
           id: m.id_mision,
           nombre: m.titulo,
           descripcion: m.descripcion,
-          puntos: m.puntos ?? 0,
+          puntos: m.puntos,
           duracion: m.duracion ?? "No especificada",
           modalidad: m.modalidad ?? "Individual",
           tipo: "Misión",
@@ -90,9 +66,9 @@ const ParticiparPage = () => {
             : "Inscribirse",
         }));
 
-        setActividades([...actividadesFormateadas, ...misionesFormateadas]);
+        setMisiones(misionesFormateadas); // Solo establecemos las misiones
       } catch (err) {
-        console.error("Error al cargar datos:", err);
+        console.error("Error al cargar misiones:", err);
       }
     };
 
@@ -107,14 +83,11 @@ const ParticiparPage = () => {
     );
   };
 
-  const handleInscripcion = async (actividad) => {
+  const handleInscripcion = async (mision) => {
     const token = Cookies.get("token");
 
     try {
-      const body =
-        actividad.tipo === "Actividad"
-          ? { id_actividad: actividad.id }
-          : { id_mision: actividad.id };
+      const body = { id_mision: mision.id };
 
       const res = await fetch("http://localhost:3000/subir", {
         method: "POST",
@@ -128,10 +101,10 @@ const ParticiparPage = () => {
 
       if (!res.ok) throw new Error("No se pudo inscribir");
 
-      const actualizadas = actividades.map((a) =>
-        a.id === actividad.id ? { ...a, estado: "En progreso" } : a
+      const actualizadas = misiones.map((m) =>
+        m.id === mision.id ? { ...m, estado: "En progreso" } : m
       );
-      setActividades(actualizadas);
+      setMisiones(actualizadas);
       setActividadSeleccionada(null);
       showToast("✅ Inscripción realizada con éxito");
     } catch (err) {
@@ -205,29 +178,32 @@ const ParticiparPage = () => {
 
       <main className="participar-main">
         <div className="participar-header">
-          <h2 className="participar-title">Participar en Actividades</h2>
+          <h2 className="participar-title">Participar en Misiones</h2>
           <p className="participar-subtitle">
-            Sube tu participación y/o inscríbete en una actividad para ganar
-            insignias y puntos por tu esfuerzo
+            Sube tu participación y/o inscríbete en una misión para ganar
+            insignias y puntos por tu esfuerzo.
           </p>
         </div>
 
         <div className="participar-content-container">
           <form className="participar-form" onSubmit={handleSubmit}>
             <label>
-              Actividad inscrita:
+              Misión inscrita:
               <select
                 name="id_inscripcion"
                 value={formData.id_inscripcion}
                 onChange={handleChange}
                 className={errors.id_inscripcion ? "input-error" : ""}
               >
-                <option value="">Selecciona una actividad o misión</option>
-                {inscritas.map((i) => (
-                  <option key={i._id} value={i._id}>
-                    {i.titulo}
-                  </option>
-                ))}
+                <option value="">Selecciona una misión</option>
+                {inscritas.map(
+                  (i) =>
+                    i.id_mision && (
+                      <option key={i._id} value={i.id_mision}>
+                        {i.titulo}
+                      </option>
+                    )
+                )}
               </select>
             </label>
 
@@ -291,34 +267,32 @@ const ParticiparPage = () => {
             )}
           </form>
 
-          <h3 className="actividad-titulo-seccion">
-            Actividades y Misiones Escolares
-          </h3>
+          <h3 className="actividad-titulo-seccion">Misiones Escolares</h3>
           <div className="actividad-grid">
-            {actividades.map((a) => (
-              <div key={a.id} className="actividad-card">
+            {misiones.map((m) => (
+              <div key={m.id} className="actividad-card">
                 <div className="actividad-header">
-                  <h4 className="actividad-nombre">{a.nombre}</h4>
-                  <span className={`actividad-tipo ${a.tipo.toLowerCase()}`}>
-                    {a.tipo}
+                  <h4 className="actividad-nombre">{m.nombre}</h4>
+                  <span className={`actividad-tipo ${m.tipo.toLowerCase()}`}>
+                    {m.tipo}
                   </span>
                 </div>
-                <p className="actividad-descripcion">{a.descripcion}</p>
+                <p className="actividad-descripcion">{m.descripcion}</p>
 
                 <div className="actividad-detalles">
-                  <span>⭐ {a.puntos} puntos</span>
-                  <span>⏱️ {a.duracion}</span>
-                  <span>👥 {a.modalidad}</span>
+                  <span>⭐ {m.puntos} puntos</span>
+                  <span>⏱️ {m.duracion}</span>
+                  <span>👥 {m.modalidad}</span>
                 </div>
 
                 <button
-                  className={`actividad-boton ${a.estado.toLowerCase()}`}
-                  disabled={a.estado !== "Inscribirse"}
+                  className={`actividad-boton ${m.estado.toLowerCase()}`}
+                  disabled={m.estado !== "Inscribirse"}
                   onClick={() =>
-                    a.estado === "Inscribirse" && setActividadSeleccionada(a)
+                    m.estado === "Inscribirse" && setActividadSeleccionada(m)
                   }
                 >
-                  {a.estado}
+                  {m.estado}
                 </button>
               </div>
             ))}
@@ -339,7 +313,7 @@ const ParticiparPage = () => {
                 >
                   ✖
                 </button>
-                <h3>¿Deseas inscribirte en esta actividad?</h3>
+                <h3>¿Deseas inscribirte en esta misión?</h3>
                 <p>
                   <strong>{actividadSeleccionada.nombre}</strong>
                 </p>
