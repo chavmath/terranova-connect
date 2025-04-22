@@ -10,6 +10,7 @@ import CalendarPage from "./pages/CalendarPage";
 import RegisterPage from "./pages/RegisterPage";
 import RutaProtegida from "./components/RutaProtegida";
 import RutaPublica from "./components/RutaPublica";
+import ConfiguracionPage from "./pages/ConfiguracionPage";
 
 
 function App() {
@@ -19,13 +20,13 @@ function App() {
       <Route path="/dashboard" element={<RutaProtegida> <DashboardPage /></RutaProtegida>} />
       <Route path="/participar" element={<RutaProtegida> <ParticiparPage /></RutaProtegida>} />
       <Route path="/perfil" element={<RutaProtegida> <PerfilPage /></RutaProtegida>} />
-      <Route path="/perfil/:username" element={<RutaProtegida> <PublicProfilePage /></RutaProtegida>} />
+      <Route path="/perfil/:userId" element={<RutaProtegida> <PublicProfilePage /></RutaProtegida>} />
       <Route path="/publicaciones" element={<RutaProtegida> <FeedPage /></RutaProtegida>} />
       <Route path="/recompensas" element={<RutaProtegida> <RewardsPage /></RutaProtegida>} />
       <Route path="/calendario" element={<RutaProtegida> <CalendarPage /></RutaProtegida>} />
       <Route path="/registro" element={<RutaPublica><RegisterPage /></RutaPublica>} />
-      {/* <Route path="/configuracion" element={<div>Configuración</div>} />
-      <Route path="/estadisticas" element={<div>Estadísticas</div>} /> */}
+      <Route path="/configuracion" element={<RutaProtegida> <ConfiguracionPage /></RutaProtegida>} />
+      {/* <Route path="/estadisticas" element={<div>Estadísticas</div>} /> */}
     </Routes>
   );
 }

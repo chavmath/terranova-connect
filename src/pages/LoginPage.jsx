@@ -101,7 +101,6 @@ const LoginPage = () => {
       Swal.close();
 
       if (res.ok) {
-        localStorage.setItem("usuario", JSON.stringify(data.usuario));
         Cookies.set('token', data.usuario.token);// cambio mio matias
         Swal.fire({
           icon: "success",

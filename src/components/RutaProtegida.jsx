@@ -1,13 +1,13 @@
+// src/components/RutaProtegida.jsx
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { isLoggedIn } from "../utils/auth";
 
 const RutaProtegida = ({ children }) => {
-  const usuario = JSON.parse(localStorage.getItem("usuario"));
-
-  if (!usuario || usuario.estado !== "activo") {
+  if (!isLoggedIn()) {
+    // Si no está autenticado o el token expiró, va al login
     return <Navigate to="/" replace />;
   }
-
   return children;
 };
 

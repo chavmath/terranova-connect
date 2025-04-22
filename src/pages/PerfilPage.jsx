@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import "../styles/perfil.css";
 import Cookies from "js-cookie";
+import Swal from "sweetalert2";
 
 const PerfilPage = () => {
   const [publicaciones, setPublicaciones] = useState([]);
@@ -14,19 +15,19 @@ const PerfilPage = () => {
   useEffect(() => {
     const cargarDatos = async () => {
       try {
-        const token = Cookies.get('token');
+        const token = Cookies.get("token");
         const [pubsRes, userRes] = await Promise.all([
           fetch("http://localhost:3000/mis-publicaciones", {
             headers: {
-              'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
-              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+              "Content-Type": "application/json",
             },
             credentials: "include",
           }),
           fetch("http://localhost:3000/profile", {
             headers: {
-              'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
-              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+              "Content-Type": "application/json",
             },
             credentials: "include",
           }),
@@ -52,17 +53,18 @@ const PerfilPage = () => {
   useEffect(() => {
     const cargarComentarios = async () => {
       if (!selectedPost) return;
-      const token = Cookies.get('token');
+      const token = Cookies.get("token");
 
       try {
         const res = await fetch(
           `http://localhost:3000/publicaciones/${selectedPost.id_publicacion}/comentarios`,
           {
             headers: {
-              'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
-              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+              "Content-Type": "application/json",
             },
-            credentials: "include" }
+            credentials: "include",
+          }
         );
         const data = await res.json();
 
@@ -81,13 +83,14 @@ const PerfilPage = () => {
 
             if (!autor) {
               const resAutor = await fetch(
-                `http://localhost:3000/usuarios/${comentario.autorId}`,
+                `http://localhost:3000/usuario/${comentario.autorId}`,
                 {
                   headers: {
-                    'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
-                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+                    "Content-Type": "application/json",
                   },
-                  credentials: "include" }
+                  credentials: "include",
+                }
               );
               if (resAutor.ok) {
                 autor = await resAutor.json();
@@ -132,14 +135,14 @@ const PerfilPage = () => {
       pub.id_publicacion === selectedPost.id_publicacion ? nuevoEstado : pub
     );
     setPublicaciones(publicacionesActualizadas);
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
     // Llamada al backend
     fetch(
       `http://localhost:3000/publicaciones/${selectedPost.id_publicacion}/like`,
       {
         headers: {
-          'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+          "Content-Type": "application/json",
         },
         method: "POST",
         credentials: "include",
@@ -153,15 +156,15 @@ const PerfilPage = () => {
     e.preventDefault();
     const texto = nuevoComentario.trim();
     if (!texto || !selectedPost) return;
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
     try {
       const res = await fetch(
         `http://localhost:3000/publicaciones/${selectedPost.id_publicacion}/comentarios`,
         {
           method: "POST",
           headers: {
-            'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+            "Content-Type": "application/json",
           },
           credentials: "include",
           body: JSON.stringify({
@@ -180,10 +183,11 @@ const PerfilPage = () => {
           `http://localhost:3000/publicaciones/${selectedPost.id_publicacion}/comentarios`,
           {
             headers: {
-              'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
-              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+              "Content-Type": "application/json",
             },
-            credentials: "include" }
+            credentials: "include",
+          }
         );
         const dataComentarios = await resComentarios.json();
         if (resComentarios.ok) {
@@ -195,13 +199,14 @@ const PerfilPage = () => {
 
               if (!autor) {
                 const resAutor = await fetch(
-                  `http://localhost:3000/usuarios/${comentario.autorId}`,
+                  `http://localhost:3000/usuario/${comentario.autorId}`,
                   {
                     headers: {
-                      'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
-                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+                      "Content-Type": "application/json",
                     },
-                    credentials: "include" }
+                    credentials: "include",
+                  }
                 );
                 if (resAutor.ok) {
                   autor = await resAutor.json();
@@ -223,9 +228,15 @@ const PerfilPage = () => {
         }
       } else {
         console.error("Error al comentar:", data.error);
+        Swal.fire(
+          "Error",
+          data.error || "No se pudo crear el comentario",
+          "error"
+        );
       }
     } catch (err) {
       console.error("Error al enviar comentario:", err);
+      Swal.fire("Error", "Hubo un problema al enviar el comentario", "error");
     }
   };
 
@@ -248,9 +259,8 @@ const PerfilPage = () => {
     const semanas = Math.floor(dias / 7);
     return `Hace ${semanas} semana${semanas !== 1 ? "s" : ""}`;
   };
-
-  const avatarUrl =
-    user?.foto_perfil?.[0]?.url || "https://via.placeholder.com/150";
+  /* const avatarPorDefecto =
+    "https://cdn-icons-png.flaticon.com/512/149/149071.png"; */
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
@@ -259,7 +269,7 @@ const PerfilPage = () => {
       <main className="perfil-main">
         {/* PERFIL */}
         <div className="perfil-ig-header">
-          <img src={avatarUrl} alt="Avatar" className="perfil-ig-avatar" />
+          <img src={user?.foto_perfil} alt="" className="perfil-ig-avatar" />
 
           <div className="perfil-ig-info">
             <h2 className="perfil-ig-nombre">
@@ -323,7 +333,11 @@ const PerfilPage = () => {
             <div className="modal-right">
               {/* Header usuario */}
               <div className="ig-header">
-                <img src={avatarUrl} alt="avatar" className="ig-avatar" />
+                <img
+                  src={user?.foto_perfil}
+                  alt="avatar"
+                  className="ig-avatar"
+                />
                 <span className="ig-username">
                   @{user?.nombre} {user?.apellido}
                 </span>
@@ -341,7 +355,11 @@ const PerfilPage = () => {
 
               {/* Descripción */}
               <div className="ig-post-description">
-                <img src={avatarUrl} alt="avatar" className="ig-avatar" />
+                <img
+                  src={user?.foto_perfil}
+                  alt="avatar"
+                  className="ig-avatar"
+                />
                 <div>
                   <p>
                     <strong>

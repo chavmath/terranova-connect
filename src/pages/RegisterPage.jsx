@@ -10,7 +10,6 @@ const RegisterPage = () => {
     correo: "",
     password: "",
     fechaNacimiento: "",
-    rol: "",
     archivo: null,
   });
 
@@ -43,9 +42,9 @@ const RegisterPage = () => {
       errores.password = "Debe contener un carácter especial permitido";
     }
   
-    if (!formData.rol) {
+    /* if (!formData.rol) {
       errores.rol = "Debes seleccionar un rol";
-    }
+    } */
   
     return errores;
   };  
@@ -71,7 +70,7 @@ const RegisterPage = () => {
     formToSend.append("correo", formData.correo);
     formToSend.append("contrasenia", formData.password);
     formToSend.append("fecha_nacimiento", formData.fechaNacimiento);
-    formToSend.append("rol", formData.rol);
+    /* formToSend.append("rol", formData.rol); */
     if (formData.archivo) {
       formToSend.append("files", formData.archivo);
     }
@@ -242,7 +241,7 @@ const RegisterPage = () => {
               </div>
             </div>
 
-            <label>Rol</label>
+            {/* <label>Rol</label>
             <select
               name="rol"
               value={formData.rol}
@@ -253,7 +252,7 @@ const RegisterPage = () => {
               <option value="estudiante">Estudiante</option>
               <option value="profesor">Profesor</option>
               <option value="representante">Representante</option>
-            </select>
+            </select> */}
             {errors.rol && <p className="error-text">{errors.rol}</p>}
 
             <label>Foto de perfil</label>

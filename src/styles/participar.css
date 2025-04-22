@@ -330,3 +330,64 @@
 .cancelar-boton:hover {
   background-color: #ccc;
 }
+
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #031f7b;
+  color: white;
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  z-index: 9999;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  animation: slideFadeIn 0.4s forwards, slideFadeOut 0.4s ease-out 2.6s;
+}
+
+.toast--error {
+  background-color: #e74c3c;
+}
+
+@keyframes slideFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes slideFadeOut {
+  to {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+}
+
+.participar-form select {
+  width: 100%;
+  padding: 10px 12px;
+  margin-top: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='12' viewBox='0 0 24 24' width='12' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+}
+
+.participar-form select:focus {
+  border-color: #031f7b;
+  box-shadow: 0 0 0 2px rgba(3, 31, 123, 0.1);
+  outline: none;
+}

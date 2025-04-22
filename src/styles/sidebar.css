@@ -12,23 +12,44 @@
 .sidebar__top {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.sidebar__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sidebar__user-icon {
+  font-size: 40px;
+  color: #2c3e50;
+}
+
+.sidebar__user-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.sidebar__name {
   font-size: 14px;
   font-weight: bold;
-  color: #031F7B;
-  margin-bottom: 1rem;
+  color: #031f7b;
+}
+
+.sidebar__email {
+  font-size: 12px;
+  color: #555;
 }
 
 .sidebar__content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* esto empuja el logout al final */
-}
-
-.sidebar__user-icon {
-  font-size: 20px;
-  color: #2c3e50;
+  justify-content: space-between;
 }
 
 .sidebar__menu {
@@ -45,7 +66,7 @@
   margin-bottom: 0.5rem;
   border-radius: 4px;
   text-decoration: none;
-  color: #031F7B;
+  color: #031f7b;
   font-weight: 500;
   transition: background-color 0.2s;
 }
@@ -70,7 +91,7 @@
   text-align: left;
   cursor: pointer;
   font-size: 14px;
-  color: #031F7B;
+  color: #031f7b;
   display: flex;
   align-items: center;
   padding: 10px;

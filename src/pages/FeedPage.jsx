@@ -3,8 +3,24 @@ import Sidebar from "../components/Sidebar";
 import "../styles/feed.css";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import Cookies from 'js-cookie'; // agrego esto matias
+import Cookies from "js-cookie"; // agrego esto matias
 
+const getCurrentUserId = () => {
+  const token = Cookies.get("token");
+  if (!token) return null;
+  try {
+    // JWT = header.payload.signature
+    const payloadBase64 = token.split(".")[1];
+    const jsonPayload = atob(
+      payloadBase64.replace(/-/g, "+").replace(/_/g, "/")
+    );
+    const { id } = JSON.parse(jsonPayload);
+    return id;
+  } catch (err) {
+    console.error("Error decodificando token:", err);
+    return null;
+  }
+};
 
 const FeedPage = () => {
   const [publicaciones, setPublicaciones] = useState([]);
@@ -15,7 +31,7 @@ const FeedPage = () => {
   const [previewActivo, setPreviewActivo] = useState(null); // { url, tipo }
   const [comentarios, setComentarios] = useState({});
   const [nuevoComentario, setNuevoComentario] = useState({});
-
+  const currentUserId = getCurrentUserId();
   const navigate = useNavigate();
 
   // 📥 Cargar publicaciones desde el backend
@@ -23,25 +39,29 @@ const FeedPage = () => {
     const obtenerPublicaciones = async () => {
       try {
         // Obtener el token de la cookie
-        const token = Cookies.get('token'); // Suponiendo que el token está en la cookie bajo el nombre 'token' // yo agrege matias
-  
+        const token = Cookies.get("token"); // Suponiendo que el token está en la cookie bajo el nombre 'token' // yo agrege matias
+
         // Si no hay token, puedes manejarlo como un error o redirigir al usuario a iniciar sesión
         if (!token) {
-          Swal.fire("Error", "No se encuentra el token de autenticación", "error");
+          Swal.fire(
+            "Error",
+            "No se encuentra el token de autenticación",
+            "error"
+          );
           return;
         }
-  
+
         const res = await fetch("http://localhost:3000/publicaciones", {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+            "Content-Type": "application/json",
           },
           credentials: "include", // Si necesitas enviar cookies junto con la solicitud
         });
-  
+
         const publicacionesRaw = await res.json();
-  
+
         if (!res.ok) {
           Swal.fire(
             "Error",
@@ -50,27 +70,27 @@ const FeedPage = () => {
           );
           return;
         }
-  
+
         const autorCache = new Map(); // Cache para no repetir fetch
-  
+
         const publicacionesConAutor = await Promise.all(
           publicacionesRaw.map(async (pub) => {
             let autor = autorCache.get(pub.autorId);
-  
+
             if (!autor) {
               try {
                 const resAutor = await fetch(
-                  `http://localhost:3000/usuarios/${pub.autorId}`,
-                  { 
-                    method: 'GET',
+                  `http://localhost:3000/usuario/${pub.autorId}`,
+                  {
+                    method: "GET",
                     headers: {
-                      'Authorization': `Bearer ${token}`, // Agregar el token para el autor también
-                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${token}`, // Agregar el token para el autor también
+                      "Content-Type": "application/json",
                     },
-                    credentials: "include", 
+                    credentials: "include",
                   }
                 );
-  
+
                 if (resAutor.ok) {
                   autor = await resAutor.json();
                   autorCache.set(pub.autorId, autor); // Guardamos en cache
@@ -79,21 +99,21 @@ const FeedPage = () => {
                 console.warn("Error al obtener autor", pub.autorId, err);
               }
             }
-  
+
             return {
               ...pub,
               autor: autor || null,
             };
           })
         );
-  
+
         setPublicaciones(publicacionesConAutor);
       } catch (err) {
         console.error("Error al obtener publicaciones:", err);
         Swal.fire("Error", "Fallo la conexión con el servidor", "error");
       }
     };
-  
+
     obtenerPublicaciones();
   }, []);
   // Like a publicación
@@ -111,10 +131,16 @@ const FeedPage = () => {
     );
     setPublicaciones(updated);
 
+    const token = Cookies.get("token");
+
     try {
       await fetch(
         `http://localhost:3000/publicaciones/${id_publicacion}/like`,
         {
+          headers: {
+            Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+            "Content-Type": "application/json",
+          },
           method: "POST",
           credentials: "include",
         }
@@ -125,6 +151,14 @@ const FeedPage = () => {
   };
   const avatarPorDefecto =
     "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+  const handleAuthorClick = (authorId) => {
+    if (authorId && currentUserId && authorId === currentUserId) {
+      navigate("/perfil");
+    } else {
+      navigate(`/perfil/${authorId}`);
+    }
+  };
 
   // ➕ Crear publicación
   const handlePublicar = async () => {
@@ -146,16 +180,15 @@ const FeedPage = () => {
       didOpen: () => Swal.showLoading(),
     });
 
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
 
     try {
       const res = await fetch("http://localhost:3000/publicaciones", {
         method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`, // solo autorización
         },
-        body: formData,
+        body: formData, // body = FormData
         credentials: "include",
       });
 
@@ -166,8 +199,14 @@ const FeedPage = () => {
         Swal.fire("¡Publicado!", "Tu publicación ha sido guardada", "success");
         try {
           const resAutor = await fetch(
-            `http://localhost:3000/usuarios/${data.autorId}`,
-            { credentials: "include" }
+            `http://localhost:3000/usuario/${data.autorId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+            }
           );
 
           const autor = resAutor.ok ? await resAutor.json() : null;
@@ -214,16 +253,17 @@ const FeedPage = () => {
   };
 
   const cargarComentarios = async (id_publicacion) => {
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
     try {
       const res = await fetch(
         `http://localhost:3000/publicaciones/${id_publicacion}/comentarios`,
         {
           headers: {
-          'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
-          'Content-Type': 'application/json',
-        },
-           credentials: "include" }
+            Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
       );
       const data = await res.json();
 
@@ -242,13 +282,14 @@ const FeedPage = () => {
           if (!autor) {
             try {
               const resAutor = await fetch(
-                `http://localhost:3000/api/usuarios/${comentario.autorId}`,
+                `http://localhost:3000/usuario/${comentario.autorId}`,
                 {
                   headers: {
-                    'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
-                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+                    "Content-Type": "application/json",
                   },
-                   credentials: "include" }
+                  credentials: "include",
+                }
               );
               if (resAutor.ok) {
                 autor = await resAutor.json();
@@ -287,14 +328,14 @@ const FeedPage = () => {
     if (!texto?.trim()) return;
 
     try {
-      const token = Cookies.get('token');
+      const token = Cookies.get("token");
       const res = await fetch(
         `http://localhost:3000/publicaciones/${id_publicacion}/comentarios`,
         {
           method: "POST",
           headers: {
-            'Authorization': `Bearer ${token}`, // Agregar el token a la cabecera
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+            "Content-Type": "application/json",
           },
           credentials: "include",
           body: JSON.stringify({ texto, publicacionId: id_publicacion }), // 👈 Incluido aquí
@@ -361,13 +402,13 @@ const FeedPage = () => {
               <div>
                 <p
                   className="feed-author clickable"
-                  onClick={() => navigate(`/perfil/${pub.autor?.id_usuario}`)}
+                  onClick={() => handleAuthorClick(pub.autor?.id_usuario)}
                 >
-                  @{pub.autor?.nombre || "Usuario"}{" "}
-                  {pub.autor?.apellido || "Usuario"}
+                  @{pub.autor?.nombre || "Usuario"} {pub.autor?.apellido || ""}
                 </p>
                 <p className="feed-date">
-                  📅 {new Date(pub.fechaPublicacion).toLocaleDateString()}
+                  📅{" "}
+                  {new Date(pub.fechaPublicacion).toLocaleDateString("es-ES")}
                 </p>
               </div>
             </div>

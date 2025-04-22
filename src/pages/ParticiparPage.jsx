@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import "../styles/participar.css";
+import Cookies from "js-cookie";
 import { FaFilePdf, FaFileWord, FaFileAlt } from "react-icons/fa";
 
 const ParticiparPage = () => {
   const [formData, setFormData] = useState({
-    titulo: "",
+    id_inscripcion: "",
     descripcion: "",
     archivo: null,
   });
@@ -13,8 +14,130 @@ const ParticiparPage = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [actividades, setActividades] = useState([]);
+  const [inscritas, setInscritas] = useState([]);
+  const [actividadSeleccionada, setActividadSeleccionada] = useState(null);
+  const [toast, setToast] = useState({
+    visible: false,
+    message: "",
+    type: "success",
+  });
+
+  useEffect(() => {
+    const fetchDatos = async () => {
+      try {
+        const token = Cookies.get("token");
+
+        const [actRes, misRes, activasRes] = await Promise.all([
+          fetch("http://localhost:3000/actividades", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }),
+          fetch("http://localhost:3000/misiones", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }),
+          fetch("http://localhost:3000/activas", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }),
+        ]);
+
+        const actividadesData = await actRes.json();
+        const misionesData = await misRes.json();
+        const activasData = await activasRes.json();
+
+        setInscritas(activasData); // Guardamos inscripciones para el select
+
+        const actividadesInscritas = new Set(
+          activasData.map((a) => a.id_actividad)
+        );
+        const misionesInscritas = new Set(activasData.map((a) => a.id_mision));
+
+        const actividadesFormateadas = actividadesData.map((a) => ({
+          id: a.id_actividad,
+          nombre: a.titulo,
+          descripcion: a.descripcion,
+          puntos: a.puntos ?? 0,
+          duracion: a.duracion ?? "No especificada",
+          modalidad: a.modalidad ?? "Individual",
+          tipo: "Actividad",
+          estado: actividadesInscritas.has(a.id_actividad)
+            ? "En progreso"
+            : "Inscribirse",
+        }));
+
+        const misionesFormateadas = misionesData.misiones.map((m) => ({
+          id: m.id_mision,
+          nombre: m.titulo,
+          descripcion: m.descripcion,
+          puntos: m.puntos ?? 0,
+          duracion: m.duracion ?? "No especificada",
+          modalidad: m.modalidad ?? "Individual",
+          tipo: "Misión",
+          estado: misionesInscritas.has(m.id_mision)
+            ? "En progreso"
+            : "Inscribirse",
+        }));
+
+        setActividades([...actividadesFormateadas, ...misionesFormateadas]);
+      } catch (err) {
+        console.error("Error al cargar datos:", err);
+      }
+    };
+
+    fetchDatos();
+  }, []);
+
+  const showToast = (message, type = "success") => {
+    setToast({ visible: true, message, type });
+    setTimeout(
+      () => setToast({ visible: false, message: "", type: "success" }),
+      3000
+    );
+  };
+
+  const handleInscripcion = async (actividad) => {
+    const token = Cookies.get("token");
+
+    try {
+      const body =
+        actividad.tipo === "Actividad"
+          ? { id_actividad: actividad.id }
+          : { id_mision: actividad.id };
+
+      const res = await fetch("http://localhost:3000/subir", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) throw new Error("No se pudo inscribir");
+
+      const actualizadas = actividades.map((a) =>
+        a.id === actividad.id ? { ...a, estado: "En progreso" } : a
+      );
+      setActividades(actualizadas);
+      setActividadSeleccionada(null);
+      showToast("✅ Inscripción realizada con éxito");
+    } catch (err) {
+      showToast("❌ No se pudo inscribir. Intenta más tarde.", err);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -22,120 +145,58 @@ const ParticiparPage = () => {
       ...formData,
       [name]: files ? files[0] : value,
     });
-    setErrors({ ...errors, [name]: false });
+
     if (name === "archivo" && files?.[0]) {
       const file = files[0];
-      setFormData({ ...formData, archivo: file });
-      setErrors({ ...errors, archivo: false });
-
-      if (file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onloadend = () => setPreviewUrl(reader.result);
-        reader.readAsDataURL(file);
-      } else {
-        setPreviewUrl(file.name);
-      }
+      setPreviewUrl(
+        file.type.startsWith("image/") ? URL.createObjectURL(file) : file.name
+      );
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const newErrors = {
-      titulo: !formData.titulo,
+      id_inscripcion: !formData.id_inscripcion,
       descripcion: !formData.descripcion,
       archivo: !formData.archivo,
     };
 
     setErrors(newErrors);
+    if (Object.values(newErrors).some(Boolean)) return;
 
-    const hasErrors = Object.values(newErrors).some(Boolean);
-    if (hasErrors) return;
+    try {
+      setLoading(true);
+      const token = Cookies.get("token");
 
-    setLoading(true);
+      const form = new FormData();
+      form.append("descripcion", formData.descripcion);
+      form.append("evidencia", formData.archivo);
 
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-      setFormData({
-        titulo: "",
-        descripcion: "",
-        archivo: null,
-      });
+      const res = await fetch(
+        `http://localhost:3000/evidencia/${formData.id_inscripcion}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+          body: form,
+        }
+      );
+
+      if (!res.ok) throw new Error("Error al subir evidencia");
+
+      setFormData({ id_inscripcion: "", descripcion: "", archivo: null });
       setPreviewUrl(null);
-    }, 2000);
-  };
-
-  const [actividadSeleccionada, setActividadSeleccionada] = useState(null);
-  const [actividades, setActividades] = useState([
-    {
-      id: 1,
-      nombre: "Feria de Ciencias",
-      descripcion: "Presenta tu proyecto científico innovador",
-      puntos: 100,
-      duracion: "1 día",
-      modalidad: "Individual",
-      tipo: "Actividad",
-      estado: "Inscribirse",
-    },
-    {
-      id: 2,
-      nombre: "Limpieza del Parque",
-      descripcion: "Ayuda a limpiar el parque local",
-      puntos: 50,
-      duracion: "3 horas",
-      modalidad: "Grupal",
-      tipo: "Misión",
-      estado: "Inscribirse",
-    },
-    {
-      id: 3,
-      nombre: "Maratón de Lectura",
-      descripcion: "Lee 5 libros en un mes",
-      puntos: 75,
-      duracion: "1 mes",
-      modalidad: "Individual",
-      tipo: "Misión",
-      estado: "En progreso",
-    },
-    {
-      id: 4,
-      nombre: "Torneo de Ajedrez",
-      descripcion: "Participa en el torneo escolar de ajedrez",
-      puntos: 60,
-      duracion: "1 semana",
-      modalidad: "Individual",
-      tipo: "Actividad",
-      estado: "Inscribirse",
-    },
-    {
-      id: 5,
-      nombre: "Proyecto de Arte Comunitario",
-      descripcion: "Crea un mural para la escuela",
-      puntos: 120,
-      duracion: "2 semanas",
-      modalidad: "Grupal",
-      tipo: "Misión",
-      estado: "Inscribirse",
-    },
-    {
-      id: 6,
-      nombre: "Olimpiadas de Matemáticas",
-      descripcion: "Compite en las olimpiadas escolares",
-      puntos: 90,
-      duracion: "1 día",
-      modalidad: "Individual",
-      tipo: "Actividad",
-      estado: "Completada",
-    },
-  ]);
-
-  const confirmarInscripcion = (id) => {
-    const actualizadas = actividades.map((a) =>
-      a.id === id ? { ...a, estado: "En progreso" } : a
-    );
-    setActividades(actualizadas);
-    setActividadSeleccionada(null);
+      setSuccess(true);
+      showToast("✅ Evidencia enviada con éxito");
+    } catch (err) {
+      showToast("❌ Error al enviar evidencia", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -146,21 +207,28 @@ const ParticiparPage = () => {
         <div className="participar-header">
           <h2 className="participar-title">Participar en Actividades</h2>
           <p className="participar-subtitle">
-            Sube tu participación y/o inscríbete en una actividad para ganar insignias y puntos por tu esfuerzo
+            Sube tu participación y/o inscríbete en una actividad para ganar
+            insignias y puntos por tu esfuerzo
           </p>
         </div>
+
         <div className="participar-content-container">
           <form className="participar-form" onSubmit={handleSubmit}>
             <label>
-              Título de la Actividad:
-              <input
-                type="text"
-                name="titulo"
-                value={formData.titulo}
+              Actividad inscrita:
+              <select
+                name="id_inscripcion"
+                value={formData.id_inscripcion}
                 onChange={handleChange}
-                className={errors.titulo ? "input-error" : ""}
-                placeholder="Ej: Proyecto Feria de Ciencias"
-              />
+                className={errors.id_inscripcion ? "input-error" : ""}
+              >
+                <option value="">Selecciona una actividad o misión</option>
+                {inscritas.map((i) => (
+                  <option key={i._id} value={i._id}>
+                    {i.titulo}
+                  </option>
+                ))}
+              </select>
             </label>
 
             <label>
@@ -185,8 +253,8 @@ const ParticiparPage = () => {
               />
               {previewUrl && (
                 <div className="file-preview">
-                  {typeof previewUrl === "string" &&
-                  previewUrl.startsWith("data:image") ? (
+                  {previewUrl.startsWith("data:image") ||
+                  previewUrl.startsWith("blob:") ? (
                     <img
                       src={previewUrl}
                       alt="Preview"
@@ -255,6 +323,7 @@ const ParticiparPage = () => {
               </div>
             ))}
           </div>
+
           {actividadSeleccionada && (
             <div
               className="modal-participar-overlay"
@@ -278,9 +347,7 @@ const ParticiparPage = () => {
                 <div className="modal-participar-buttons">
                   <button
                     className="confirmar-boton"
-                    onClick={() =>
-                      confirmarInscripcion(actividadSeleccionada.id)
-                    }
+                    onClick={() => handleInscripcion(actividadSeleccionada)}
                   >
                     Sí, inscribirme
                   </button>
@@ -293,6 +360,10 @@ const ParticiparPage = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {toast.visible && (
+            <div className={`toast toast--${toast.type}`}>{toast.message}</div>
           )}
         </div>
       </main>
