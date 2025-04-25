@@ -1,121 +1,137 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  html, body {
-    height: 100%;
-    width: 100%;
-    font-family: Arial, sans-serif;
-  }
-  
-  .login-wrapper {
-    display: flex;
-    height: 100vh;
-    width: 100vw;
-  }
-  
-  .login-left {
-    width: 100%;
-    background-image: url('../assets/JuraBandera.jpg');
-    background-size: cover;
-    background-position: center;
-  }
-  
-  .login-right {
-    width: 50%;
-    background-color: #f4f4f4;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    padding: 2rem;
-  }
-  
-  .logo {
-    width: 80px;
-    position: absolute;
-    top: 20px;
-    right: 30px;
-  }
-  
-  h1 {
-    font-family: 'College', sans-serif;
-    color: #e67e22;
-    font-size: 35px;
-    margin-bottom: 2rem;
-    text-align: center;
-  }  
-  
-  form {
-    width: 60%;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  input {
-    padding: 10px;
-    margin-bottom: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    background-color: #ccc;
-    color: #333;
-  }
-  
-  button[type='submit'] {
-    padding: 10px;
-    background-color: #e67e22;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 15px;
-    margin-bottom: 1rem;
-  }
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  button[type='submit']:hover {
-    background-color: #d35400;
-    /* background-color: #02207a; */
-  }
-  
-  .microsoft-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px;
-    background-color: white;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 15px;
-    margin-bottom: 1rem;
-    color: #333;
-  }
+html,
+body {
+  height: 100%;
+  width: 100%;
+  font-family: Arial, sans-serif;
+}
 
-  .microsoft-button:hover {
-    background-color: #ccc;
-  }
-  
-  a {
-    font-size: 0.9rem;
-    color: #031f7b;
-    text-decoration: none;
-  }
-  
-  .error {
-    color: red;
-    margin-bottom: 1rem;
-  }
+.login-wrapper {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
 
-  @font-face {
-    font-family: 'college';
-    src: url('../assets/fonts/college.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-  }
-  
-  
+.login-left {
+  width: 100%;
+  background-image: url("../assets/JuraBandera.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+.login-right {
+  width: 50%;
+  background-color: #f4f4f4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 2rem;
+}
+
+.logo {
+  width: 80px;
+  position: absolute;
+  top: 20px;
+  right: 30px;
+}
+
+h1 {
+  font-family: "College", sans-serif;
+  color: #e67e22;
+  font-size: 35px;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+form {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+}
+
+input {
+  padding: 10px;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #ccc;
+  color: #333;
+}
+
+button[type="submit"] {
+  padding: 10px;
+  background-color: #e67e22;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 15px;
+  margin-bottom: 1rem;
+}
+
+button[type="submit"]:hover {
+  background-color: #d35400;
+  /* background-color: #02207a; */
+}
+
+.microsoft-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background-color: white;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 15px;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.microsoft-button:hover {
+  background-color: #ccc;
+}
+
+a {
+  font-size: 0.9rem;
+  color: #031f7b;
+  text-decoration: none;
+}
+
+.error {
+  color: red;
+  margin-bottom: 1rem;
+}
+
+@font-face {
+  font-family: "college";
+  src: url("../assets/fonts/college.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.admin-button {
+  margin-top: 1rem;
+  padding: 10px;
+  background-color: transparent;
+  color: #031f7b;
+  border: 0px solid #031f7b;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.admin-button:hover {
+  background-color: #031f7b;
+  color: white;
+}

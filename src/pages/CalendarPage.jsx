@@ -1,41 +1,64 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import Sidebar from "../components/Sidebar";
 import "../styles/calendar.css";
-
-const eventosMock = [
-  {
-    fecha: new Date(2025, 2, 12), // Marzo (mes 2)
-    titulo: "Feria de Ciencias",
-    subtitulo: "Exhibición de proyectos científicos",
-    horario: "9:00 AM - 3:00 PM",
-    lugar: "Gimnasio de la escuela",
-    descripcion:
-      "Exhibición anual de proyectos científicos realizados por los estudiantes de todos los grados. Los visitantes podrán ver demostraciones en vivo, experimentos interactivos y presentaciones de los jóvenes científicos.",
-    participantes: [
-      "Todos los grados",
-      "Profesores de ciencias",
-      "Padres y familiares",
-    ],
-  },
-  {
-    fecha: new Date(2025, 3, 8),
-    titulo: "Olimpiadas de Matemáticas",
-    subtitulo: "Competencia de cálculo escolar",
-    horario: "8:00 AM - 1:00 PM",
-    lugar: "Sala de informática",
-    descripcion: "Competencia entre estudiantes con desafíos matemáticos.",
-    participantes: ["Secundaria", "Docentes", "Padres"],
-  },
-  // ... puedes añadir más
-];
+import Cookies from "js-cookie";
 
 const CalendarPage = () => {
   const [fechaSeleccionada, setFechaSeleccionada] = useState(null);
+  const [eventos, setEventos] = useState([]);
+
+  useEffect(() => {
+    const fetchActividades = async () => {
+      try {
+        const token = Cookies.get("token");
+        const response = await fetch("http://localhost:3000/actividades", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+        const data = await response.json();
+
+        const eventosFormateados = data.map((actividad) => {
+          const fechaInicioUTC = new Date(actividad.fechaInicio);
+          const fechaFinUTC = new Date(actividad.fechaFin);
+          const fechaInicioLocal = new Date(
+            fechaInicioUTC.getUTCFullYear(),
+            fechaInicioUTC.getUTCMonth(),
+            fechaInicioUTC.getUTCDate()
+          );
+          const fechaFinLocal = new Date(
+            fechaFinUTC.getUTCFullYear(),
+            fechaFinUTC.getUTCMonth(),
+            fechaFinUTC.getUTCDate()
+          );
+
+          return {
+            fecha: fechaInicioLocal, // para el calendario
+            fechaFin: fechaFinLocal,
+            titulo: actividad.titulo,
+            subtitulo: actividad.descripcion,
+            horario: "Por definir",
+            lugar: "Por definir",
+            descripcion: actividad.descripcion,
+            participantes: [],
+          };
+        });
+
+        setEventos(eventosFormateados);
+      } catch (error) {
+        console.error("Error al obtener actividades:", error);
+      }
+    };
+
+    fetchActividades();
+  }, []);
 
   const eventosDelDia = (fecha) =>
-    eventosMock.filter(
+    eventos.filter(
       (evento) => evento.fecha.toDateString() === fecha.toDateString()
     );
 
@@ -47,7 +70,8 @@ const CalendarPage = () => {
         <div className="calendar-title-container">
           <h2 className="calendar-title">Calendario de Actividades</h2>
           <p className="calendar-title-subtitle">
-            Aquí puedes ver las actividades programadas para el mes. Haz click en un día para ver los eventos.
+            Aquí puedes ver las actividades programadas para el mes. Haz click
+            en un día para ver los eventos.
           </p>
         </div>
         <div className="calendar-row-container">
@@ -69,20 +93,30 @@ const CalendarPage = () => {
                 eventosDelDia(fechaSeleccionada).map((ev, idx) => (
                   <div key={idx} className="calendar-evento">
                     <h3>{ev.titulo}</h3>
-                    {ev.subtitulo && (
-                      <p className="evento-subtitulo">{ev.subtitulo}</p>
-                    )}
 
                     <div className="evento-info">
                       <p>
                         📅{" "}
-                        {fechaSeleccionada.toLocaleDateString("es-EC", {
+                        {ev.fecha.toLocaleDateString("es-EC", {
                           day: "2-digit",
                           month: "long",
                           year: "numeric",
                         })}
                       </p>
-                      <p>⏰ {ev.horario}</p>
+
+                      {ev.fechaFin &&
+                      ev.fecha.getTime() !== ev.fechaFin.getTime() ? (
+                        <p>
+                          ⏰ Del {ev.fecha.getDate()} de{" "}
+                          {ev.fecha.toLocaleString("es-EC", { month: "long" })}{" "}
+                          al {ev.fechaFin.getDate()} de{" "}
+                          {ev.fechaFin.toLocaleString("es-EC", {
+                            month: "long",
+                          })}{" "}
+                          de {ev.fechaFin.getFullYear()}
+                        </p>
+                      ) : null}
+
                       <p>📍 {ev.lugar}</p>
                     </div>
 

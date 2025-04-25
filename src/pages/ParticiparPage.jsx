@@ -2,58 +2,70 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import "../styles/participar.css";
 import Cookies from "js-cookie";
+import Swal from "sweetalert2";
 import { FaFilePdf, FaFileWord, FaFileAlt } from "react-icons/fa";
 
 const ParticiparPage = () => {
+  const [misiones, setMisiones] = useState([]);
+  const [, setInscritas] = useState([]);
+  const [actividadSeleccionada, setActividadSeleccionada] = useState(null);
+  const [modalEvidenciaVisible, setModalEvidenciaVisible] = useState(false);
+  const [idInscripcionActual, setIdInscripcionActual] = useState("");
+  const [misionesConEvidencia, setMisionesConEvidencia] = useState(new Set());
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
-    id_inscripcion: "",
     descripcion: "",
     archivo: null,
   });
 
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [misiones, setMisiones] = useState([]);
-  const [inscritas, setInscritas] = useState([]);
-  const [actividadSeleccionada, setActividadSeleccionada] = useState(null);
   const [toast, setToast] = useState({
     visible: false,
     message: "",
     type: "success",
   });
 
-  useEffect(() => {
-    const fetchDatos = async () => {
-      try {
-        const token = Cookies.get("token");
+  // Justo después de useState...
+  const fetchDatos = async () => {
+    try {
+      const token = Cookies.get("token");
 
-        const [misRes, activasRes] = await Promise.all([
-          fetch("http://localhost:3000/misiones", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-          }),
-          fetch("http://localhost:3000/activas", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-          }),
-        ]);
+      const [misRes, activasRes] = await Promise.all([
+        fetch("http://localhost:3000/misiones", {
+          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
+        }),
+        fetch("http://localhost:3000/activas", {
+          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
+        }),
+      ]);
 
-        const misionesData = await misRes.json();
-        const activasData = await activasRes.json();
+      const misionesData = await misRes.json();
+      const activasData = await activasRes.json();
 
-        setInscritas(activasData); // Guardamos inscripciones para el select
+      setInscritas(activasData);
 
-        const misionesInscritas = new Set(activasData.map((a) => a.id_mision));
+      const activas = Array.isArray(activasData)
+        ? activasData
+        : activasData.data || [];
 
-        const misionesFormateadas = misionesData.misiones.map((m) => ({
+      const misionesFormateadas = misionesData.misiones.map((m) => {
+        const activa = activas.find((a) => a.id_mision === m.id_mision);
+
+        let estado = "Inscribirse";
+        if (activa) {
+          if (activa.estado === true) {
+            estado = "Puntos otorgados";
+          } else {
+            estado = activa.estadoEvidencia
+              ? "Ver progreso"
+              : "Subir evidencia";
+          }
+        }
+
+        return {
           id: m.id_mision,
           nombre: m.titulo,
           descripcion: m.descripcion,
@@ -61,17 +73,18 @@ const ParticiparPage = () => {
           duracion: m.duracion ?? "No especificada",
           modalidad: m.modalidad ?? "Individual",
           tipo: "Misión",
-          estado: misionesInscritas.has(m.id_mision)
-            ? "En progreso"
-            : "Inscribirse",
-        }));
+          estado,
+          id_inscripcion: activa?.id_inscripcion ?? null,
+        };
+      });
 
-        setMisiones(misionesFormateadas); // Solo establecemos las misiones
-      } catch (err) {
-        console.error("Error al cargar misiones:", err);
-      }
-    };
+      setMisiones(misionesFormateadas);
+    } catch (err) {
+      console.error("Error al cargar misiones:", err);
+    }
+  };
 
+  useEffect(() => {
     fetchDatos();
   }, []);
 
@@ -87,8 +100,6 @@ const ParticiparPage = () => {
     const token = Cookies.get("token");
 
     try {
-      const body = { id_mision: mision.id };
-
       const res = await fetch("http://localhost:3000/subir", {
         method: "POST",
         headers: {
@@ -96,64 +107,70 @@ const ParticiparPage = () => {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify(body),
+        body: JSON.stringify({ id_mision: mision.id }),
       });
 
       if (!res.ok) throw new Error("No se pudo inscribir");
 
+      const result = await res.json();
+
       const actualizadas = misiones.map((m) =>
-        m.id === mision.id ? { ...m, estado: "En progreso" } : m
+        m.id === mision.id
+          ? {
+              ...m,
+              estado: "Subir evidencia",
+              id_inscripcion: result.id_inscripcion,
+            }
+          : m
       );
       setMisiones(actualizadas);
       setActividadSeleccionada(null);
       showToast("✅ Inscripción realizada con éxito");
+      await fetchDatos(); // <--- recarga las misiones
     } catch (err) {
       showToast("❌ No se pudo inscribir. Intenta más tarde.", err);
     }
   };
 
+  const abrirModalEvidencia = (id_inscripcion) => {
+    if (!id_inscripcion) {
+      console.error("No se pasó id_inscripcion al abrir el modal");
+      return;
+    }
+    setIdInscripcionActual(id_inscripcion);
+    setFormData({ descripcion: "", archivo: null });
+    setPreviewUrl(null);
+    setModalEvidenciaVisible(true);
+  };
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    setFormData({
-      ...formData,
-      [name]: files ? files[0] : value,
-    });
-
-    if (name === "archivo" && files?.[0]) {
+    if (files) {
       const file = files[0];
       setPreviewUrl(
         file.type.startsWith("image/") ? URL.createObjectURL(file) : file.name
       );
+      setFormData((prev) => ({ ...prev, archivo: file }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
+    const token = Cookies.get("token");
 
-    const newErrors = {
-      id_inscripcion: !formData.id_inscripcion,
-      descripcion: !formData.descripcion,
-      archivo: !formData.archivo,
-    };
-
-    setErrors(newErrors);
-    if (Object.values(newErrors).some(Boolean)) return;
+    const form = new FormData();
+    form.append("descripcion", formData.descripcion);
+    form.append("evidencia", formData.archivo);
 
     try {
-      setLoading(true);
-      const token = Cookies.get("token");
-
-      const form = new FormData();
-      form.append("descripcion", formData.descripcion);
-      form.append("evidencia", formData.archivo);
-
       const res = await fetch(
-        `http://localhost:3000/evidencia/${formData.id_inscripcion}`,
+        `http://localhost:3000/evidencia/${idInscripcionActual}`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
           credentials: "include",
           body: form,
         }
@@ -161,112 +178,66 @@ const ParticiparPage = () => {
 
       if (!res.ok) throw new Error("Error al subir evidencia");
 
-      setFormData({ id_inscripcion: "", descripcion: "", archivo: null });
-      setPreviewUrl(null);
-      setSuccess(true);
+      const nuevas = new Set(misionesConEvidencia);
+      nuevas.add(idInscripcionActual);
+      setMisionesConEvidencia(nuevas);
+      setModalEvidenciaVisible(false);
       showToast("✅ Evidencia enviada con éxito");
+      await fetchDatos(); // <--- recarga las misiones
     } catch (err) {
-      showToast("❌ Error al enviar evidencia", err);
-    } finally {
-      setLoading(false);
+      showToast("❌ Error al subir evidencia", err);
+    }
+    setLoading(false);
+  };
+
+  const verProgreso = async (id_inscripcion) => {
+    const token = Cookies.get("token");
+    try {
+      const res = await fetch(
+        `http://localhost:3000/ver-progreso/${id_inscripcion}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
+      Swal.fire({
+        title:
+          '<span style="font-size: 22px; font-weight: bold;">Estado de tu evidencia</span>',
+        html: `
+          <div style="font-size: 16px; text-align: left; color: #333;">
+            <div style="margin-top: 10px;">
+              <strong style="color: #031f7b;">Mensaje:</strong><br>
+              <span style="display: inline-block; margin-top: 4px;">${data.message}</span>
+            </div>
+          </div>
+        `,
+        icon: "info",
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#031f7b",
+        background: "#f8faff",
+        customClass: {
+          popup: "swal-progreso-popup",
+          htmlContainer: "swal-progreso-html",
+        },
+      });
+    } catch (err) {
+      showToast("❌ No se pudo cargar el progreso", err);
     }
   };
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       <Sidebar active="Participar en actividades" />
-
       <main className="participar-main">
         <div className="participar-header">
           <h2 className="participar-title">Participar en Misiones</h2>
           <p className="participar-subtitle">
-            Sube tu participación y/o inscríbete en una misión para ganar
-            insignias y puntos por tu esfuerzo.
+            Inscríbete y sube tu evidencia para ganar puntos e insignias.
           </p>
         </div>
 
         <div className="participar-content-container">
-          <form className="participar-form" onSubmit={handleSubmit}>
-            <label>
-              Misión inscrita:
-              <select
-                name="id_inscripcion"
-                value={formData.id_inscripcion}
-                onChange={handleChange}
-                className={errors.id_inscripcion ? "input-error" : ""}
-              >
-                <option value="">Selecciona una misión</option>
-                {inscritas.map(
-                  (i) =>
-                    i.id_mision && (
-                      <option key={i._id} value={i.id_mision}>
-                        {i.titulo}
-                      </option>
-                    )
-                )}
-              </select>
-            </label>
-
-            <label>
-              Descripción de la Participación:
-              <textarea
-                name="descripcion"
-                value={formData.descripcion}
-                onChange={handleChange}
-                className={errors.descripcion ? "input-error" : ""}
-                placeholder="Describe brevemente tu participación..."
-                rows="4"
-              />
-            </label>
-
-            <label>
-              Evidencia (fotos o documentos):
-              <input
-                type="file"
-                name="archivo"
-                onChange={handleChange}
-                className={errors.archivo ? "input-error" : ""}
-              />
-              {previewUrl && (
-                <div className="file-preview">
-                  {previewUrl.startsWith("data:image") ||
-                  previewUrl.startsWith("blob:") ? (
-                    <img
-                      src={previewUrl}
-                      alt="Preview"
-                      className="preview-image"
-                    />
-                  ) : (
-                    <div className="preview-document">
-                      {formData.archivo?.type === "application/pdf" ? (
-                        <FaFilePdf className="preview-icon pdf" />
-                      ) : formData.archivo?.type ===
-                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ? (
-                        <FaFileWord className="preview-icon word" />
-                      ) : (
-                        <FaFileAlt className="preview-icon generic" />
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-            </label>
-
-            <button
-              type="submit"
-              className="participar-button"
-              disabled={loading}
-            >
-              {loading ? "Enviando..." : "Enviar Evidencia"}
-            </button>
-
-            {success && (
-              <div className="success-message">
-                ✅ ¡Evidencia enviada con éxito!
-              </div>
-            )}
-          </form>
-
           <h3 className="actividad-titulo-seccion">Misiones Escolares</h3>
           <div className="actividad-grid">
             {misiones.map((m) => (
@@ -278,7 +249,6 @@ const ParticiparPage = () => {
                   </span>
                 </div>
                 <p className="actividad-descripcion">{m.descripcion}</p>
-
                 <div className="actividad-detalles">
                   <span>⭐ {m.puntos} puntos</span>
                   <span>⏱️ {m.duracion}</span>
@@ -286,11 +256,24 @@ const ParticiparPage = () => {
                 </div>
 
                 <button
-                  className={`actividad-boton ${m.estado.toLowerCase()}`}
-                  disabled={m.estado !== "Inscribirse"}
-                  onClick={() =>
-                    m.estado === "Inscribirse" && setActividadSeleccionada(m)
-                  }
+                  className={`actividad-boton ${
+                    m.estado === "Ver progreso"
+                      ? "boton-ver-progreso"
+                      : m.estado === "Subir evidencia"
+                      ? "boton-subir-evidencia"
+                      : m.estado === "Puntos otorgados"
+                      ? "boton-puntos"
+                      : "boton-inscribirse"
+                  }`}
+                  onClick={() => {
+                    if (m.estado === "Ver progreso")
+                      verProgreso(m.id_inscripcion);
+                    else if (m.estado === "Subir evidencia")
+                      abrirModalEvidencia(m.id_inscripcion);
+                    else if (m.estado === "Inscribirse")
+                      setActividadSeleccionada(m);
+                  }}
+                  disabled={m.estado === "Puntos otorgados"}
                 >
                   {m.estado}
                 </button>
@@ -332,6 +315,74 @@ const ParticiparPage = () => {
                     Cancelar
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {modalEvidenciaVisible && (
+            <div
+              className="modal-participar-overlay"
+              onClick={() => setModalEvidenciaVisible(false)}
+            >
+              <div
+                className="modal-evidencia"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  className="modal-evidencia-close"
+                  onClick={() => setModalEvidenciaVisible(false)}
+                >
+                  ✖
+                </button>
+                <h3>Subir Evidencia</h3>
+                <p className="modal-evidencia-subtitle">
+                  Adjunta una imagen para comprobar tu participación
+                  en esta misión.
+                </p>
+                <p className="modal-evidencia-subtitle">
+                  Solo podrás subir un archivo por misión. Asegúrate de que sea el correcto.
+                </p>
+
+                <form onSubmit={handleSubmit}>
+                  <textarea
+                    name="descripcion"
+                    value={formData.descripcion}
+                    onChange={handleChange}
+                    placeholder="Descripción"
+                    rows="4"
+                    required
+                  />
+                  <input
+                    type="file"
+                    name="archivo"
+                    onChange={handleChange}
+                    required
+                  />
+                  {previewUrl && (
+                    <div className="file-preview">
+                      {previewUrl.startsWith("blob:") ? (
+                        <img
+                          src={previewUrl}
+                          alt="Preview"
+                          className="preview-image"
+                        />
+                      ) : (
+                        <span>{previewUrl}</span>
+                      )}
+                    </div>
+                  )}
+                  <button
+                    type="submit"
+                    className="participar-button"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <span className="loader-button"></span>
+                    ) : (
+                      "Enviar Evidencia"
+                    )}
+                  </button>
+                </form>
               </div>
             </div>
           )}

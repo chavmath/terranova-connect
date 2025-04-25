@@ -11,11 +11,12 @@ import {
   FaCalendarAlt,
   FaChartBar,
   FaUserCircle,
+  FaFolder,
 } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import "../styles/sidebar.css";
+import { getUserRole, getToken } from "../utils/auth";
 
-// Extrae el "id" del JWT
 const getCurrentUserId = () => {
   const token = Cookies.get("token");
   if (!token) return null;
@@ -34,16 +35,29 @@ const Sidebar = () => {
   const location = useLocation();
   const [user, setUser] = useState(null);
 
-  const token = Cookies.get("token");
+  const token = getToken();
   const userId = getCurrentUserId();
+  const rol = getUserRole();
 
   useEffect(() => {
     if ((!token || !userId) && location.pathname !== "/") {
       navigate("/");
       return;
     }
-    if (user) return;
-    if (token && userId) {
+
+    // Si es administrador, setear solo una vez
+    if (rol === "administrador" && !user) {
+      setUser({
+        nombre: "Administrador",
+        apellido: "",
+        email: "admin@dominio.com",
+        rol: "administrador",
+        foto_perfil: [],
+      });
+      return;
+    }
+
+    if (!user && rol !== "administrador") {
       (async () => {
         try {
           const res = await fetch(`http://localhost:3000/usuario/${userId}`, {
@@ -58,7 +72,7 @@ const Sidebar = () => {
         }
       })();
     }
-  }, [token, userId, location.pathname, navigate, user]);
+  }, [token, userId, location.pathname, navigate, rol]);
 
   if (!user) {
     return (
@@ -71,7 +85,7 @@ const Sidebar = () => {
     );
   }
 
-  const { nombre, apellido, email, rol, foto_perfil } = user;
+  const { nombre, apellido, email, rol: userRol, foto_perfil } = user;
   const avatarUrl = foto_perfil?.[0]?.url || null;
 
   const itemsPorRol = {
@@ -83,7 +97,6 @@ const Sidebar = () => {
       { label: "Recompensas", path: "/recompensas", icon: <FaMedal /> },
       { label: "Calendario", path: "/calendario", icon: <FaCalendarAlt /> },
       { label: "Estadísticas", path: "/estadisticas", icon: <FaChartBar /> },
-      { label: "Configuración", path: "/configuracion", icon: <FaCog /> },
     ],
     profesor: [
       { label: "Inicio", path: "/dashboard", icon: <FaHome /> },
@@ -96,12 +109,14 @@ const Sidebar = () => {
       { label: "Calendario", path: "/calendario", icon: <FaCalendarAlt /> },
     ],
     administrador: [
+      { label: "Estadísticas", path: "/estadisticas-admin", icon: <FaChartBar /> },
+      { label: "Evidencias", path: "/evidencias", icon: <FaFolder /> },
       { label: "Configuración", path: "/configuracion", icon: <FaCog /> },
     ],
   };
-  const items = itemsPorRol[rol.toLowerCase()] || [];
 
-  // isActive ahora no marca "/perfil" si la ruta es "/perfil/:userId"
+  const items = itemsPorRol[userRol.toLowerCase()] || [];
+
   const isActive = (path) => {
     if (path === "/perfil") {
       return location.pathname === "/perfil";
@@ -109,7 +124,6 @@ const Sidebar = () => {
     if (path === "/dashboard") {
       return location.pathname === "/dashboard";
     }
-    // Para el resto, marcamos activo si coincide o si estamos en un subpath
     return (
       location.pathname === path ||
       (location.pathname.startsWith(path) && path !== "/perfil")

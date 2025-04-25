@@ -21,3 +21,16 @@ export function isLoggedIn() {
   const token = getToken();
   return isTokenValid(token);
 }
+
+export function getUserRole() {
+  const token = getToken();
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(
+      atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))
+    );
+    return payload.rol || null;
+  } catch {
+    return null;
+  }
+}

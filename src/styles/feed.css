@@ -526,3 +526,10 @@
   opacity: 0.3;
   cursor: default;
 }
+
+.loader-publicaciones {
+  text-align: center;
+  padding: 1rem;
+  font-style: italic;
+  color: gray;
+}

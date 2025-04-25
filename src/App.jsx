@@ -11,7 +11,10 @@ import RegisterPage from "./pages/RegisterPage";
 import RutaProtegida from "./components/RutaProtegida";
 import RutaPublica from "./components/RutaPublica";
 import ConfiguracionPage from "./pages/ConfiguracionPage";
-
+import EstadisticasPage from "./pages/EstadisticasPage";
+import EvidenciasPage from "./pages/EvidenciasPage";
+import RutaAdmin from "./components/RutaAdmin";
+import EstadisticasAdminPage from "./pages/EstadisticasAdminPage";
 
 function App() {
   return (
@@ -25,8 +28,10 @@ function App() {
       <Route path="/recompensas" element={<RutaProtegida> <RewardsPage /></RutaProtegida>} />
       <Route path="/calendario" element={<RutaProtegida> <CalendarPage /></RutaProtegida>} />
       <Route path="/registro" element={<RutaPublica><RegisterPage /></RutaPublica>} />
-      <Route path="/configuracion" element={<RutaProtegida> <ConfiguracionPage /></RutaProtegida>} />
-      {/* <Route path="/estadisticas" element={<div>Estadísticas</div>} /> */}
+      <Route path="/configuracion" element={<RutaAdmin> <ConfiguracionPage /></RutaAdmin>} />
+      <Route path="/estadisticas" element={<RutaProtegida> <EstadisticasPage /></RutaProtegida>} />
+      <Route path="/evidencias" element={<RutaAdmin> <EvidenciasPage /></RutaAdmin>} />
+      <Route path="/estadisticas-admin" element={<RutaAdmin> <EstadisticasAdminPage /></RutaAdmin>} />
     </Routes>
   );
 }

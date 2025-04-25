@@ -1,13 +1,19 @@
 // src/components/RutaProtegida.jsx
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { isLoggedIn } from "../utils/auth";
+import { isLoggedIn, getUserRole } from "../utils/auth";
 
 const RutaProtegida = ({ children }) => {
   if (!isLoggedIn()) {
-    // Si no está autenticado o el token expiró, va al login
     return <Navigate to="/" replace />;
   }
+
+  const rol = getUserRole();
+  if (rol === "administrador") {
+    // 🔒 Si es admin, redirige a su espacio
+    return <Navigate to="/configuracion" replace />;
+  }
+
   return children;
 };
 
