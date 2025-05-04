@@ -103,7 +103,7 @@ jobs:
             - bun.lockb
             - package.json
 
-  run_unit_tests:
+    run_unit_tests:
     executor: bun_executor
     parallelism: 1
     steps:
@@ -111,24 +111,17 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Run Unit Tests
+          name: Run Jest Tests with Coverage
           command: |
-            echo "Running tests..."
-            echo "Bun version:"
-            bun --version
-            echo "Test files:"
-            ls -l test//*.test.js
-            bun test test//*.test.js
-            EXIT_CODE=$?
-            echo "Bun test exit code: $EXIT_CODE"
-            if [ $EXIT_CODE -ne 0 ]; then
-              echo "❌ Unit tests failed"
-              exit 1
-            fi
+            mkdir -p test-results/jest
+            mkdir -p coverage
+            npx jest --ci --coverage --reporters=default --reporters=jest-junit --outputFile=test-results/jest/results.xml
       - store_test_results:
           path: test-results
       - store_artifacts:
           path: test-results
+      - store_artifacts:
+          path: coverage
       - when:
           condition:
             on_fail
