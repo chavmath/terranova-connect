@@ -72,7 +72,7 @@ const RegisterPage = () => {
     formToSend.append("fecha_nacimiento", formData.fechaNacimiento);
     /* formToSend.append("rol", formData.rol); */
     if (formData.archivo) {
-      formToSend.append("files", formData.archivo);
+      formToSend.append("foto_perfil", formData.archivo);
     }
     Swal.fire({
       title: "Cargando...",

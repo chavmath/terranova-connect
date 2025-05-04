@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import "../styles/rewards.css";
 import Cookies from "js-cookie";
+import confetti from "canvas-confetti";
 
 const RewardsPage = () => {
   const [user, setUser] = useState({
@@ -12,6 +13,9 @@ const RewardsPage = () => {
   const [recompensas, setRecompensas] = useState([]);
   const [recompensaSeleccionada, setRecompensaSeleccionada] = useState(null);
   const [mostrarAnimacion, setMostrarAnimacion] = useState(false);
+  const [mostrarOverlayFelicidades, setMostrarOverlayFelicidades] =
+    useState(false);
+  const [recompensaReclamada, setRecompensaReclamada] = useState(null);
 
   const getCurrentUserId = () => {
     const token = Cookies.get("token");
@@ -28,13 +32,11 @@ const RewardsPage = () => {
 
   const userId = getCurrentUserId();
 
-  // Obtener recompensas y puntos acumulados
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = Cookies.get("token");
 
-        // 1. Obtener recompensas
         const resRecompensas = await fetch(
           "http://localhost:3000/recompensas",
           {
@@ -50,7 +52,6 @@ const RewardsPage = () => {
           setRecompensas(dataRecompensas.recompensas);
         }
 
-        // 2. Obtener usuario y puntos
         const resUsuario = await fetch(
           `http://localhost:3000/usuario/${userId}`,
           {
@@ -72,7 +73,9 @@ const RewardsPage = () => {
         setUser({
           nombre: `${nombre} ${apellido}`,
           puntos: puntosAcumulados,
-          avatar: foto_perfil?.[0]?.url || "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+          avatar:
+            foto_perfil?.[0]?.url ||
+            "https://cdn-icons-png.flaticon.com/512/149/149071.png",
         });
       } catch (err) {
         console.error("Error cargando datos:", err);
@@ -84,11 +87,35 @@ const RewardsPage = () => {
     }
   }, [userId]);
 
+  const lanzarConfeti = () => {
+    var end = Date.now() + 1 * 1000;
+    (function frame() {
+      confetti({
+        particleCount: 5,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+      });
+      confetti({
+        particleCount: 5,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+      });
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    })();
+  };
+
   const handleReclamar = async () => {
     if (!recompensaSeleccionada) return;
-    const token = localStorage.getItem("token");
+    const token = Cookies.get("token");
 
     try {
+      console.log("Recompensa reclamada:", {
+        id_recompensa: recompensaSeleccionada.id_recompensa,
+      });
       const res = await fetch("http://localhost:3000/cajerRecompensa", {
         method: "POST",
         headers: {
@@ -103,8 +130,13 @@ const RewardsPage = () => {
       if (res.ok) {
         setUser((prev) => ({
           ...prev,
-          puntos: prev.puntos - recompensaSeleccionada.puntos,
+          puntos: prev.puntos - recompensaSeleccionada.puntosRequeridos,
         }));
+
+        setRecompensaReclamada(recompensaSeleccionada); // guardamos para mostrar en overlay
+        setMostrarOverlayFelicidades(true);
+        lanzarConfeti();
+
         setRecompensaSeleccionada(null);
         setMostrarAnimacion(true);
         setTimeout(() => setMostrarAnimacion(false), 2500);
@@ -131,11 +163,7 @@ const RewardsPage = () => {
 
         <div className="rewards-content-container">
           <div className="rewards-header">
-            <img
-              src={user.avatar}
-              alt="avatar"
-              className="rewards-avatar"
-            />
+            <img src={user.avatar} alt="avatar" className="rewards-avatar" />
             <div>
               <h2 className="rewards-nombre">{user.nombre}</h2>
               <p className="rewards-puntos">
@@ -218,6 +246,30 @@ const RewardsPage = () => {
       {mostrarAnimacion && (
         <div className="recompensa-animacion">
           🎉 ¡Recompensa reclamada con éxito!
+        </div>
+      )}
+
+      {mostrarOverlayFelicidades && recompensaReclamada && (
+        <div
+          className="overlay-felicidades"
+          onClick={() => setMostrarOverlayFelicidades(false)}
+        >
+          <div
+            className="felicidades-contenido"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2>🎉 ¡Felicidades! 🎉</h2>
+            <p>
+              Has canjeado <strong>{recompensaReclamada.nombre}</strong>{" "}
+              exitosamente.
+            </p>
+            <button
+              className="boton-cerrar"
+              onClick={() => setMostrarOverlayFelicidades(false)}
+            >
+              Cerrar
+            </button>
+          </div>
         </div>
       )}
     </div>

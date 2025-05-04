@@ -1,0 +1,333 @@
+import React, { useEffect, useState } from "react";
+import Sidebar from "../components/Sidebar";
+import "../styles/insignias.css";
+import Cookies from "js-cookie";
+import confetti from "canvas-confetti";
+
+const InsigniasPage = () => {
+  const [user, setUser] = useState({
+    nombre: "",
+    puntos: 0,
+    avatar: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+  });
+  const [insignias, setInsignias] = useState([]);
+  const [insigniasReclamadas, setInsigniasReclamadas] = useState([]);
+  const [insigniaSeleccionada, setInsigniaSeleccionada] = useState(null);
+  const [mostrarAnimacion, setMostrarAnimacion] = useState(false);
+  const [mostrarOverlayFelicidades, setMostrarOverlayFelicidades] =
+    useState(false);
+  const [insigniaReclamada, setInsigniaReclamada] = useState(null);
+
+  const getCurrentUserId = () => {
+    const token = Cookies.get("token");
+    if (!token) return null;
+    try {
+      const payload = token.split(".")[1];
+      const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+      const { id } = JSON.parse(atob(base64));
+      return id;
+    } catch {
+      return null;
+    }
+  };
+
+  const userId = getCurrentUserId();
+
+  // Function to reload all necessary data
+  const fetchData = async () => {
+    try {
+      const token = Cookies.get("token");
+
+      // Fetch insignias disponibles
+      const resInsignias = await fetch("http://localhost:3000/insignias", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      const dataInsignias = await resInsignias.json();
+      if (Array.isArray(dataInsignias)) {
+        setInsignias(dataInsignias);
+      }
+
+      // Fetch insignias reclamadas
+      const resInsigniasReclamadas = await fetch(
+        "http://localhost:3000/reclamadas",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      const dataInsigniasReclamadas = await resInsigniasReclamadas.json();
+      if (Array.isArray(dataInsigniasReclamadas)) {
+        setInsigniasReclamadas(dataInsigniasReclamadas);
+      }
+
+      // Fetch user data
+      const resUsuario = await fetch(
+        `http://localhost:3000/usuario/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      const dataUsuario = await resUsuario.json();
+      const {
+        nombre,
+        apellido,
+        foto_perfil,
+        puntosAcumulados = 0,
+      } = dataUsuario;
+
+      setUser({
+        nombre: `${nombre} ${apellido}`,
+        puntos: puntosAcumulados,
+        avatar:
+          foto_perfil?.[0]?.url ||
+          "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+      });
+    } catch (err) {
+      console.error("Error cargando datos:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (userId) {
+      fetchData();
+    }
+  }, [userId]);
+
+  const lanzarConfeti = () => {
+    var end = Date.now() + 1 * 1000;
+    (function frame() {
+      confetti({
+        particleCount: 5,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+      });
+      confetti({
+        particleCount: 5,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+      });
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    })();
+  };
+
+  const handleReclamar = async () => {
+    if (!insigniaSeleccionada) return;
+    const token = Cookies.get("token");
+
+    try {
+      console.log("Insignia reclamada:", {
+        id_insignia: insigniaSeleccionada.id_insignia,
+      });
+      const res = await fetch("http://localhost:3000/reclamar", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id_insignia: insigniaSeleccionada.id_insignia,
+        }),
+      });
+
+      if (res.ok) {
+        setUser((prev) => ({
+          ...prev,
+          puntos: prev.puntos - insigniaSeleccionada.puntosrequeridos,
+        }));
+
+        setInsigniaReclamada(insigniaSeleccionada); // guardamos para mostrar en overlay
+        setMostrarOverlayFelicidades(true);
+        lanzarConfeti();
+
+        setInsigniaSeleccionada(null);
+        setMostrarAnimacion(true);
+        setTimeout(() => setMostrarAnimacion(false), 2500);
+
+        // Refrescar los datos para actualizar las insignias disponibles y reclamadas
+        fetchData();
+      } else {
+        const err = await res.json();
+        alert(`Error al reclamar insignia: ${err.message || "Error"}`);
+      }
+    } catch (err) {
+      console.error("Error al reclamar:", err);
+      alert("No se pudo reclamar la insignia.");
+    }
+  };
+
+  // Filtrar insignias disponibles que no han sido reclamadas
+  const insigniasDisponibles = insignias.filter(
+    (insignia) =>
+      !insigniasReclamadas.some(
+        (reclamada) => reclamada.id_insignia === insignia.id_insignia
+      )
+  );
+
+  return (
+    <div style={{ display: "flex", height: "100vh" }}>
+      <Sidebar active="Insignias" />
+      <main className="insignias-main">
+        <div className="insignias-title-container">
+          <h2 className="insignias-title">🏅Insignias</h2>
+          <p className="insignias-title-subtitle">
+            Mira el puntaje que has acumulado y canjea tus insignias.
+          </p>
+        </div>
+
+        <div className="insignias-content-container">
+          <div className="insignias-header">
+            <img src={user.avatar} alt="avatar" className="insignias-avatar" />
+            <div>
+              <h2 className="insignias-nombre">{user.nombre}</h2>
+              <p className="insignias-puntos">
+                Puntos acumulados: <strong>{user.puntos}</strong>
+              </p>
+            </div>
+          </div>
+
+          <h3 className="insignias-subtitle">Canjea tus puntos</h3>
+          <div className="canje-grid">
+            {insigniasDisponibles.map((i) => {
+              const puedeReclamar = user.puntos >= i.puntosrequeridos;
+              return (
+                <div
+                  key={i.id_insignia}
+                  className={`canje-card ${
+                    !puedeReclamar ? "canje-disabled" : ""
+                  }`}
+                >
+                  <div className="canje-icon">
+                    <img
+                      src={i.imagenes[0].url}
+                      alt={i.nombre}
+                      style={{ width: "100px", height: "100px" }}
+                    />
+                  </div>
+                  <h4 className="canje-nombre">{i.nombre}</h4>
+                  <p className="canje-puntos">{i.puntosrequeridos} puntos</p>
+                  <button
+                    className="canje-boton"
+                    disabled={!puedeReclamar}
+                    onClick={() => puedeReclamar && setInsigniaSeleccionada(i)}
+                  >
+                    Reclamar
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          <h3 className="insignias-reclamadas-subtitle">Insignias Reclamadas</h3>
+          <div className="canje-grid">
+            {insigniasReclamadas.map((i) => {
+              return (
+                <div key={i.id_insignia} className="canje-card canje-disabled">
+                  <div className="canje-icon">
+                    <img
+                      src={i.imagenes[0].url}
+                      alt={i.nombre}
+                      style={{ width: "100px", height: "100px" }}
+                    />
+                  </div>
+                  <h4 className="canje-nombre">{i.nombre}</h4>
+                  <p className="canje-puntos">{i.puntosrequeridos} puntos</p>
+                  <button className="canje-boton" disabled>
+                    Ya reclamado
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          {insigniaSeleccionada && (
+            <div
+              className="modal-insignias-overlay"
+              onClick={() => setInsigniaSeleccionada(null)}
+            >
+              <div
+                className="modal-insignias-content"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  className="modal-insignias-close"
+                  onClick={() => setInsigniaSeleccionada(null)}
+                >
+                  ✖
+                </button>
+                <h3>¿Deseas reclamar esta insignia?</h3>
+                <p>
+                  <strong>{insigniaSeleccionada.nombre}</strong>
+                </p>
+                <p>{insigniaSeleccionada.descripcion}</p>
+                <p>
+                  Esto costará{" "}
+                  <strong>
+                    {insigniaSeleccionada.puntosrequeridos} puntos
+                  </strong>
+                </p>
+                <div className="modal-insignias-buttons">
+                  <button className="confirmar-boton" onClick={handleReclamar}>
+                    Sí, reclamar
+                  </button>
+                  <button
+                    className="cancelar-boton"
+                    onClick={() => setInsigniaSeleccionada(null)}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+
+      {mostrarAnimacion && (
+        <div className="insignia-animacion">
+          🎉 ¡Insignia reclamada con éxito!
+        </div>
+      )}
+
+      {mostrarOverlayFelicidades && insigniaReclamada && (
+        <div
+          className="overlay-felicidades"
+          onClick={() => setMostrarOverlayFelicidades(false)}
+        >
+          <div
+            className="felicidades-contenido"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2>🎉 ¡Felicidades! 🎉</h2>
+            <p>
+              Has canjeado <strong>{insigniaReclamada.nombre}</strong>{" "}
+              exitosamente.
+            </p>
+            <button
+              className="boton-cerrar"
+              onClick={() => setMostrarOverlayFelicidades(false)}
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default InsigniasPage;

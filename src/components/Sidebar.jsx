@@ -12,6 +12,9 @@ import {
   FaChartBar,
   FaUserCircle,
   FaFolder,
+  FaJediOrder,
+  FaEmpire,
+  FaRebel
 } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import "../styles/sidebar.css";
@@ -94,7 +97,8 @@ const Sidebar = () => {
       { label: "Participar", path: "/participar", icon: <FaTasks /> },
       { label: "Mi perfil", path: "/perfil", icon: <FaUser /> },
       { label: "Publicaciones", path: "/publicaciones", icon: <FaBullhorn /> },
-      { label: "Recompensas", path: "/recompensas", icon: <FaMedal /> },
+      { label: "Recompensas", path: "/recompensas", icon: <FaMedal /> },      
+      { label: "Insignias", path: "/insignias", icon: <FaJediOrder  /> },
       { label: "Calendario", path: "/calendario", icon: <FaCalendarAlt /> },
       { label: "Estadísticas", path: "/estadisticas", icon: <FaChartBar /> },
     ],

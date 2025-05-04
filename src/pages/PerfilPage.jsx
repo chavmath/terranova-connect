@@ -10,6 +10,8 @@ const PerfilPage = () => {
   const [user, setUser] = useState(null);
   const [comentarios, setComentarios] = useState({});
   const [nuevoComentario, setNuevoComentario] = useState("");
+  const [seguidores, setSeguidores] = useState([]);
+  const [seguidos, setSeguidos] = useState([]);
 
   // 📥 Cargar publicaciones + perfil
   useEffect(() => {
@@ -19,14 +21,14 @@ const PerfilPage = () => {
         const [pubsRes, userRes] = await Promise.all([
           fetch("http://localhost:3000/mis-publicaciones", {
             headers: {
-              Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
             credentials: "include",
           }),
           fetch("http://localhost:3000/profile", {
             headers: {
-              Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
             credentials: "include",
@@ -39,6 +41,26 @@ const PerfilPage = () => {
         if (pubsRes.ok && userRes.ok) {
           setPublicaciones(publicacionesData);
           setUser(userData);
+
+          // 👇 Fetch para seguidores y seguidos
+          const seguimientoRes = await fetch(
+            `http://localhost:3000/seguimientos/${userData.id_usuario}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+            }
+          );
+
+          if (seguimientoRes.ok) {
+            const { seguidores, seguidos } = await seguimientoRes.json();
+            setSeguidores(seguidores);
+            setSeguidos(seguidos);
+          } else {
+            console.warn("No se pudieron obtener seguidores/seguidos");
+          }
         } else {
           console.error("Error al cargar datos del perfil o publicaciones");
         }
@@ -282,11 +304,11 @@ const PerfilPage = () => {
                 <span> publicaciones</span>
               </div>
               <div>
-                <strong>0</strong>
+                <strong>{seguidores.length}</strong>
                 <span> seguidores</span>
               </div>
               <div>
-                <strong>0</strong>
+                <strong>{seguidos.length}</strong>
                 <span> seguidos</span>
               </div>
             </div>

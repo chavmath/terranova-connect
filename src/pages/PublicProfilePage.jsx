@@ -17,6 +17,7 @@ const PublicProfilePage = () => {
   const [nuevoComentario, setNuevoComentario] = useState("");
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
+  const [seguidos, setSeguidos] = useState([]); // Nuevo estado para seguidos
 
   useEffect(() => {
     if (!userId) {
@@ -29,7 +30,7 @@ const PublicProfilePage = () => {
       try {
         const res = await fetch(`http://localhost:3000/usuario/${userId}`, {
           headers: {
-            Authorization: `Bearer ${token}`, // Agregar el token para el autor también
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
           credentials: "include",
@@ -37,15 +38,50 @@ const PublicProfilePage = () => {
         if (!res.ok) throw new Error("Usuario no encontrado");
         const u = await res.json();
         setUser(u);
-        setFollowersCount(u.seguidoresCount ?? 0);
-        setIsFollowing(u.isFollowing ?? false);
+
+        // 2) Obtener seguidores y seguidos usando /seguimientos/:idPerfil
+        const resSeguimiento = await fetch(
+          `http://localhost:3000/seguimientos/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
+
+        if (!resSeguimiento.ok)
+          throw new Error("Error al obtener seguidores y seguidos");
+
+        const { seguidores, seguidos } = await resSeguimiento.json();
+        setFollowersCount(seguidores.length);
+        setSeguidos(seguidos);
+
+        // Obtener el ID del usuario autenticado desde el token
+        const currentUserId = getUserIdFromToken();
+
+        // Validar si el usuario autenticado sigue al perfil
+        const yaSigue = seguidores.some(
+          (seg) => seg.id_usuario === currentUserId
+        );
+        setIsFollowing(yaSigue);
       } catch (err) {
         console.error(err);
         navigate("/not-found");
       }
     };
 
-    // 2) Carga publicaciones del usuario
+    const getUserIdFromToken = () => {
+      try {
+        const tokenData = JSON.parse(atob(token.split(".")[1]));
+        return tokenData.id || tokenData.id_usuario; // Asegúrate de cuál usas en tu payload
+      } catch (err) {
+        console.error("Error al decodificar token:", err);
+        return null;
+      }
+    };
+
     const fetchPublicaciones = async () => {
       try {
         const res = await fetch(
@@ -140,22 +176,28 @@ const PublicProfilePage = () => {
     }
   };
 
-  // Follow / unfollow
   const toggleFollow = async () => {
     try {
-      const res = await fetch(
-        `http://localhost:3000/usuario/${userId}/${
-          isFollowing ? "unfollow" : "follow"
-        }`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          credentials: "include",
-        }
-      );
-      if (!res.ok) throw new Error("Error al (de)seguir");
-      setIsFollowing((f) => !f);
-      setFollowersCount((c) => c + (isFollowing ? -1 : 1));
+      const res = await fetch(`http://localhost:3000/seguimiento`, {
+        method: isFollowing ? "DELETE" : "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ seguidoId: userId }),
+      });
+
+      if (!res.ok)
+        throw new Error(
+          isFollowing ? "Error al dejar de seguir" : "Error al seguir"
+        );
+
+      // Solo actualiza seguidores del perfil público
+      setIsFollowing((prev) => !prev);
+      setFollowersCount((prev) => prev + (isFollowing ? -1 : 1));
+
+      // NO modificar setSeguidos aquí, eso es del perfil visto, no del usuario logueado
     } catch (err) {
       console.warn(err);
     }
@@ -197,10 +239,10 @@ const PublicProfilePage = () => {
     e.preventDefault();
     const texto = nuevoComentario.trim();
     if (!texto || !selectedPost) return;
-  
+
     const token = Cookies.get("token");
-    const postId = selectedPost.id;  // Asegúrate de que aquí coincida con tu mapping
-  
+    const postId = selectedPost.id; // Asegúrate de que aquí coincida con tu mapping
+
     try {
       // 1) POST para crear comentario
       const res = await fetch(
@@ -214,22 +256,26 @@ const PublicProfilePage = () => {
           credentials: "include",
           body: JSON.stringify({
             texto,
-            publicacionId: postId,  // ← de nuevo en el body
+            publicacionId: postId, // ← de nuevo en el body
           }),
         }
       );
-  
+
       const data = await res.json();
       if (!res.ok) {
         // muestra el error que venga del servidor
         console.error("Error al crear comentario:", data);
-        Swal.fire("Error", data.error || "No se pudo crear el comentario", "error");
+        Swal.fire(
+          "Error",
+          data.error || "No se pudo crear el comentario",
+          "error"
+        );
         return;
       }
-  
+
       // 2) si todo OK, limpio el input
       setNuevoComentario("");
-  
+
       // 3) recargo los comentarios
       const resComentarios = await fetch(
         `http://localhost:3000/publicaciones/${postId}/comentarios`,
@@ -240,14 +286,14 @@ const PublicProfilePage = () => {
           credentials: "include",
         }
       );
-  
+
       if (!resComentarios.ok) {
         console.warn("No se pudieron recargar comentarios");
         return;
       }
-  
+
       const dataComentarios = await resComentarios.json();
-  
+
       // 4) enriquezco cada comentario con su autor
       const autorCache = new Map();
       const enriquecidos = await Promise.all(
@@ -269,7 +315,7 @@ const PublicProfilePage = () => {
           return { ...comentario, autor: autor || null };
         })
       );
-  
+
       // 5) actualizo el estado
       setComentarios((prev) => ({
         ...prev,
@@ -280,7 +326,6 @@ const PublicProfilePage = () => {
       Swal.fire("Error", "Hubo un problema al enviar el comentario", "error");
     }
   };
-  
 
   // Util para “hace X minutos/días…”
   const tiempoTranscurrido = (fecha) => {
@@ -333,11 +378,11 @@ const PublicProfilePage = () => {
                 <strong>{followersCount}</strong> seguidores
               </div>
               <div>
-                <strong>{user.seguidos}</strong> seguidos
+                <strong>{seguidos.length}</strong> seguidos
               </div>
             </div>
             <p className="perfil-ig-rol">
-              {user.rol} – {user.email}
+              {user.rol} – {user.correo}
             </p>
           </div>
         </div>

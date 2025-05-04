@@ -15,6 +15,7 @@ import EstadisticasPage from "./pages/EstadisticasPage";
 import EvidenciasPage from "./pages/EvidenciasPage";
 import RutaAdmin from "./components/RutaAdmin";
 import EstadisticasAdminPage from "./pages/EstadisticasAdminPage";
+import InsigniasPage from "./pages/InsigniasPage";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
       <Route path="/estadisticas" element={<RutaProtegida> <EstadisticasPage /></RutaProtegida>} />
       <Route path="/evidencias" element={<RutaAdmin> <EvidenciasPage /></RutaAdmin>} />
       <Route path="/estadisticas-admin" element={<RutaAdmin> <EstadisticasAdminPage /></RutaAdmin>} />
+      <Route path="/insignias" element={<RutaProtegida> <InsigniasPage /></RutaProtegida>} />
     </Routes>
   );
 }

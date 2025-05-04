@@ -1,3 +1,6 @@
+/* ---------------------------------- */
+/* Estilos generales que ya tenías */
+/* ---------------------------------- */
 .rewards-main {
   flex: 1;
   background-color: #f9f9f9;
@@ -276,6 +279,82 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   animation: fadeInOut 2.5s ease;
   z-index: 9999;
+}
+
+/* ---------------------------------- */
+/* Agregados nuevos: Overlay Felicidades */
+/* ---------------------------------- */
+
+.overlay-felicidades {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(10, 10, 10, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.4s ease;
+}
+
+.felicidades-contenido {
+  background: white;
+  padding: 2.5rem 3rem;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.25);
+  animation: popIn 0.5s ease-out;
+}
+
+.felicidades-contenido h2 {
+  font-size: 32px;
+  margin-bottom: 1rem;
+  color: #031f7b;
+}
+
+.felicidades-contenido p {
+  font-size: 18px;
+  color: #444;
+  margin-bottom: 1.5rem;
+}
+
+.boton-cerrar {
+  background-color: #f97316;
+  color: white;
+  padding: 0.7rem 1.5rem;
+  font-weight: bold;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.boton-cerrar:hover {
+  background-color: #d65c0b;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes fadeInOut {
