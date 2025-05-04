@@ -33,10 +33,10 @@ commands:
       - run:
           name: Install curl
           command: |
-            if command -v apk >/dev/null 2>&1; then
+            if command -v apk >/main/null 2>&1; then
               echo "Using apk to install curl..."
               apk add --no-cache curl
-            elif command -v apt-get >/dev/null 2>&1; then
+            elif command -v apt-get >/main/null 2>&1; then
               echo "Using apt-get to install curl..."
               apt-get update && apt-get install -y curl
             else
@@ -254,46 +254,46 @@ workflows:
       - clone_repository:
           filters:
             branches:
-              only: dev
+              only: main
       - check_bun_version:
           requires:
             - clone_repository
           filters:
             branches:
-              only: dev
+              only: main
       - install_dependencies:
           requires:
             - check_bun_version
           filters:
             branches:
-              only: dev
+              only: main
       - run_unit_tests:
           requires:
             - install_dependencies
           filters:
             branches:
-              only: dev
+              only: main
       - code_quality_analysis:
           requires:
             - install_dependencies
           filters:
             branches:
-              only: dev
+              only: main
       - build_application:
           requires:
             - run_unit_tests
             - code_quality_analysis
           filters:
             branches:
-              only: dev
+              only: main
       - deploy_to_production:
           requires:
             - build_application
           filters:
             branches:
-              only: dev
+              only: main
       - post_notifications:
           context: github-context
           filters:
             branches:
-              only: dev
+              only: main
