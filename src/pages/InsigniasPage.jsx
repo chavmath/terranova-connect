@@ -213,7 +213,10 @@ const InsigniasPage = () => {
                 >
                   <div className="canje-icon">
                     <img
-                      src={i.imagenes[0].url}
+                      src={
+                        i.imagenes?.[0]?.url ||
+                        "https://via.placeholder.com/100"
+                      }
                       alt={i.nombre}
                       style={{ width: "100px", height: "100px" }}
                     />
@@ -232,14 +235,19 @@ const InsigniasPage = () => {
             })}
           </div>
 
-          <h3 className="insignias-reclamadas-subtitle">Insignias Reclamadas</h3>
+          <h3 className="insignias-reclamadas-subtitle">
+            Insignias Reclamadas
+          </h3>
           <div className="canje-grid">
             {insigniasReclamadas.map((i) => {
               return (
                 <div key={i.id_insignia} className="canje-card canje-disabled">
                   <div className="canje-icon">
                     <img
-                      src={i.imagenes[0].url}
+                      src={
+                        i.imagenes?.[0]?.url ||
+                        "https://via.placeholder.com/100"
+                      }
                       alt={i.nombre}
                       style={{ width: "100px", height: "100px" }}
                     />

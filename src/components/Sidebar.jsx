@@ -14,7 +14,7 @@ import {
   FaFolder,
   FaJediOrder,
   FaEmpire,
-  FaRebel
+  FaRebel,
 } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import "../styles/sidebar.css";
@@ -97,8 +97,8 @@ const Sidebar = () => {
       { label: "Participar", path: "/participar", icon: <FaTasks /> },
       { label: "Mi perfil", path: "/perfil", icon: <FaUser /> },
       { label: "Publicaciones", path: "/publicaciones", icon: <FaBullhorn /> },
-      { label: "Recompensas", path: "/recompensas", icon: <FaMedal /> },      
-      { label: "Insignias", path: "/insignias", icon: <FaJediOrder  /> },
+      { label: "Recompensas", path: "/recompensas", icon: <FaMedal /> },
+      { label: "Insignias", path: "/insignias", icon: <FaJediOrder /> },
       { label: "Calendario", path: "/calendario", icon: <FaCalendarAlt /> },
       { label: "Estadísticas", path: "/estadisticas", icon: <FaChartBar /> },
     ],
@@ -113,13 +113,17 @@ const Sidebar = () => {
       { label: "Calendario", path: "/calendario", icon: <FaCalendarAlt /> },
     ],
     administrador: [
-      { label: "Estadísticas", path: "/estadisticas-admin", icon: <FaChartBar /> },
+      {
+        label: "Estadísticas",
+        path: "/estadisticas-admin",
+        icon: <FaChartBar />,
+      },
       { label: "Evidencias", path: "/evidencias", icon: <FaFolder /> },
       { label: "Configuración", path: "/configuracion", icon: <FaCog /> },
     ],
   };
 
-  const items = itemsPorRol[userRol.toLowerCase()] || [];
+  const items = itemsPorRol[userRol?.toLowerCase?.()] || [];
 
   const isActive = (path) => {
     if (path === "/perfil") {
