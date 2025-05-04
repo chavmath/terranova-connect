@@ -1,41 +1,301 @@
-# This config was automatically generated from your source code
-# Stacks detected: deps:node:.
 version: 2.1
-orbs:
-  node: circleci/node@5
-jobs:
-  build-node:
-    # Build node project
-    executor: node/default
+
+# Define reusable executors
+executors:
+  bun_executor:
+    docker:
+      - image: oven/bun:latest
+    working_directory: ~/project
+    environment:
+      NODE_MODULES_CHECK_PATH: node_modules
+      BUN_LOCK_FILE: bun.lockb
+      DIST_FOLDER: dist
+      GITHUB_API_BASE: https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+
+# Define reusable commands
+commands:
+  checkout_code:
+    description: "Checkout code from GitHub"
     steps:
       - checkout
-      - node/install-packages:
-          pkg-manager: npm
       - run:
-          command: npm run build
+          name: Set Git Commit SHA
+          command: echo "export GIT_COMMIT=$CIRCLE_SHA1" >> $BASH_ENV
       - run:
-          name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/artifacts
-      # Copy output to artifacts dir
-      - run:
-          name: Copy artifacts
-          command: cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
-      - store_artifacts:
-          path: ~/artifacts
-          destination: node-build
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
-    docker:
-      - image: cimg/base:stable
+          name: Log Branch and Commit
+          command: |
+            echo "📌 Trabajando con la rama: $CIRCLE_BRANCH"
+            echo "📌 Commit SHA: $GIT_COMMIT"
+
+  install_curl:
+    description: "Install curl in the Docker image"
     steps:
-      # Replace this with steps to deploy to users
       - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
+          name: Install curl
+          command: |
+            if command -v apk >/dev/null 2>&1; then
+              echo "Using apk to install curl..."
+              apk add --no-cache curl
+            elif command -v apt-get >/dev/null 2>&1; then
+              echo "Using apt-get to install curl..."
+              apt-get update && apt-get install -y curl
+            else
+              echo "No supported package manager found (apk or apt-get)"
+              exit 1
+            fi
+            command -v curl || { echo "curl installation failed"; exit 1; }
+
+  notify_github:
+    description: "Send status to GitHub"
+    parameters:
+      status:
+        type: string
+      description:
+        type: string
+    steps:
+      - install_curl
+      - run:
+          name: Send GitHub Status
+          command: |
+            echo "GitHub API URL: https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/statuses/$GIT_COMMIT"
+            echo "Username: $CIRCLE_PROJECT_USERNAME"
+            echo "Reponame: $CIRCLE_PROJECT_REPONAME"
+            echo "Commit SHA: $GIT_COMMIT"
+            curl -X POST \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/statuses/$GIT_COMMIT \
+              -d "{\"state\": \"<< parameters.status >>\", \"description\": \"<< parameters.description >>\", \"context\": \"CI/CD\", \"target_url\": \"$CIRCLE_BUILD_URL\"}"
+
+# Define jobs
+jobs:
+  clone_repository:
+    executor: bun_executor
+    steps:
+      - checkout_code
+
+  check_bun_version:
+    executor: bun_executor
+    steps:
+      - checkout_code
+      - run:
+          name: Check Bun Version
+          command: bun --version
+
+  install_dependencies:
+    executor: bun_executor
+    steps:
+      - checkout_code
+      - run:
+          name: Install Dependencies
+          command: |
+            echo "Checking existing dependencies..."
+            ls -d $NODE_MODULES_CHECK_PATH || echo "Module not found"
+            rm -rf node_modules
+            rm -f $BUN_LOCK_FILE
+            bun install
+            echo "Verifying installation..."
+            ls -d $NODE_MODULES_CHECK_PATH
+      - persist_to_workspace:
+          root: .
+          paths:
+            - node_modules
+            - bun.lockb
+            - package.json
+
+  run_unit_tests:
+    executor: bun_executor
+    parallelism: 1
+    steps:
+      - checkout_code
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run Jest Tests with Coverage
+          command: |
+            mkdir -p test-results/jest
+            mkdir -p coverage
+            npx jest --ci --coverage --reporters=default --reporters=jest-junit --outputFile=test-results/jest/results.xml
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
+      - store_artifacts:
+          path: coverage
+      - when:
+          condition:
+            on_fail
+          steps:
+            - notify_github:
+                status: failure
+                description: "❌ Unit tests failed"
+
+  code_quality_analysis:
+    executor: bun_executor
+    steps:
+      - checkout_code
+      - attach_workspace:
+          at: .
+      - run:
+          name: Code Quality Analysis
+          command: |
+            echo "Running lint..."
+            echo "Bun version:"
+            bun --version
+            echo "Lint command: bun run lint"
+            bun run lint || echo "⚠ Linting issues found, continuing..."
+            echo "Lint exit code: $?"
+            if [ -f eslint-report.xml ]; then
+              echo "ESLint report generated: eslint-report.xml"
+              cat eslint-report.xml
+            else
+              echo "No ESLint report found"
+            fi
+      - store_artifacts:
+          path: eslint-report.xml
+      - when:
+          condition:
+            on_fail
+          steps:
+            - notify_github:
+                status: failure
+                description: "❌ Linting failed"
+
+  build_application:
+    executor: bun_executor
+    steps:
+      - checkout_code
+      - attach_workspace:
+          at: .
+      - run:
+          name: Build Application
+          command: |
+            echo "Running build..."
+            bun run build
+            echo "Checking dist folder..."
+            if [ -d dist ]; then
+              echo "dist folder contents:"
+              ls -l dist
+            else
+              echo "dist folder not found"
+            fi
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist
+      - when:
+          condition:
+            on_fail
+          steps:
+            - notify_github:
+                status: failure
+                description: "❌ Build failed"
+
+  deploy_to_production:
+    executor: bun_executor
+    steps:
+      - checkout_code
+      - attach_workspace:
+          at: .
+      - run:
+          name: Check dist folder
+          command: |
+            echo "Checking dist folder..."
+            if [ -d dist ]; then
+              echo "dist folder contents:"
+              ls -l dist
+            else
+              echo "dist folder not found"
+            fi
+      - store_artifacts:
+          path: dist
+          destination: deploy-output
+      - run:
+          name: Log Deployment
+          command: |
+            echo "📤 Artifacts from dist stored as deploy-output; download from CircleCI UI"
+            touch /tmp/deploy_success
+      - when:
+          condition:
+            on_fail
+          steps:
+            - notify_github:
+                status: failure
+                description: "❌ Deployment failed"
+
+  post_notifications:
+    executor: bun_executor
+    steps:
+      - install_curl
+      - run:
+          name: Send GitHub Notification
+          command: |
+            echo "Checking pipeline status..."
+            echo "GitHub API URL: https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/statuses/$GIT_COMMIT"
+            echo "Username: $CIRCLE_PROJECT_USERNAME"
+            echo "Reponame: $CIRCLE_PROJECT_REPONAME"
+            echo "Commit SHA: $GIT_COMMIT"
+            STATUS="failure"
+            DESCRIPTION="❌ Pipeline failed"
+            if [ -f /tmp/deploy_success ]; then
+              STATUS="success"
+              DESCRIPTION="✅ Build passed from CircleCI"
+            fi
+            curl -X POST \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/statuses/$GIT_COMMIT \
+              -d "{\"state\": \"$STATUS\", \"description\": \"$DESCRIPTION\", \"context\": \"CI/CD\", \"target_url\": \"$CIRCLE_BUILD_URL\"}"
+
+# Define workflows
 workflows:
-  build:
+  build_test_deploy:
     jobs:
-      - build-node
-    # - deploy:
-    #     requires:
-    #       - build-node
+      - clone_repository:
+          filters:
+            branches:
+              only: dev
+      - check_bun_version:
+          requires:
+            - clone_repository
+          filters:
+            branches:
+              only: dev
+      - install_dependencies:
+          requires:
+            - check_bun_version
+          filters:
+            branches:
+              only: dev
+      - run_unit_tests:
+          requires:
+            - install_dependencies
+          filters:
+            branches:
+              only: dev
+      - code_quality_analysis:
+          requires:
+            - install_dependencies
+          filters:
+            branches:
+              only: dev
+      - build_application:
+          requires:
+            - run_unit_tests
+            - code_quality_analysis
+          filters:
+            branches:
+              only: dev
+      - deploy_to_production:
+          requires:
+            - build_application
+          filters:
+            branches:
+              only: dev
+      - post_notifications:
+          context: github-context
+          requires:
+            - deploy_to_production
+          filters:
+            branches:
+              only: dev
