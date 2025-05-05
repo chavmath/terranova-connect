@@ -17,16 +17,20 @@ executors:
 
 commands:
   checkout_code:
+    description: "Checkout code from GitHub"
     steps:
       - checkout
       - run:
           name: Set Git Commit SHA
-          command: echo "export GIT_COMMIT=$CIRCLE_SHA1" >> $BASH_ENV
+          command: |
+            echo "export GIT_COMMIT=$CIRCLE_SHA1" >> $BASH_ENV
+            source $BASH_ENV
       - run:
           name: Log Branch and Commit
           command: |
-            echo "📌 Branch: $CIRCLE_BRANCH"
-            echo "📌 Commit: $GIT_COMMIT"
+            echo "Username: $CIRCLE_PROJECT_USERNAME"
+            echo "Reponame: $CIRCLE_PROJECT_REPONAME"
+            echo "Commit: $GIT_COMMIT"
 
   install_curl:
     description: "Install curl in the Docker image"
