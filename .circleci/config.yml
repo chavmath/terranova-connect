@@ -97,14 +97,12 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Run Jest Tests with Coverage
+          name: Run Tests with Bun
           command: |
             mkdir -p test-results/jest
             mkdir -p coverage
-            npx jest --ci --coverage --reporters=default --reporters=jest-junit --outputFile=test-results/jest/results.xml
+            bun test --coverage || exit 1
       - store_test_results:
-          path: test-results
-      - store_artifacts:
           path: test-results
       - store_artifacts:
           path: coverage
