@@ -97,12 +97,6 @@ jobs:
           path: test-results
       - store_artifacts:
           path: coverage
-      - when:
-          condition: on_fail
-          steps:
-            - notify_github:
-                status: failure
-                description: "❌ Unit tests failed"
       - email/send:
           to: "chavmath@gmail.com"
           subject: "✅ Tests completados (Build #$CIRCLE_BUILD_NUM)"
@@ -141,12 +135,6 @@ jobs:
           root: .
           paths:
             - dist
-      - when:
-          condition: on_fail
-          steps:
-            - notify_github:
-                status: failure
-                description: "❌ Build failed"
       - email/send:
           to: "chavmath@gmail.com"
           subject: "⚙️ Build completado (Build #$CIRCLE_BUILD_NUM)"
@@ -173,12 +161,6 @@ jobs:
       - run:
           name: Log Deployment
           command: touch /tmp/deploy_success
-      - when:
-          condition: on_fail
-          steps:
-            - notify_github:
-                status: failure
-                description: "❌ Deployment failed"
       - email/send:
           to: "chavmath@gmail.com"
           subject: "🚀 Despliegue exitoso (Build #$CIRCLE_BUILD_NUM)"
