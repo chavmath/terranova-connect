@@ -191,20 +191,20 @@ jobs:
     executor: node_executor
     steps:
       - run:
-          name: Debug GitHub Info
-          command: |
-            echo "🔍 DEBUG INFO:"
-            echo "Username: ${CIRCLE_PROJECT_USERNAME:-undefined}"
-            echo "Reponame: ${CIRCLE_PROJECT_REPONAME:-undefined}"
-            echo "Commit: ${GIT_COMMIT:-undefined}"
-            echo "Build URL: ${CIRCLE_BUILD_URL:-undefined}"
-      - run:
           name: Send GitHub Notification
           command: |
+            echo "🔍 Verificando variables de entorno necesarias..."
             if [ -z "$GITHUB_TOKEN" ] || [ -z "$CIRCLE_PROJECT_USERNAME" ] || [ -z "$CIRCLE_PROJECT_REPONAME" ] || [ -z "$GIT_COMMIT" ]; then
               echo "❌ Missing required environment variables. Aborting GitHub notification."
+              echo "GITHUB_TOKEN: ${GITHUB_TOKEN:+set}"
+              echo "CIRCLE_PROJECT_USERNAME: ${CIRCLE_PROJECT_USERNAME:-missing}"
+              echo "CIRCLE_PROJECT_REPONAME: ${CIRCLE_PROJECT_REPONAME:-missing}"
+              echo "GIT_COMMIT: ${GIT_COMMIT:-missing}"
               exit 1
             fi
+
+            echo "✅ Variables de entorno definidas"
+            echo "🔁 Enviando estado a GitHub"
 
             STATUS="failure"
             DESCRIPTION="❌ Pipeline failed"
