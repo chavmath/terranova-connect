@@ -56,7 +56,6 @@ commands:
       description:
         type: string
     steps:
-      - install_curl
       - run:
           name: Send GitHub Status
           command: |
