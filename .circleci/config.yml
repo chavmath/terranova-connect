@@ -1,9 +1,9 @@
 version: 2.1
 
 executors:
-  bun_executor:
+  node_executor:
     docker:
-      - image: oven/bun:latest
+      - image: cimg/node:18.17
     working_directory: ~/project
     environment:
       NODE_MODULES_CHECK_PATH: node_modules
@@ -90,18 +90,19 @@ jobs:
             - package.json
 
   run_unit_tests:
-    executor: bun_executor
+    executor: node_executor
     parallelism: 1
     steps:
-      - checkout_code
-      - attach_workspace:
-          at: .
+      - checkout
       - run:
-          name: Run Tests with Bun
+          name: Install dependencies
+          command: npm ci
+      - run:
+          name: Run Jest Tests with Coverage
           command: |
             mkdir -p test-results/jest
             mkdir -p coverage
-            bun test --coverage || exit 1
+            npx jest --ci --coverage --reporters=default --reporters=jest-junit --outputFile=test-results/jest/results.xml
       - store_test_results:
           path: test-results
       - store_artifacts:
