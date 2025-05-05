@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  email: cinotify/email@1.2.0
+
 executors:
   node_executor:
     docker:
@@ -77,6 +80,11 @@ jobs:
     executor: node_executor
     steps:
       - checkout_code
+      - email/send:
+          to: "chavmath@gmail.com"
+          subject: "📥 Clone iniciado (Build #$CIRCLE_BUILD_NUM)"
+          body: "Repositorio clonado en la rama *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1\nVer: $CIRCLE_BUILD_URL"
+
 
   check_bun_version:
     executor: bun_executor
@@ -100,6 +108,10 @@ jobs:
             - node_modules
             - bun.lockb
             - package.json
+      - email/send:
+          to: "chavmath@gmail.com"
+          subject: "📦 Dependencias instaladas (Build #$CIRCLE_BUILD_NUM)"
+          body: "Dependencias instaladas en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1"
 
   run_unit_tests:
     executor: node_executor
@@ -122,6 +134,11 @@ jobs:
             - notify_github:
                 status: failure
                 description: "❌ Unit tests failed"
+      - email/send:
+          to: "chavmath@gmail.com"
+          subject: "✅ Tests completados (Build #$CIRCLE_BUILD_NUM)"
+          body: "Pruebas completadas exitosamente en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1\nVer: $CIRCLE_BUILD_URL"
+
 
   code_quality_analysis:
     executor: node_executor
@@ -136,6 +153,11 @@ jobs:
             npm run lint || echo "⚠ Linting issues found"
       - store_artifacts:
           path: eslint-report.xml
+      - email/send:
+          to: "chavmath@gmail.com"
+          subject: "🔍 Lint completado (Build #$CIRCLE_BUILD_NUM)"
+          body: "Análisis de código completado en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1"
+
 
   build_application:
     executor: node_executor
@@ -156,7 +178,10 @@ jobs:
             - notify_github:
                 status: failure
                 description: "❌ Build failed"
-
+      - email/send:
+          to: "chavmath@gmail.com"
+          subject: "⚙️ Build completado (Build #$CIRCLE_BUILD_NUM)"
+          body: "Aplicación compilada correctamente en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1\nVer: $CIRCLE_BUILD_URL"
 
   deploy_to_production:
     executor: node_executor
@@ -185,39 +210,10 @@ jobs:
             - notify_github:
                 status: failure
                 description: "❌ Deployment failed"
-
-
-  post_notifications:
-    executor: node_executor
-    steps:
-      - run:
-          name: Send GitHub Notification
-          command: |
-            echo "🔍 Verificando variables de entorno necesarias..."
-            if [ -z "$GITHUB_TOKEN" ] || [ -z "$CIRCLE_PROJECT_USERNAME" ] || [ -z "$CIRCLE_PROJECT_REPONAME" ] || [ -z "$GIT_COMMIT" ]; then
-              echo "❌ Missing required environment variables. Aborting GitHub notification."
-              echo "GITHUB_TOKEN: ${GITHUB_TOKEN:+set}"
-              echo "CIRCLE_PROJECT_USERNAME: ${CIRCLE_PROJECT_USERNAME:-missing}"
-              echo "CIRCLE_PROJECT_REPONAME: ${CIRCLE_PROJECT_REPONAME:-missing}"
-              echo "GIT_COMMIT: ${GIT_COMMIT:-missing}"
-              exit 1
-            fi
-
-            echo "✅ Variables de entorno definidas"
-            echo "🔁 Enviando estado a GitHub"
-
-            STATUS="failure"
-            DESCRIPTION="❌ Pipeline failed"
-            if [ -f /tmp/deploy_success ]; then
-              STATUS="success"
-              DESCRIPTION="✅ Build passed from CircleCI"
-            fi
-
-            curl -X POST \
-              -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/statuses/$GIT_COMMIT \
-              -d "{\"state\": \"$STATUS\", \"description\": \"$DESCRIPTION\", \"context\": \"CI/CD\", \"target_url\": \"$CIRCLE_BUILD_URL\"}"
+      - email/send:
+          to: "chavmath@gmail.com"
+          subject: "🚀 Despliegue exitoso (Build #$CIRCLE_BUILD_NUM)"
+          body: "Despliegue completado correctamente en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1\nVer: $CIRCLE_BUILD_URL"
 
 workflows:
   build_test_deploy:
@@ -260,12 +256,6 @@ workflows:
       - deploy_to_production:
           requires:
             - build_application
-          filters:
-            branches:
-              only: main
-      - post_notifications:
-          requires:
-            - deploy_to_production
           filters:
             branches:
               only: main
