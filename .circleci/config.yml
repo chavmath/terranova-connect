@@ -24,6 +24,8 @@ commands:
           name: Set Git Commit SHA
           command: |
             echo "export GIT_COMMIT=$CIRCLE_SHA1" >> $BASH_ENV
+            echo "export CIRCLE_PROJECT_USERNAME=$CIRCLE_PROJECT_USERNAME" >> $BASH_ENV
+            echo "export CIRCLE_PROJECT_REPONAME=$CIRCLE_PROJECT_REPONAME" >> $BASH_ENV
             source $BASH_ENV
       - run:
           name: Log Branch and Commit
@@ -62,16 +64,13 @@ commands:
             echo "Username: $CIRCLE_PROJECT_USERNAME"
             echo "Reponame: $CIRCLE_PROJECT_REPONAME"
             echo "Commit: $GIT_COMMIT"
+
             curl -X POST \
-              -H "Authorization: token ${GITHUB_TOKEN}" \
+              -H "Authorization: token $GITHUB_TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/statuses/${GIT_COMMIT}" \
-              -d "{
-                \"state\": \"<< parameters.status >>\",
-                \"description\": \"<< parameters.description >>\",
-                \"context\": \"CI/CD\",
-                \"target_url\": \"$CIRCLE_BUILD_URL\"
-              }"
+              https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/statuses/$GIT_COMMIT \
+              -d "{\"state\": \"<< parameters.status >>\", \"description\": \"<< parameters.description >>\", \"context\": \"CI/CD\", \"target_url\": \"$CIRCLE_BUILD_URL\"}"
+
 
 jobs:
   clone_repository:
