@@ -33,13 +33,12 @@ commands:
             echo "Username: $CIRCLE_PROJECT_USERNAME"
             echo "Reponame: $CIRCLE_PROJECT_REPONAME"
             echo "Commit: $GIT_COMMIT"
-      - run:
-          name: Save Commit SHA to file
-          command: echo $CIRCLE_SHA1 > .commit_sha
       - persist_to_workspace:
           root: .
           paths:
-            - .commit_sha
+            - node_modules
+            - bun.lockb
+            - package.json
 
 
   install_curl:
@@ -85,6 +84,13 @@ jobs:
     executor: node_executor
     steps:
       - checkout_code
+      - run:
+          name: Save Commit SHA
+          command: echo $CIRCLE_SHA1 > .commit_sha
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .commit_sha
 
   check_bun_version:
     executor: bun_executor
