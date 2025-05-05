@@ -84,7 +84,8 @@ jobs:
           body: "Dependencias instaladas en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1"
 
   run_unit_tests:
-    executor: node_executor
+    executor: node_executor    
+    parallelism: 2
     steps:
       - checkout
       - run: npm ci
@@ -106,6 +107,7 @@ jobs:
 
   code_quality_analysis:
     executor: node_executor
+    parallelism: 2
     steps:
       - checkout_code
       - attach_workspace:
