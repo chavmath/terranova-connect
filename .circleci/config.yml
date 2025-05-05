@@ -33,6 +33,14 @@ commands:
             echo "Username: $CIRCLE_PROJECT_USERNAME"
             echo "Reponame: $CIRCLE_PROJECT_REPONAME"
             echo "Commit: $GIT_COMMIT"
+      - run:
+          name: Save Commit SHA to file
+          command: echo $CIRCLE_SHA1 > .commit_sha
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .commit_sha
+
 
   install_curl:
     steps:
@@ -190,6 +198,14 @@ jobs:
   post_notifications:
     executor: node_executor
     steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Load Commit SHA
+          command: |
+            export GIT_COMMIT=$(cat .commit_sha)
+            echo "export GIT_COMMIT=$GIT_COMMIT" >> $BASH_ENV
+            source $BASH_ENV
       - run:
           name: Send GitHub Notification
           command: |
