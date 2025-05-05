@@ -23,7 +23,6 @@ commands:
       - run:
           name: Set Git Commit SHA
           command: |
-            echo "$CIRCLE_SHA1" > .commit_sha
             echo "export GIT_COMMIT=$CIRCLE_SHA1" >> $BASH_ENV
             echo "export CIRCLE_PROJECT_USERNAME=$CIRCLE_PROJECT_USERNAME" >> $BASH_ENV
             echo "export CIRCLE_PROJECT_REPONAME=$CIRCLE_PROJECT_REPONAME" >> $BASH_ENV
@@ -34,14 +33,6 @@ commands:
             echo "Username: $CIRCLE_PROJECT_USERNAME"
             echo "Reponame: $CIRCLE_PROJECT_REPONAME"
             echo "Commit: $GIT_COMMIT"
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .commit_sha
-            - node_modules
-            - bun.lockb
-            - package.json
-
 
   install_curl:
     steps:
@@ -113,7 +104,7 @@ jobs:
   run_unit_tests:
     executor: node_executor
     steps:
-      - checkout_code
+      - checkout
       - run: npm ci
       - run:
           name: Run Jest Tests with Coverage
@@ -199,14 +190,6 @@ jobs:
   post_notifications:
     executor: node_executor
     steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: Load Commit SHA
-          command: |
-            export GIT_COMMIT=$(cat .commit_sha)
-            echo "export GIT_COMMIT=$GIT_COMMIT" >> $BASH_ENV
-            source $BASH_ENV
       - run:
           name: Send GitHub Notification
           command: |
