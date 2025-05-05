@@ -104,7 +104,7 @@ jobs:
   run_unit_tests:
     executor: node_executor
     steps:
-      - checkout
+      - checkout_code
       - run: npm ci
       - run:
           name: Run Jest Tests with Coverage
