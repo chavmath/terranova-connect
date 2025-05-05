@@ -68,6 +68,7 @@ commands:
                 \"context\": \"CI/CD\",
                 \"target_url\": \"$CIRCLE_BUILD_URL\"
               }"
+
 jobs:
   clone_repository:
     executor: node_executor
