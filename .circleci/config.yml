@@ -24,13 +24,6 @@ commands:
     steps:
       - checkout
       - run:
-          name: Set Git Commit SHA
-          command: |
-            echo "export GIT_COMMIT=$CIRCLE_SHA1" >> $BASH_ENV
-            echo "export CIRCLE_PROJECT_USERNAME=$CIRCLE_PROJECT_USERNAME" >> $BASH_ENV
-            echo "export CIRCLE_PROJECT_REPONAME=$CIRCLE_PROJECT_REPONAME" >> $BASH_ENV
-            source $BASH_ENV
-      - run:
           name: Log Branch and Commit
           command: |
             echo "Username: $CIRCLE_PROJECT_USERNAME"
@@ -51,34 +44,11 @@ commands:
               exit 1
             fi
 
-  notify_github:
-    description: "Notify GitHub with status"
-    parameters:
-      status:
-        type: string
-      description:
-        type: string
-    steps:
-      - run:
-          name: Send GitHub Status
-          command: |
-            echo "Username: ${CIRCLE_PROJECT_USERNAME}"
-            echo "Reponame: ${CIRCLE_PROJECT_REPONAME}"
-            echo "Commit: ${CIRCLE_SHA1}"
-
-            # Reemplazar espacios con guiones si tu repo se llama "Test Terra"
-            REPO_NAME_SANITIZED=$(echo "${CIRCLE_PROJECT_REPONAME}" | sed 's/ /-/g')
-
-            curl -X POST \
-              -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${REPO_NAME_SANITIZED}/statuses/${CIRCLE_SHA1}" \
-              -d "{\"state\": \"<< parameters.status >>\", \"description\": \"<< parameters.description >>\", \"context\": \"CI/CD\", \"target_url\": \"$CIRCLE_BUILD_URL\"}"
-
 jobs:
   clone_repository:
     executor: node_executor
-    steps:
+    steps:    
+      - install_curl
       - checkout_code
       - email/send:
           to: "chavmath@gmail.com"
@@ -89,12 +59,14 @@ jobs:
   check_bun_version:
     executor: bun_executor
     steps:
+      - install_curl
       - checkout_code
       - run: bun --version
 
   install_dependencies:
     executor: bun_executor
     steps:
+      - install_curl
       - checkout_code
       - run:
           name: Install Dependencies
@@ -116,6 +88,7 @@ jobs:
   run_unit_tests:
     executor: node_executor
     steps:
+      - install_curl
       - checkout
       - run: npm ci
       - run:
@@ -128,12 +101,6 @@ jobs:
           path: test-results
       - store_artifacts:
           path: coverage
-      - when:
-          condition: on_fail
-          steps:
-            - notify_github:
-                status: failure
-                description: "❌ Unit tests failed"
       - email/send:
           to: "chavmath@gmail.com"
           subject: "✅ Tests completados (Build #$CIRCLE_BUILD_NUM)"
@@ -143,6 +110,7 @@ jobs:
   code_quality_analysis:
     executor: node_executor
     steps:
+      - install_curl
       - checkout_code
       - attach_workspace:
           at: .
@@ -162,6 +130,7 @@ jobs:
   build_application:
     executor: node_executor
     steps:
+      - install_curl
       - checkout_code
       - attach_workspace:
           at: .
@@ -172,22 +141,15 @@ jobs:
           root: .
           paths:
             - dist
-      - when:
-          condition: on_fail
-          steps:
-            - notify_github:
-                status: failure
-                description: "❌ Build failed"
       - email/send:
           to: "chavmath@gmail.com"
           subject: "⚙️ Build completado (Build #$CIRCLE_BUILD_NUM)"
           body: "Aplicación compilada correctamente en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1\nVer: $CIRCLE_BUILD_URL"
 
-
-
   deploy_to_production:
     executor: node_executor
     steps:
+      - install_curl
       - checkout_code
       - attach_workspace:
           at: .
@@ -206,12 +168,6 @@ jobs:
       - run:
           name: Log Deployment
           command: touch /tmp/deploy_success
-      - when:
-          condition: on_fail
-          steps:
-            - notify_github:
-                status: failure
-                description: "❌ Deployment failed"
       - email/send:
           to: "chavmath@gmail.com"
           subject: "🚀 Despliegue exitoso (Build #$CIRCLE_BUILD_NUM)"
