@@ -187,24 +187,37 @@ jobs:
                 description: "❌ Deployment failed"
 
 
-  post_notifications:
-    executor: bun_executor
-    steps:
-      - install_curl
-      - run:
-          name: Send GitHub Notification
-          command: |
-            STATUS="failure"
-            DESCRIPTION="❌ Pipeline failed"
-            if [ -f /tmp/deploy_success ]; then
-              STATUS="success"
-              DESCRIPTION="✅ Build passed from CircleCI"
-            fi
-            curl -X POST \
-              -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/statuses/$GIT_COMMIT \
-              -d "{\"state\": \"$STATUS\", \"description\": \"$DESCRIPTION\", \"context\": \"CI/CD\", \"target_url\": \"$CIRCLE_BUILD_URL\"}"
+    post_notifications:
+      executor: node_executor
+      steps:
+        - run:
+            name: Debug GitHub Info
+            command: |
+              echo "🔍 DEBUG INFO:"
+              echo "Username: ${CIRCLE_PROJECT_USERNAME:-undefined}"
+              echo "Reponame: ${CIRCLE_PROJECT_REPONAME:-undefined}"
+              echo "Commit: ${GIT_COMMIT:-undefined}"
+              echo "Build URL: ${CIRCLE_BUILD_URL:-undefined}"
+        - run:
+            name: Send GitHub Notification
+            command: |
+              if [ -z "$GITHUB_TOKEN" ] || [ -z "$CIRCLE_PROJECT_USERNAME" ] || [ -z "$CIRCLE_PROJECT_REPONAME" ] || [ -z "$GIT_COMMIT" ]; then
+                echo "❌ Missing required environment variables. Aborting GitHub notification."
+                exit 1
+              fi
+
+              STATUS="failure"
+              DESCRIPTION="❌ Pipeline failed"
+              if [ -f /tmp/deploy_success ]; then
+                STATUS="success"
+                DESCRIPTION="✅ Build passed from CircleCI"
+              fi
+
+              curl -X POST \
+                -H "Authorization: token $GITHUB_TOKEN" \
+                -H "Accept: application/vnd.github.v3+json" \
+                https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/statuses/$GIT_COMMIT \
+                -d "{\"state\": \"$STATUS\", \"description\": \"$DESCRIPTION\", \"context\": \"CI/CD\", \"target_url\": \"$CIRCLE_BUILD_URL\"}"
 
 workflows:
   build_test_deploy:
