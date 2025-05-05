@@ -59,18 +59,20 @@ commands:
     steps:
       - install_curl
       - run:
-          name: Send GitHub Status
-          command: |
-            echo "Username: $CIRCLE_PROJECT_USERNAME"
-            echo "Reponame: $CIRCLE_PROJECT_REPONAME"
-            echo "Commit: $GIT_COMMIT"
+         name: Send GitHub Status
+         command: |
+          echo "Username: ${CIRCLE_PROJECT_USERNAME}"
+          echo "Reponame: ${CIRCLE_PROJECT_REPONAME}"
+          echo "Commit: ${CIRCLE_SHA1}"
 
-            curl -X POST \
-              -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/statuses/$GIT_COMMIT \
-              -d "{\"state\": \"<< parameters.status >>\", \"description\": \"<< parameters.description >>\", \"context\": \"CI/CD\", \"target_url\": \"$CIRCLE_BUILD_URL\"}"
+          # Reemplazar espacios con guiones si tu repo se llama "Test Terra"
+          REPO_NAME_SANITIZED=$(echo "${CIRCLE_PROJECT_REPONAME}" | sed 's/ /-/g')
 
+          curl -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${REPO_NAME_SANITIZED}/statuses/${CIRCLE_SHA1}" \
+            -d "{\"state\": \"<< parameters.status >>\", \"description\": \"<< parameters.description >>\", \"context\": \"CI/CD\", \"target_url\": \"$CIRCLE_BUILD_URL\"}"
 
 jobs:
   clone_repository:
