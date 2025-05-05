@@ -23,6 +23,7 @@ commands:
       - run:
           name: Set Git Commit SHA
           command: |
+            echo "$CIRCLE_SHA1" > .commit_sha
             echo "export GIT_COMMIT=$CIRCLE_SHA1" >> $BASH_ENV
             echo "export CIRCLE_PROJECT_USERNAME=$CIRCLE_PROJECT_USERNAME" >> $BASH_ENV
             echo "export CIRCLE_PROJECT_REPONAME=$CIRCLE_PROJECT_REPONAME" >> $BASH_ENV
@@ -36,6 +37,7 @@ commands:
       - persist_to_workspace:
           root: .
           paths:
+            - .commit_sha
             - node_modules
             - bun.lockb
             - package.json
@@ -84,13 +86,6 @@ jobs:
     executor: node_executor
     steps:
       - checkout_code
-      - run:
-          name: Save Commit SHA
-          command: echo $CIRCLE_SHA1 > .commit_sha
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .commit_sha
 
   check_bun_version:
     executor: bun_executor
