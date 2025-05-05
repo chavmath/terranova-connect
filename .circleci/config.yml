@@ -7,13 +7,16 @@ executors:
     working_directory: ~/project
     environment:
       NODE_MODULES_CHECK_PATH: node_modules
-      BUN_LOCK_FILE: bun.lockb
       DIST_FOLDER: dist
       GITHUB_API_BASE: https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
 
+  bun_executor:
+    docker:
+      - image: oven/bun:latest
+    working_directory: ~/project
+
 commands:
   checkout_code:
-    description: "Checkout code from GitHub"
     steps:
       - checkout
       - run:
@@ -22,11 +25,10 @@ commands:
       - run:
           name: Log Branch and Commit
           command: |
-            echo "📌 Trabajando con la rama: $CIRCLE_BRANCH"
-            echo "📌 Commit SHA: $GIT_COMMIT"
+            echo "📌 Branch: $CIRCLE_BRANCH"
+            echo "📌 Commit: $GIT_COMMIT"
 
   install_curl:
-    description: "Install curl in the Docker image"
     steps:
       - run:
           name: Install curl
@@ -36,12 +38,11 @@ commands:
             elif command -v apt-get >/dev/null 2>&1; then
               apt-get update && apt-get install -y curl
             else
-              echo "No supported package manager found (apk or apt-get)"
+              echo "No supported package manager found"
               exit 1
             fi
 
   notify_github:
-    description: "Send status to GitHub"
     parameters:
       status:
         type: string
@@ -60,7 +61,7 @@ commands:
 
 jobs:
   clone_repository:
-    executor: bun_executor
+    executor: node_executor
     steps:
       - checkout_code
 
@@ -68,9 +69,7 @@ jobs:
     executor: bun_executor
     steps:
       - checkout_code
-      - run:
-          name: Check Bun Version
-          command: bun --version
+      - run: bun --version
 
   install_dependencies:
     executor: bun_executor
@@ -80,7 +79,7 @@ jobs:
           name: Install Dependencies
           command: |
             rm -rf node_modules
-            rm -f $BUN_LOCK_FILE
+            rm -f bun.lockb
             bun install
       - persist_to_workspace:
           root: .
@@ -91,12 +90,9 @@ jobs:
 
   run_unit_tests:
     executor: node_executor
-    parallelism: 1
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: npm ci
+      - run: npm ci
       - run:
           name: Run Jest Tests with Coverage
           command: |
@@ -120,10 +116,7 @@ jobs:
       - checkout_code
       - attach_workspace:
           at: .
-      - run:
-          name: Code Quality Analysis
-          command: |
-            bun run lint || echo "⚠ Linting issues found"
+      - run: bun run lint || echo "⚠ Linting issues found"
       - store_artifacts:
           path: eslint-report.xml
       - when:
@@ -139,9 +132,7 @@ jobs:
       - checkout_code
       - attach_workspace:
           at: .
-      - run:
-          name: Build Application
-          command: bun run build
+      - run: bun run build
       - persist_to_workspace:
           root: .
           paths:
