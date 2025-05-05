@@ -44,7 +44,7 @@ commands:
             fi
 
     notify_github:
-    description: "Send status to GitHub"
+    description: "Notify GitHub with status"
     parameters:
       status:
         type: string
@@ -58,18 +58,16 @@ commands:
             echo "Username: $CIRCLE_PROJECT_USERNAME"
             echo "Reponame: $CIRCLE_PROJECT_REPONAME"
             echo "Commit: $GIT_COMMIT"
-            echo "URL: https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/statuses/${GIT_COMMIT}"
             curl -X POST \
               -H "Authorization: token ${GITHUB_TOKEN}" \
               -H "Accept: application/vnd.github.v3+json" \
               "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/statuses/${GIT_COMMIT}" \
-              -d "$(jq -n \
-                    --arg state "<< parameters.status >>" \
-                    --arg description "<< parameters.description >>" \
-                    --arg context "CI/CD" \
-                    --arg target_url "$CIRCLE_BUILD_URL" \
-                    '{state: $state, description: $description, context: $context, target_url: $target_url}')"
-
+              -d "{
+                \"state\": \"<< parameters.status >>\",
+                \"description\": \"<< parameters.description >>\",
+                \"context\": \"CI/CD\",
+                \"target_url\": \"$CIRCLE_BUILD_URL\"
+              }"
 jobs:
   clone_repository:
     executor: node_executor
