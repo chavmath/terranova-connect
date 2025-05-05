@@ -124,20 +124,18 @@ jobs:
                 description: "❌ Unit tests failed"
 
   code_quality_analysis:
-    executor: bun_executor
+    executor: node_executor
     steps:
       - checkout_code
       - attach_workspace:
           at: .
-      - run: bun run lint || echo "⚠ Linting issues found"
+      - run:
+          name: Code Quality Analysis
+          command: |
+            echo "Running lint..."
+            npm run lint || echo "⚠ Linting issues found"
       - store_artifacts:
           path: eslint-report.xml
-      - when:
-          condition: on_fail
-          steps:
-            - notify_github:
-                status: failure
-                description: "❌ Linting failed"
 
   build_application:
     executor: bun_executor
