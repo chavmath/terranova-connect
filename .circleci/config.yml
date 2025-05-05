@@ -15,7 +15,7 @@ executors:
 
   bun_executor:
     docker:
-      - image: alpine/curl:latest
+      - image: oven/bun:1.1.4-alpine
     working_directory: ~/project
 
 commands:
