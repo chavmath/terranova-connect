@@ -15,7 +15,7 @@ executors:
 
   bun_executor:
     docker:
-      - image: oven/bun:latest
+      - image: alpine/curl:latest
     working_directory: ~/project
 
 commands:
@@ -47,8 +47,7 @@ commands:
 jobs:
   clone_repository:
     executor: node_executor
-    steps:    
-      - install_curl
+    steps:
       - checkout_code
       - email/send:
           to: "chavmath@gmail.com"
@@ -59,14 +58,12 @@ jobs:
   check_bun_version:
     executor: bun_executor
     steps:
-      - install_curl
       - checkout_code
       - run: bun --version
 
   install_dependencies:
     executor: bun_executor
     steps:
-      - install_curl
       - checkout_code
       - run:
           name: Install Dependencies
@@ -88,7 +85,6 @@ jobs:
   run_unit_tests:
     executor: node_executor
     steps:
-      - install_curl
       - checkout
       - run: npm ci
       - run:
@@ -110,7 +106,6 @@ jobs:
   code_quality_analysis:
     executor: node_executor
     steps:
-      - install_curl
       - checkout_code
       - attach_workspace:
           at: .
@@ -130,7 +125,6 @@ jobs:
   build_application:
     executor: node_executor
     steps:
-      - install_curl
       - checkout_code
       - attach_workspace:
           at: .
@@ -149,7 +143,6 @@ jobs:
   deploy_to_production:
     executor: node_executor
     steps:
-      - install_curl
       - checkout_code
       - attach_workspace:
           at: .
