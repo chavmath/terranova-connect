@@ -138,12 +138,14 @@ jobs:
           path: eslint-report.xml
 
   build_application:
-    executor: bun_executor
+    executor: node_executor
     steps:
       - checkout_code
       - attach_workspace:
           at: .
-      - run: bun run build
+      - run:
+          name: Build Application
+          command: npm run build
       - persist_to_workspace:
           root: .
           paths:
@@ -154,6 +156,7 @@ jobs:
             - notify_github:
                 status: failure
                 description: "❌ Build failed"
+
 
   deploy_to_production:
     executor: bun_executor
