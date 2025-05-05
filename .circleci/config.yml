@@ -108,7 +108,7 @@ jobs:
           command: |
             mkdir -p test-results/jest
             mkdir -p coverage
-            npx jest --ci --coverage --reporters=default --reporters=jest-junit --outputFile=test-results/jest/results.xml
+            bunx jest --ci --coverage --reporters=default --reporters=jest-junit --outputFile=test-results/jest/results.xml
       - store_test_results:
           path: test-results
       - store_artifacts:
