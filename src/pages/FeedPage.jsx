@@ -4,6 +4,7 @@ import "../styles/feed.css";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import Cookies from "js-cookie"; // agrego esto matias
+import { PacmanLoader } from "react-spinners";
 
 const getCurrentUserId = () => {
   const token = Cookies.get("token");
@@ -32,90 +33,145 @@ const FeedPage = () => {
   const [comentarios, setComentarios] = useState({});
   const [nuevoComentario, setNuevoComentario] = useState({});
   const currentUserId = getCurrentUserId();
+  const [loading, setLoading] = useState(false); // Para manejar el estado de carga
+  const [page, setPage] = useState(1); // Controlar la página actual
+  const [hasMore, setHasMore] = useState(true); // Para verificar si hay más publicaciones
   const navigate = useNavigate();
 
   // 📥 Cargar publicaciones desde el backend
-  useEffect(() => {
-    const obtenerPublicaciones = async () => {
-      try {
-        // Obtener el token de la cookie
-        const token = Cookies.get("token"); // Suponiendo que el token está en la cookie bajo el nombre 'token' // yo agrege matias
+  const obtenerPublicaciones = async () => {
+    if (loading || !hasMore) {
+      console.log("Ya está cargando o no hay más publicaciones.");
+      return; // No hacer nada si ya está cargando o no hay más publicaciones
+    }
 
-        // Si no hay token, puedes manejarlo como un error o redirigir al usuario a iniciar sesión
-        if (!token) {
-          Swal.fire(
-            "Error",
-            "No se encuentra el token de autenticación",
-            "error"
-          );
-          return;
-        }
+    console.log("Cargando publicaciones para la página:", page);
+    setLoading(true); // Activar estado de carga
 
-        const res = await fetch("http://localhost:3000/publicaciones", {
+    const token = Cookies.get("token");
+
+    try {
+      const res = await fetch(
+        `http://localhost:3000/publicaciones?page=${page}&size=10`, // Pasar page y size aquí
+        {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          credentials: "include", // Si necesitas enviar cookies junto con la solicitud
-        });
-
-        const publicacionesRaw = await res.json();
-
-        if (!res.ok) {
-          Swal.fire(
-            "Error",
-            "No se pudieron cargar las publicaciones",
-            "error"
-          );
-          return;
+          credentials: "include",
         }
+      );
 
-        const autorCache = new Map(); // Cache para no repetir fetch
+      console.log("Respuesta de la API: ", res); // Verifica la respuesta
 
-        const publicacionesConAutor = await Promise.all(
-          publicacionesRaw.map(async (pub) => {
-            let autor = autorCache.get(pub.autorId);
+      if (!res.ok) {
+        console.log("Error en la respuesta del servidor:", res);
+        throw new Error("Error al cargar publicaciones");
+      }
 
-            if (!autor) {
-              try {
-                const resAutor = await fetch(
-                  `http://localhost:3000/usuario/${pub.autorId}`,
-                  {
-                    method: "GET",
-                    headers: {
-                      Authorization: `Bearer ${token}`, // Agregar el token para el autor también
-                      "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                  }
-                );
+      const publicacionesRaw = await res.json();
+      console.log("Publicaciones recibidas:", publicacionesRaw);
 
-                if (resAutor.ok) {
-                  autor = await resAutor.json();
-                  autorCache.set(pub.autorId, autor); // Guardamos en cache
+      if (publicacionesRaw.length === 0) {
+        console.log("No hay más publicaciones para cargar.");
+        setHasMore(false); // Ya no hay más publicaciones
+      }
+
+      const autorCache = new Map();
+      const publicacionesConAutor = await Promise.all(
+        publicacionesRaw.map(async (pub) => {
+          let autor = autorCache.get(pub.autorId);
+
+          if (!autor) {
+            try {
+              const resAutor = await fetch(
+                `http://localhost:3000/usuario/${pub.autorId}`,
+                {
+                  method: "GET",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                  },
+                  credentials: "include",
                 }
-              } catch (err) {
-                console.warn("Error al obtener autor", pub.autorId, err);
-              }
-            }
+              );
 
-            return {
-              ...pub,
-              autor: autor || null,
-            };
-          })
+              if (resAutor.ok) {
+                autor = await resAutor.json();
+                autorCache.set(pub.autorId, autor);
+              }
+            } catch (err) {
+              console.warn("Error al obtener autor", pub.autorId, err);
+            }
+          }
+
+          return {
+            ...pub,
+            autor: autor || null,
+          };
+        })
+      );
+
+      console.log("Publicaciones enriquecidas:", publicacionesConAutor);
+
+      // Actualizar el estado de las publicaciones
+      setPublicaciones((prev) => {
+        // Filtrar las publicaciones que ya están en el estado
+        const existingIds = new Set(prev.map((pub) => pub.id_publicacion));
+
+        const nuevasPublicaciones = publicacionesConAutor.filter(
+          (pub) => !existingIds.has(pub.id_publicacion)
         );
 
-        setPublicaciones(publicacionesConAutor);
-      } catch (err) {
-        console.error("Error al obtener publicaciones:", err);
-        Swal.fire("Error", "Fallo la conexión con el servidor", "error");
-      }
-    };
+        console.log(
+          "Publicaciones nuevas sin duplicados: ",
+          nuevasPublicaciones
+        ); // Verifica que las nuevas publicaciones estén siendo procesadas
 
+        // Devolver las publicaciones combinadas
+        return [...prev, ...nuevasPublicaciones];
+      });
+    } catch (error) {
+      console.error("Error al obtener publicaciones:", error);
+      Swal.fire(
+        "Error",
+        "Hubo un problema al cargar las publicaciones",
+        "error"
+      );
+    } finally {
+      console.log("Fin de la carga de publicaciones.");
+      setLoading(false); // Desactivar el estado de carga
+    }
+  };
+
+  useEffect(() => {
+    console.log("Página actual:", page);
     obtenerPublicaciones();
-  }, []);
+  }, [page]); // Esto asegura que se llamará a obtenerPublicaciones cada vez que cambie la página
+
+  // Detectar cuando se llega al final de la página
+  const handleScroll = (e) => {
+    const bottom =
+      e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 10;
+
+    if (bottom && hasMore && !loading) {
+      console.log("Llegamos al final del feed, cargando más publicaciones...");
+      setLoading(true); // Activar estado de carga
+      setPage((prev) => prev + 1); // Avanzar a la siguiente página
+    }
+  };
+
+  useEffect(() => {
+    // Añadir el evento de scroll
+    const feedElement = document.querySelector(".feed-main");
+    feedElement.addEventListener("scroll", handleScroll);
+
+    return () => {
+      // Limpiar el evento cuando el componente se desmonte
+      feedElement.removeEventListener("scroll", handleScroll);
+    };
+  }, [loading, hasMore]); // Ejecutar cada vez que loading o hasMore cambien
   // Like a publicación
   const toggleLike = async (id_publicacion) => {
     const updated = publicaciones.map((pub) =>
@@ -375,7 +431,7 @@ const FeedPage = () => {
   };
 
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div style={{ display: "flex", height: "100vh" }} onScroll={handleScroll}>
       <Sidebar active="Publicaciones" />
 
       <main className="feed-main">
@@ -508,6 +564,13 @@ const FeedPage = () => {
         <button className="feed-fab" onClick={() => setMostrarModal(true)}>
           ➕ Publicar
         </button>
+        {loading && (
+          <div className="spinner-container">
+            <PacmanLoader size={30} color={"#e67e22"} loading={loading} />
+          </div>
+        )}
+
+        {!hasMore && <p>No hay más publicaciones</p>}
       </main>
 
       {/* MODAL */}

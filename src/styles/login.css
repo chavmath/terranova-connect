@@ -120,7 +120,7 @@ a {
 }
 
 .admin-button {
-  margin-top: 1rem;
+  margin-top: 0.4rem;
   padding: 10px;
   background-color: transparent;
   color: #031f7b;
@@ -135,3 +135,181 @@ a {
   background-color: #031f7b;
   color: white;
 }
+
+.register-button {
+  margin-top: 0.4rem;
+  padding: 10px;
+  background-color: transparent;
+  color: #031f7b;
+  border: 0px solid #031f7b;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.register-button:hover {
+  background-color: #031f7b;
+  color: white;
+}
+
+.back-button {
+  margin-top: 0.4rem;
+  padding: 10px;
+  background-color: transparent;
+  color: #031f7b;
+  border: 0px solid #031f7b;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.back-button:hover {
+  background-color: #031f7b;
+  color: white;
+}
+
+.recover-admin-button {
+  padding: 10px;
+  background-color: transparent;
+  color: #031f7b;
+  border: 0px solid #031f7b;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.recover-admin-button:hover {
+  background-color: #031f7b;
+  color: white;
+}
+
+.recuperar-button {
+  margin-top: 0.4rem;
+  padding: 10px;
+  background-color: transparent;
+  color: #031f7b;
+  border: 0px solid #031f7b;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.recuperar-button:hover {
+  background-color: #031f7b;
+  color: white;
+}
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(3px);
+}
+
+.modal-login {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.3s ease-in-out;
+  font-family: Arial, sans-serif;
+}
+
+@keyframes fadeIn {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-login h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #031f7b;
+  font-size: 22px;
+  text-align: center;
+  border-bottom: 2px solid #e67e22;
+  padding-bottom: 0.5rem;
+}
+
+.modal-login label {
+  font-weight: bold;
+  margin-bottom: 4px;
+  display: block;
+  color: #031f7b;
+}
+
+.modal-login input,
+.modal-login textarea {
+  width: 100%;
+  margin-bottom: 1.2rem;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  transition: border 0.3s ease;
+}
+
+.modal-login input:focus,
+.modal-login textarea:focus {
+  outline: none;
+  border-color: #031f7b;
+}
+
+.modal-login form{
+  width: 100%;
+}
+
+.modal-login button {
+  background-color: #031f7b;
+  color: #ffffff;
+  padding: 10px 18px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-login button:hover {
+  background-color: #e67e22;
+}
+
+.modal-login button + button {
+  background-color: #e74c3c;
+}
+
+.modal-login button + button:hover {
+  background-color: #c0392b;
+}
+
+/* button[type="button"] {
+  padding: 10px;
+  background-color: #031f7b;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 15px;
+  margin-bottom: 1rem;
+}
+
+button[type="button"]:hover {
+  background-color: #d35400;
+} */

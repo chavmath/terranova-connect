@@ -167,3 +167,14 @@
   left: 0;
   top: 0;
 }
+
+.loading-container {
+  display: flex;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Centra verticalmente */
+  height: 100vh; /* Asegura que ocupe toda la altura de la pantalla */
+  width: 100vw; /* Asegura que ocupe toda la anchura de la pantalla */
+  position: absolute;
+  top: 0;
+  left: 0;
+}

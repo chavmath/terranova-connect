@@ -12,6 +12,13 @@ const LoginPage = () => {
   const [codigo, setCodigo] = useState("");
   const [correoTemporal, setCorreoTemporal] = useState("");
   const [adminCode, setAdminCode] = useState("");
+  const [nuevoCorreo, setNuevoCorreo] = useState("");
+  const [nuevaContrasenia, setNuevaContrasenia] = useState("");
+  const [codigoRecuperacion, setCodigoRecuperacion] = useState("");
+  const [nuevoCodigo] = useState("");
+  const [mostrarRecuperacion, setMostrarRecuperacion] = useState(false);
+  const [mostrarModal, setMostrarModal] = useState(false); // To control modal visibility
+  const [mostrarModalAdmin, setMostrarModalAdmin] = useState(false); // Modal for admin code recovery
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -149,7 +156,6 @@ const LoginPage = () => {
         const token = data.usuario?.token;
         if (!token) throw new Error("Token no recibido");
 
-        // Guardar cookie legible desde JS
         Cookies.set("token", token, {
           path: "/",
           sameSite: "Lax",
@@ -174,6 +180,160 @@ const LoginPage = () => {
     }
   };
 
+  const handleRecuperarContrasenia = async (e) => {
+    e.preventDefault();
+    Swal.fire({
+      title: "Cargando...",
+      text: "Enviando el código al correo",
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    try {
+      const res = await fetch(
+        "http://localhost:3000/solicitar-cambio-contrasenia",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ correo: nuevoCorreo }),
+        }
+      );
+
+      const data = await res.json();
+      Swal.close();
+
+      if (res.ok) {
+        Swal.fire({
+          icon: "success",
+          title: "Correo enviado",
+          text:
+            data.message || "Revisa tu correo para el código de recuperación.",
+        }).then(() => {
+          setMostrarModal(true); // Mostrar el modal para cambiar la contraseña
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.message || "No se pudo enviar el código.",
+        });
+      }
+    } catch (error) {
+      Swal.close();
+      Swal.fire({
+        icon: "error",
+        title: "Error del servidor",
+        text: ("Inténtalo más tarde", error),
+      });
+    }
+  };
+
+  const handleCambiarContrasenia = async (e) => {
+    e.preventDefault();
+
+    if (nuevoCodigo !== codigoRecuperacion) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "El código ingresado es incorrecto",
+      });
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:3000/cambiar-contrasenia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          correo: nuevoCorreo,
+          codigo: nuevoCodigo,
+          contrasenia: nuevaContrasenia,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        Swal.fire({
+          icon: "success",
+          title: "Contraseña cambiada",
+          text: "Tu contraseña ha sido actualizada exitosamente.",
+        }).then(() => {
+          window.location.href = "/login"; // Redirigir a la página de login
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.message || "No se pudo cambiar la contraseña.",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error del servidor",
+        text: "Hubo un error al cambiar la contraseña." + error,
+      });
+    }
+  };
+
+  // Función para mostrar el modal de recuperación de código de administrador
+  const handleRecuperarCodigoAdmin = () => {
+    setMostrarModalAdmin(true); // Mostrar el modal
+  };
+
+  // Función para enviar la solicitud de nuevo código de administrador
+  const handleRecuperarCodigoAdminSubmit = async (e) => {
+    e.preventDefault();
+
+    Swal.fire({
+      title: "Cargando...",
+      text: "Solicitando un nuevo código de administrador",
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    try {
+      const res = await fetch(
+        "http://localhost:3000/solicitar-nuevo-codigo-admin",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ correo: nuevoCorreo }), // Se pasa el correo para enviar el código
+        }
+      );
+
+      const data = await res.json();
+      Swal.close();
+
+      if (res.ok) {
+        Swal.fire({
+          icon: "success",
+          title: "Nuevo código enviado",
+          text:
+            data.message ||
+            "Se ha enviado un nuevo código de administrador al correo.",
+        });
+        setMostrarModalAdmin(false); // Cerrar el modal
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.message || "No se pudo generar el nuevo código.",
+        });
+      }
+    } catch (error) {
+      Swal.close();
+      Swal.fire({
+        icon: "error",
+        title: "Error del servidor",
+        text: "Hubo un error al solicitar el código de administrador." + error,
+      });
+    }
+  };
+
   return (
     <div className="login-wrapper">
       <div className="login-left" />
@@ -181,7 +341,8 @@ const LoginPage = () => {
         <img src={logo} alt="logo" className="logo" />
         <h1>COLEGIO TERRANOVA</h1>
 
-        {!mostrarCodigo && !mostrarAdminForm && (
+        {/* Login */}
+        {!mostrarCodigo && !mostrarAdminForm && !mostrarRecuperacion && (
           <form onSubmit={handleLogin}>
             <input
               type="email"
@@ -200,9 +361,31 @@ const LoginPage = () => {
               required
             />
             <button type="submit">Iniciar sesión</button>
+
+            <button
+              className="register-button"
+              onClick={() => (window.location.href = "/registro")}
+            >
+              ¿Nuevo Usuario? Crea una cuenta
+            </button>
+
+            <button
+              className="admin-button"
+              onClick={() => setMostrarAdminForm(true)}
+            >
+              ¿Administrador? Presione Aquí
+            </button>
+
+            <button
+              className="recuperar-button"
+              onClick={() => setMostrarRecuperacion(true)}
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
           </form>
         )}
 
+        {/* Código 2FA */}
         {mostrarCodigo && !mostrarAdminForm && (
           <form onSubmit={handleCodigoSubmit}>
             <input
@@ -214,9 +397,37 @@ const LoginPage = () => {
               required
             />
             <button type="submit">Confirmar código</button>
+            <button
+              className="back-button"
+              onClick={() => setMostrarCodigo(false)}
+            >
+              Regresar
+            </button>
           </form>
         )}
 
+        {/* Recuperar Contraseña */}
+        {mostrarRecuperacion && (
+          <form onSubmit={handleRecuperarContrasenia}>
+            <input
+              type="email"
+              name="correo"
+              placeholder="Correo electrónico"
+              value={nuevoCorreo}
+              onChange={(e) => setNuevoCorreo(e.target.value)}
+              required
+            />
+            <button type="submit">Solicitar código de recuperación</button>
+            <button
+              className="back-button"
+              onClick={() => setMostrarRecuperacion(false)}
+            >
+              Regresar
+            </button>
+          </form>
+        )}
+
+        {/* Admin Login */}
         {mostrarAdminForm && (
           <form onSubmit={handleAdminLogin}>
             <input
@@ -228,16 +439,86 @@ const LoginPage = () => {
               required
             />
             <button type="submit">Acceder como admin</button>
+
+            {/* Botón para abrir el modal de recuperar código de administrador */}
+            <button
+              className="recover-admin-button"
+              onClick={handleRecuperarCodigoAdmin}
+            >
+              Recuperar código de administrador
+            </button>
+
+            <button
+              className="back-button"
+              onClick={() => setMostrarAdminForm(false)}
+            >
+              Regresar
+            </button>
           </form>
         )}
 
-        <a href="/registro">¿Nuevo Usuario? Crea una cuenta</a>
-        <button
-          className="admin-button"
-          onClick={() => setMostrarAdminForm(true)}
-        >
-          ¿Administrador? Presione Aquí
-        </button>
+        {/* Modal para cambiar contraseña */}
+        {mostrarModal && (
+          <div className="modal-overlay">
+            <div className="modal-login">
+              <h3>Cambiar Contraseña</h3>
+              <form onSubmit={handleCambiarContrasenia}>
+                <label htmlFor="codigoRecuperacion">
+                  Código de recuperación
+                </label>
+                <input
+                  type="text"
+                  id="codigoRecuperacion"
+                  value={codigoRecuperacion}
+                  onChange={(e) => setCodigoRecuperacion(e.target.value)}
+                  required
+                />
+
+                <label htmlFor="nuevaContrasenia">Nueva contraseña</label>
+                <input
+                  type="password"
+                  id="nuevaContrasenia"
+                  value={nuevaContrasenia}
+                  onChange={(e) => setNuevaContrasenia(e.target.value)}
+                  required
+                />
+
+                <button type="submit">Cambiar Contraseña</button>
+                <button type="button" onClick={() => setMostrarModal(false)}>
+                  Cancelar
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Modal para recuperar código de administrador */}
+        {mostrarModalAdmin && (
+          <div className="modal-overlay">
+            <div className="modal-login">
+              <h3>Recuperar código de administrador</h3>
+              <form onSubmit={handleRecuperarCodigoAdminSubmit}>
+                <label htmlFor="nuevoCorreoAdmin">
+                  Correo del administrador
+                </label>
+                <input
+                  type="email"
+                  id="nuevoCorreoAdmin"
+                  value={nuevoCorreo}
+                  onChange={(e) => setNuevoCorreo(e.target.value)}
+                  required
+                />
+                <button type="submit">Enviar código</button>
+                <button
+                  type="button"
+                  onClick={() => setMostrarModalAdmin(false)}
+                >
+                  Cancelar
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

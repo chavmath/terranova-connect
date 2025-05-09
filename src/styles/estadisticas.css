@@ -81,3 +81,33 @@
     grid-template-columns: 1fr;
   }
 }
+
+.descripcion {
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  color: #333;
+  text-align: center;
+  font-weight: 700;
+  background-color: #dbdbdb;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.previsualizacion-imagen {
+  margin-bottom: 10px;
+  max-width: 100%;
+  text-align: center;
+}
+
+.imagen-publicacion {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.contador-likes {
+  font-weight: bold;
+  color: #2980b9;
+  font-size: 1rem;
+}

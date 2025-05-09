@@ -22,13 +22,20 @@ import { getUserRole, getToken } from "../utils/auth";
 
 const getCurrentUserId = () => {
   const token = Cookies.get("token");
-  if (!token) return null;
+  if (!token) {
+    console.log("Token no encontrado");
+    return null;
+  }
+
   try {
     const payload = token.split(".")[1];
     const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const { id } = JSON.parse(atob(base64));
-    return id;
-  } catch {
+
+    const decoded = JSON.parse(atob(base64));
+    const userId = decoded.id_usuario || decoded.id;
+    return userId || null;
+  } catch (error) {
+    console.error("Error al decodificar el token:", error);
     return null;
   }
 };
@@ -43,39 +50,60 @@ const Sidebar = () => {
   const rol = getUserRole();
 
   useEffect(() => {
-    if ((!token || !userId) && location.pathname !== "/") {
-      navigate("/");
+    // Asegurarse de que el token y userId estén disponibles
+    if (!token || !userId) {
+      // Si no estamos en la ruta raíz, redirigir solo si el usuario no está autenticado
+      if (location.pathname !== "/") {
+        navigate("/");
+      }
       return;
     }
-
-    // Si es administrador, setear solo una vez
-    if (rol === "administrador" && !user) {
-      setUser({
-        nombre: "Administrador",
-        apellido: "",
-        email: "admin@dominio.com",
-        rol: "administrador",
-        foto_perfil: [],
-      });
-      return;
+  
+    // Si el user no está seteado, hacemos la petición
+    if (!user) {
+      // Si es administrador, obtener los datos a través del endpoint /usuario
+      if (rol === "administrador") {
+        (async () => {
+          try {
+            const res = await fetch(`http://localhost:3000/usuario/${userId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+              credentials: "include",
+            });
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            setUser(data); // Establecer los datos del administrador
+          } catch (error) {
+            console.error("Error al obtener los datos del administrador:", error);
+            // Si hay error en la consulta, redirigir a "/"
+            if (location.pathname !== "/") {
+              navigate("/");
+            }
+          }
+        })();
+      } else {
+        // Si no es administrador, obtener los datos del usuario normal
+        (async () => {
+          try {
+            const res = await fetch(`http://localhost:3000/usuario/${userId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+              credentials: "include",
+            });
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            setUser(data);
+          } catch (error) {
+            console.error("Error al obtener los datos del usuario:", error);
+            // Si hay error en la consulta, redirigir a "/"
+            if (location.pathname !== "/") {
+              navigate("/");
+            }
+          }
+        })();
+      }
     }
-
-    if (!user && rol !== "administrador") {
-      (async () => {
-        try {
-          const res = await fetch(`http://localhost:3000/usuario/${userId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-            credentials: "include",
-          });
-          if (!res.ok) throw new Error();
-          const data = await res.json();
-          setUser(data);
-        } catch {
-          if (location.pathname !== "/") navigate("/");
-        }
-      })();
-    }
-  }, [token, userId, location.pathname, navigate, rol]);
+  }, [token, userId, rol, user, location.pathname, navigate]);
+  
+  
 
   if (!user) {
     return (
@@ -88,7 +116,7 @@ const Sidebar = () => {
     );
   }
 
-  const { nombre, apellido, email, rol: userRol, foto_perfil } = user;
+  const { nombre, apellido, correo, rol: userRol, foto_perfil } = user;
   const avatarUrl = foto_perfil?.[0]?.url || null;
 
   const itemsPorRol = {
@@ -156,7 +184,7 @@ const Sidebar = () => {
           <span className="sidebar__name">
             {nombre} {apellido}
           </span>
-          <span className="sidebar__email">{email}</span>
+          <span className="sidebar__email">{correo}</span>
         </div>
       </div>
 

@@ -14,6 +14,7 @@ const ConfiguracionPage = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCreateRecompensaModal, setShowCreateRecompensaModal] =
     useState(false);
+  const [showCreateAdminModal, setShowCreateAdminModal] = useState(false);
   const [nuevaActividad, setNuevaActividad] = useState({
     titulo: "",
     descripcion: "",
@@ -35,6 +36,18 @@ const ConfiguracionPage = () => {
     puntosRequeridos: "",
     cantidadDisponible: "",
   });
+  const [nuevaCuentaAdmin, setNuevaCuentaAdmin] = useState({
+    nombre: "",
+    apellido: "",
+    correo: "",
+    fecha_nacimiento: "",
+  });
+  const [nuevaInsignia, setNuevaInsignia] = useState({
+    nombre: "",
+    descripcion: "",
+    puntosrequeridos: "",
+    nuevaImagen: null,
+  });
 
   const [showCreateMisionModal, setShowCreateMisionModal] = useState(false);
   // Para manejar la visibilidad de las secciones
@@ -42,6 +55,7 @@ const ConfiguracionPage = () => {
   const [mostrarActividades, setMostrarActividades] = useState(false);
   const [mostrarMisiones, setMostrarMisiones] = useState(false);
   const [mostrarRecompensas, setMostrarRecompensas] = useState(false);
+  const [mostrarInsignias, setMostrarInsignias] = useState(false);
   const [searchUsuarios, setSearchUsuarios] = useState("");
   const [searchActividades, setSearchActividades] = useState("");
   const [searchMisiones, setSearchMisiones] = useState("");
@@ -50,7 +64,7 @@ const ConfiguracionPage = () => {
   const [modalData, setModalData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // Página actual
-  const [itemsPerPage] = useState(2); // Número de elementos por página
+  const [itemsPerPage] = useState(5); // Número de elementos por página
   const [totalItems, setTotalItems] = useState(0); // Total de elementos
   const [filteredUsuarios, setFilteredUsuarios] = useState([]);
   const [filteredActividades, setFilteredActividades] = useState([]);
@@ -62,6 +76,13 @@ const ConfiguracionPage = () => {
   const [totalItemsActividad, setTotalItemsActividad] = useState(0);
   const [totalItemsMision, setTotalItemsMision] = useState(0);
   const [totalItemsRecompensa, setTotalItemsRecompensa] = useState(0);
+  const [insignias, setInsignias] = useState([]);
+  const [filteredInsignias, setFilteredInsignias] = useState([]);
+  const [searchInsignias, setSearchInsignias] = useState("");
+  const [showCreateInsigniaModal, setShowCreateInsigniaModal] = useState(false);
+
+  const [currentPageInsignia, setCurrentPageInsignia] = useState(1);
+  const [totalItemsInsignia, setTotalItemsInsignia] = useState(0);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -93,6 +114,7 @@ const ConfiguracionPage = () => {
     obtenerActividades();
     obtenerMisiones();
     obtenerRecompensas();
+    obtenerInsignias();
   }, []);
 
   useEffect(() => {
@@ -137,6 +159,23 @@ const ConfiguracionPage = () => {
 
   const paginateRecompensas = (pageNumber) =>
     setCurrentPageRecompensa(pageNumber);
+
+  useEffect(() => {
+    const filtered = insignias.filter((insignia) =>
+      insignia.nombre.toLowerCase().includes(searchInsignias.toLowerCase())
+    );
+    setFilteredInsignias(filtered);
+    setTotalItemsInsignia(filtered.length);
+  }, [searchInsignias, insignias]);
+
+  const indexOfLastItemInsignia = currentPageInsignia * itemsPerPage;
+  const indexOfFirstItemInsignia = indexOfLastItemInsignia - itemsPerPage;
+  const currentItemsInsignia = filteredInsignias.slice(
+    indexOfFirstItemInsignia,
+    indexOfLastItemInsignia
+  );
+
+  const paginateInsignias = (pageNumber) => setCurrentPageInsignia(pageNumber);
 
   const token = Cookies.get("token");
 
@@ -200,6 +239,22 @@ const ConfiguracionPage = () => {
     } catch (err) {
       console.error("Error al obtener recompensas:", err);
       setRecompensas([]);
+    }
+  };
+
+  const obtenerInsignias = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/insignias", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      const data = await res.json();
+      setInsignias(data);
+    } catch (err) {
+      console.error("Error al obtener insignias:", err);
     }
   };
 
@@ -356,6 +411,85 @@ const ConfiguracionPage = () => {
       }
     } catch (err) {
       Swal.fire("Error", "Error del servidor", err);
+    }
+  };
+
+  const handleEliminarInsignia = async (id_insignia) => {
+    console.log("Eliminando insignia con id_insignia:", id_insignia); // ✅
+    const confirmacion = await Swal.fire({
+      title: "¿Eliminar insignia?",
+      text: "Esta acción no se puede deshacer",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!confirmacion.isConfirmed) return;
+
+    try {
+      const res = await fetch(`http://localhost:3000/insignia/${id_insignia}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
+      });
+      if (res.ok) {
+        Swal.fire("Eliminada", "Insignia eliminada con éxito", "success");
+        obtenerInsignias();
+      } else {
+        const data = await res.json();
+        Swal.fire("Error", data.message || "No se pudo eliminar", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", "Error del servidor", err);
+    }
+  };
+
+  const handleCrearUsuarioAdmin = async () => {
+    const { nombre, apellido, correo, fecha_nacimiento } = nuevaCuentaAdmin;
+
+    if (!nombre || !apellido || !correo || !fecha_nacimiento) {
+      Swal.fire("Error", "Todos los campos son obligatorios", "error");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:3000/crear-admin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ nombre, apellido, correo, fecha_nacimiento }),
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        Swal.fire("Éxito", data.message, "success");
+        setShowCreateAdminModal(false);
+        setNuevaCuentaAdmin({
+          nombre: "",
+          apellido: "",
+          correo: "",
+          fecha_nacimiento: "",
+        });
+        obtenerUsuarios(); // Re-fetch de usuarios
+      } else {
+        Swal.fire(
+          "Error",
+          data.message || "No se pudo crear el administrador",
+          "error"
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Error al crear el administrador", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -516,6 +650,62 @@ const ConfiguracionPage = () => {
     }
   };
 
+  const handleCrearInsignia = async () => {
+    const { nombre, descripcion, puntosrequeridos, nuevaImagen } =
+      nuevaInsignia;
+
+    if (!nombre || !descripcion || !puntosrequeridos) {
+      Swal.fire("Error", "Todos los campos son obligatorios", "error");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("nombre", nombre);
+      formData.append("descripcion", descripcion);
+      formData.append("puntosrequeridos", puntosrequeridos);
+
+      if (nuevaImagen) {
+        formData.append("insignia", nuevaImagen);
+      }
+
+      const res = await fetch("http://localhost:3000/insignia", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        Swal.fire("Éxito", data.message, "success");
+        setShowCreateInsigniaModal(false);
+        setNuevaInsignia({
+          nombre: "",
+          descripcion: "",
+          puntosrequeridos: "",
+          nuevaImagen: null,
+        });
+        obtenerInsignias();
+      } else {
+        Swal.fire(
+          "Error",
+          data.message || "No se pudo crear la insignia",
+          "error"
+        );
+      }
+    } catch (err) {
+      Swal.fire("Error", "Hubo un error al crear la insignia", "error");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const abrirModalEdicionRecompensa = (recompensa) => {
     setModalTipo("recompensa");
     setModalData(recompensa);
@@ -550,9 +740,10 @@ const ConfiguracionPage = () => {
 
   const formatFecha = (fecha) => {
     const date = new Date(fecha);
-    const dia = String(date.getDate()).padStart(2, "0");
-    const mes = String(date.getMonth() + 1).padStart(2, "0");
-    const año = date.getFullYear();
+    // Ajuste para evitar la zona horaria
+    const dia = String(date.getUTCDate()).padStart(2, "0");
+    const mes = String(date.getUTCMonth() + 1).padStart(2, "0"); // `getMonth()` es basado en 0, así que sumamos 1
+    const año = date.getUTCFullYear();
     return `${dia}/${mes}/${año}`;
   };
 
@@ -741,6 +932,55 @@ const ConfiguracionPage = () => {
     }
   };
 
+  const handleEditarInsignia = async () => {
+    const { id_insignia, nombre, descripcion, puntosrequeridos } = modalData;
+
+    if (!nombre || !descripcion || !puntosrequeridos) {
+      Swal.fire("Error", "Todos los campos son obligatorios", "error");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("nombre", nombre);
+      formData.append("descripcion", descripcion);
+      formData.append("puntosrequeridos", puntosrequeridos);
+
+      if (modalData.nuevaFoto) {
+        formData.append("insignia", modalData.nuevaFoto);
+      }
+
+      const res = await fetch(`http://localhost:3000/insignia/${id_insignia}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        Swal.fire("Éxito", data.message, "success");
+        obtenerInsignias();
+        cerrarModal();
+      } else {
+        Swal.fire(
+          "Error",
+          data.message || "No se pudo actualizar la insignia",
+          "error"
+        );
+      }
+    } catch (err) {
+      Swal.fire("Error", "Hubo un error al editar la insignia", "error");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       <Sidebar active="Configuración" />
@@ -772,6 +1012,12 @@ const ConfiguracionPage = () => {
                     placeholder="Buscar por nombre"
                     className="search-input"
                   />
+                  <button
+                    className="add-button"
+                    onClick={() => setShowCreateAdminModal(true)}
+                  >
+                    Crear Usuario Administrador
+                  </button>
                 </div>
                 <table className="config-table">
                   <thead>
@@ -787,7 +1033,7 @@ const ConfiguracionPage = () => {
                   <tbody>
                     {currentItems.map((usuario, index) => (
                       <tr key={usuario.id_usuario}>
-                        <td>{index + 1}</td>
+                        <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                         <td>{usuario.nombre}</td>
                         <td>{usuario.apellido}</td>
                         <td>{usuario.correo}</td>
@@ -893,7 +1139,11 @@ const ConfiguracionPage = () => {
                   <tbody>
                     {currentItemsActividad.map((actividad, index) => (
                       <tr key={actividad.id_actividad}>
-                        <td>{index + 1}</td>
+                        <td>
+                          {(currentPageActividad - 1) * itemsPerPage +
+                            index +
+                            1}
+                        </td>
                         <td>{actividad.titulo}</td>
                         <td>{actividad.descripcion}</td>
                         <td>{formatFecha(actividad.fechaInicio)}</td>
@@ -1004,7 +1254,9 @@ const ConfiguracionPage = () => {
                   <tbody>
                     {currentItemsMision.map((mision, index) => (
                       <tr key={mision.id_mision}>
-                        <td>{index + 1}</td>
+                        <td>
+                          {(currentPageMision - 1) * itemsPerPage + index + 1}
+                        </td>
                         <td>{mision.titulo}</td>
                         <td>{mision.descripcion}</td>
                         <td>{mision.puntos}</td>
@@ -1072,6 +1324,7 @@ const ConfiguracionPage = () => {
               </div>
             )}
           </div>
+          {/* Sección Recompensas */}
           <div className="config-section">
             <div
               className="config-toggle"
@@ -1113,7 +1366,11 @@ const ConfiguracionPage = () => {
                   <tbody>
                     {currentRecompensas.map((r, index) => (
                       <tr key={r.id_recompensa}>
-                        <td>{index + 1}</td>
+                        <td>
+                          {(currentPageRecompensa - 1) * itemsPerPage +
+                            index +
+                            1}
+                        </td>
                         <td>{r.nombre}</td>
                         <td>{r.descripcion}</td>
                         <td>{r.puntosRequeridos}</td>
@@ -1179,6 +1436,110 @@ const ConfiguracionPage = () => {
               </div>
             )}
           </div>
+          {/* Sección Insignias */}
+          <div className="config-section">
+            <div
+              className="config-toggle"
+              onClick={() => setMostrarInsignias(!mostrarInsignias)}
+            >
+              <span>Insignias</span>
+              {mostrarInsignias ? <FiChevronUp /> : <FiChevronDown />}
+            </div>
+
+            {mostrarInsignias && (
+              <div>
+                <div className="config-actions">
+                  <input
+                    type="text"
+                    value={searchInsignias}
+                    onChange={(e) => setSearchInsignias(e.target.value)}
+                    placeholder="Buscar por nombre"
+                    className="search-input"
+                  />
+                  <button
+                    className="add-button"
+                    onClick={() => setShowCreateInsigniaModal(true)}
+                  >
+                    Crear Insignia
+                  </button>
+                </div>
+
+                <table className="config-table">
+                  <thead>
+                    <tr>
+                      <th>No.</th>
+                      <th>Nombre</th>
+                      <th>Descripción</th>
+                      <th>Puntos Requeridos</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentItemsInsignia.map((insignia, index) => (
+                      <tr key={insignia.id_insignia}>
+                        <td>
+                          {(currentPageInsignia - 1) * itemsPerPage + index + 1}
+                        </td>
+
+                        <td>{insignia.nombre}</td>
+                        <td>{insignia.descripcion}</td>
+                        <td>{insignia.puntosrequeridos}</td>
+                        <td>
+                          <button
+                            className="action-button edit"
+                            onClick={() =>
+                              abrirModalEdicion("insignia", insignia)
+                            }
+                          >
+                            Editar
+                          </button>
+                          <button
+                            className="action-button delete"
+                            onClick={() =>
+                              handleEliminarInsignia(insignia.id_insignia)
+                            }
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <div className="pagination">
+                  <button
+                    onClick={() => paginateInsignias(currentPageInsignia - 1)}
+                    disabled={currentPageInsignia === 1}
+                  >
+                    Anterior
+                  </button>
+                  {[...Array(Math.ceil(totalItemsInsignia / itemsPerPage))].map(
+                    (_, index) => (
+                      <button
+                        key={index + 1}
+                        onClick={() => paginateInsignias(index + 1)}
+                        className={
+                          currentPageInsignia === index + 1 ? "active" : ""
+                        }
+                      >
+                        {index + 1}
+                      </button>
+                    )
+                  )}
+                  <button
+                    onClick={() => paginateInsignias(currentPageInsignia + 1)}
+                    disabled={
+                      currentPageInsignia ===
+                      Math.ceil(totalItemsInsignia / itemsPerPage)
+                    }
+                  >
+                    Siguiente
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       {modalTipo && (
@@ -1214,27 +1575,32 @@ const ConfiguracionPage = () => {
                       </div>
                     )}
 
-                    {/* Input para seleccionar nueva foto */}
-                    <label
-                      style={{
-                        display: "block",
-                        fontWeight: "bold",
-                        marginBottom: "6px",
-                      }}
-                    >
-                      Cambiar foto de perfil
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) =>
-                        setModalData({
-                          ...modalData,
-                          nuevaFoto: e.target.files[0],
-                        })
-                      }
-                      style={{ marginBottom: "1rem" }}
-                    />
+                    {/* Condición: Solo mostrar el campo de cambiar foto si el rol no es "administrador" */}
+                    {modalData.rol !== "administrador" && (
+                      <>
+                        <label
+                          style={{
+                            display: "block",
+                            fontWeight: "bold",
+                            marginBottom: "6px",
+                          }}
+                        >
+                          Cambiar foto de perfil
+                        </label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) =>
+                            setModalData({
+                              ...modalData,
+                              nuevaFoto: e.target.files[0],
+                            })
+                          }
+                          style={{ marginBottom: "1rem" }}
+                        />
+                      </>
+                    )}
+
                     <label>Nombre</label>
                     <input
                       value={modalData.nombre}
@@ -1252,6 +1618,7 @@ const ConfiguracionPage = () => {
                       }
                       placeholder="Apellido"
                     />
+
                     <label>Correo</label>
                     <input
                       value={modalData.correo}
@@ -1260,6 +1627,7 @@ const ConfiguracionPage = () => {
                       }
                       placeholder="Correo"
                     />
+
                     <label>Rol</label>
                     <select
                       value={modalData.rol}
@@ -1272,7 +1640,9 @@ const ConfiguracionPage = () => {
                       <option value="profesor">Profesor</option>
                       <option value="estudiante">Estudiante</option>
                       <option value="representante">Representante</option>
+                      <option value="administrador">Administrador</option>
                     </select>
+
                     <button onClick={handleEditarUsuario} disabled={loading}>
                       Guardar
                     </button>
@@ -1436,6 +1806,106 @@ const ConfiguracionPage = () => {
                     </button>
                   </>
                 )}
+                {modalTipo === "insignia" && (
+                  <div className="modal-overlay">
+                    <div className="modal">
+                      <h3>Editar Insignia</h3>
+
+                      {loading ? (
+                        <div className="loading-container">
+                          <div className="spinner"></div>
+                        </div>
+                      ) : (
+                        <>
+                          <label>Nombre</label>
+                          <input
+                            value={modalData.nombre}
+                            onChange={(e) =>
+                              setModalData({
+                                ...modalData,
+                                nombre: e.target.value,
+                              })
+                            }
+                            placeholder="Nombre"
+                          />
+
+                          <label>Descripción</label>
+                          <textarea
+                            value={modalData.descripcion}
+                            onChange={(e) =>
+                              setModalData({
+                                ...modalData,
+                                descripcion: e.target.value,
+                              })
+                            }
+                            placeholder="Descripción"
+                          />
+
+                          <label>Puntos Requeridos</label>
+                          <input
+                            type="number"
+                            value={modalData.puntosrequeridos}
+                            onChange={(e) =>
+                              setModalData({
+                                ...modalData,
+                                puntosrequeridos: Number(e.target.value),
+                              })
+                            }
+                            placeholder="Puntos requeridos"
+                          />
+
+                          {/* Mostrar imágenes actuales */}
+                          {modalData.imagenes &&
+                            modalData.imagenes.length > 0 && (
+                              <div
+                                style={{
+                                  textAlign: "center",
+                                  marginBottom: "1rem",
+                                }}
+                              >
+                                {modalData.imagenes.map((img, index) => (
+                                  <img
+                                    key={index}
+                                    src={img.url}
+                                    alt={`Insignia ${index}`}
+                                    style={{
+                                      width: "100px",
+                                      height: "100px",
+                                      borderRadius: "50%",
+                                      objectFit: "cover",
+                                      margin: "5px",
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                            )}
+
+                          <label>Cambiar Imágenes</label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) =>
+                              setModalData({
+                                ...modalData,
+                                nuevaImagen: e.target.files[0],
+                              })
+                            }
+                            style={{ marginBottom: "1rem" }}
+                          />
+
+                          <button
+                            onClick={handleEditarInsignia}
+                            disabled={loading}
+                          >
+                            Guardar
+                          </button>
+                        </>
+                      )}
+
+                      <button onClick={cerrarModal}>Cancelar</button>
+                    </div>
+                  </div>
+                )}
 
                 <button onClick={cerrarModal}>Cancelar</button>
               </>
@@ -1443,6 +1913,79 @@ const ConfiguracionPage = () => {
           </div>
         </div>
       )}
+      {showCreateAdminModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Crear Usuario Administrador</h3>
+
+            {/* Si está cargando, mostrar el spinner */}
+            {loading ? (
+              <div className="loading-container">
+                <div className="spinner"></div>
+              </div>
+            ) : (
+              <>
+                <label>Nombre</label>
+                <input
+                  value={nuevaCuentaAdmin.nombre}
+                  onChange={(e) =>
+                    setNuevaCuentaAdmin({
+                      ...nuevaCuentaAdmin,
+                      nombre: e.target.value,
+                    })
+                  }
+                  placeholder="Nombre"
+                />
+
+                <label>Apellido</label>
+                <input
+                  value={nuevaCuentaAdmin.apellido}
+                  onChange={(e) =>
+                    setNuevaCuentaAdmin({
+                      ...nuevaCuentaAdmin,
+                      apellido: e.target.value,
+                    })
+                  }
+                  placeholder="Apellido"
+                />
+
+                <label>Correo</label>
+                <input
+                  type="email"
+                  value={nuevaCuentaAdmin.correo}
+                  onChange={(e) =>
+                    setNuevaCuentaAdmin({
+                      ...nuevaCuentaAdmin,
+                      correo: e.target.value,
+                    })
+                  }
+                  placeholder="Correo"
+                />
+
+                <label>Fecha de Nacimiento</label>
+                <input
+                  type="date"
+                  value={nuevaCuentaAdmin.fecha_nacimiento}
+                  onChange={(e) =>
+                    setNuevaCuentaAdmin({
+                      ...nuevaCuentaAdmin,
+                      fecha_nacimiento: e.target.value,
+                    })
+                  }
+                />
+
+                <button onClick={handleCrearUsuarioAdmin} disabled={loading}>
+                  {loading ? "Creando..." : "Crear Administrador"}
+                </button>
+                <button onClick={() => setShowCreateAdminModal(false)}>
+                  Cancelar
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {showCreateModal && (
         <div className="modal-overlay">
           <div className="modal">
@@ -1657,6 +2200,79 @@ const ConfiguracionPage = () => {
                   {loading ? "Creando..." : "Crear Recompensa"}
                 </button>
                 <button onClick={() => setShowCreateRecompensaModal(false)}>
+                  Cancelar
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+      {showCreateInsigniaModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Crear Nueva Insignia</h3>
+
+            {/* Si está cargando, mostrar el spinner */}
+            {loading ? (
+              <div className="loading-container">
+                <div className="spinner"></div>
+              </div>
+            ) : (
+              <>
+                <label>Nombre</label>
+                <input
+                  value={nuevaInsignia.nombre}
+                  onChange={(e) =>
+                    setNuevaInsignia({
+                      ...nuevaInsignia,
+                      nombre: e.target.value,
+                    })
+                  }
+                  placeholder="Nombre"
+                />
+
+                <label>Descripción</label>
+                <textarea
+                  value={nuevaInsignia.descripcion}
+                  onChange={(e) =>
+                    setNuevaInsignia({
+                      ...nuevaInsignia,
+                      descripcion: e.target.value,
+                    })
+                  }
+                  placeholder="Descripción"
+                />
+
+                <label>Puntos Requeridos</label>
+                <input
+                  type="number"
+                  value={nuevaInsignia.puntosrequeridos}
+                  onChange={(e) =>
+                    setNuevaInsignia({
+                      ...nuevaInsignia,
+                      puntosrequeridos: Number(e.target.value),
+                    })
+                  }
+                  placeholder="Puntos requeridos"
+                />
+
+                <label>Cambiar Imágenes</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    setNuevaInsignia({
+                      ...nuevaInsignia,
+                      nuevaImagen: e.target.files[0],
+                    })
+                  }
+                  style={{ marginBottom: "1rem" }}
+                />
+
+                <button onClick={handleCrearInsignia} disabled={loading}>
+                  {loading ? "Creando..." : "Crear Insignia"}
+                </button>
+                <button onClick={() => setShowCreateInsigniaModal(false)}>
                   Cancelar
                 </button>
               </>
