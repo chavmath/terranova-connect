@@ -49,10 +49,10 @@ jobs:
     executor: node_executor
     steps:
       - checkout_code
-      - email/send:
-          to: "chavmath@gmail.com"
-          subject: "📥 Clone iniciado (Build #$CIRCLE_BUILD_NUM)"
-          body: "Repositorio clonado en la rama *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1\nVer: $CIRCLE_BUILD_URL"
+      # - email/send:
+      #     to: "chavmath@gmail.com"
+      #     subject: "📥 Clone iniciado (Build #$CIRCLE_BUILD_NUM)"
+      #     body: "Repositorio clonado en la rama *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1\nVer: $CIRCLE_BUILD_URL"
 
 
   check_bun_version:
@@ -78,10 +78,10 @@ jobs:
             - node_modules
             - bun.lockb
             - package.json
-      - email/send:
-          to: "chavmath@gmail.com"
-          subject: "📦 Dependencias instaladas (Build #$CIRCLE_BUILD_NUM)"
-          body: "Dependencias instaladas en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1"
+      # - email/send:
+      #     to: "chavmath@gmail.com"
+      #     subject: "📦 Dependencias instaladas (Build #$CIRCLE_BUILD_NUM)"
+      #     body: "Dependencias instaladas en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1"
 
   run_unit_tests:
     executor: node_executor    
@@ -99,10 +99,10 @@ jobs:
           path: test-results
       - store_artifacts:
           path: coverage
-      - email/send:
-          to: "chavmath@gmail.com"
-          subject: "✅ Tests completados (Build #$CIRCLE_BUILD_NUM)"
-          body: "Pruebas completadas exitosamente en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1\nVer: $CIRCLE_BUILD_URL"
+      # - email/send:
+      #     to: "chavmath@gmail.com"
+      #     subject: "✅ Tests completados (Build #$CIRCLE_BUILD_NUM)"
+      #     body: "Pruebas completadas exitosamente en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1\nVer: $CIRCLE_BUILD_URL"
 
 
   code_quality_analysis:
@@ -119,10 +119,10 @@ jobs:
             npm run lint || echo "⚠ Linting issues found"
       - store_artifacts:
           path: eslint-report.xml
-      - email/send:
-          to: "chavmath@gmail.com"
-          subject: "🔍 Lint completado (Build #$CIRCLE_BUILD_NUM)"
-          body: "Análisis de código completado en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1"
+      # - email/send:
+      #     to: "chavmath@gmail.com"
+      #     subject: "🔍 Lint completado (Build #$CIRCLE_BUILD_NUM)"
+      #     body: "Análisis de código completado en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1"
 
 
   build_application:
@@ -138,10 +138,10 @@ jobs:
           root: .
           paths:
             - dist
-      - email/send:
-          to: "chavmath@gmail.com"
-          subject: "⚙️ Build completado (Build #$CIRCLE_BUILD_NUM)"
-          body: "Aplicación compilada correctamente en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1\nVer: $CIRCLE_BUILD_URL"
+      # - email/send:
+      #     to: "chavmath@gmail.com"
+      #     subject: "⚙️ Build completado (Build #$CIRCLE_BUILD_NUM)"
+      #     body: "Aplicación compilada correctamente en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1\nVer: $CIRCLE_BUILD_URL"
 
   deploy_to_production:
     executor: node_executor
@@ -164,10 +164,10 @@ jobs:
       - run:
           name: Log Deployment
           command: touch /tmp/deploy_success
-      - email/send:
-          to: "chavmath@gmail.com"
-          subject: "🚀 Despliegue exitoso (Build #$CIRCLE_BUILD_NUM)"
-          body: "Despliegue completado correctamente en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1\nVer: $CIRCLE_BUILD_URL"
+      # - email/send:
+      #     to: "chavmath@gmail.com"
+      #     subject: "🚀 Despliegue exitoso (Build #$CIRCLE_BUILD_NUM)"
+      #     body: "Despliegue completado correctamente en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1\nVer: $CIRCLE_BUILD_URL"
 
 workflows:
   build_test_deploy:
