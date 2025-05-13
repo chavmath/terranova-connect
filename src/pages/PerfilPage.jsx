@@ -41,10 +41,8 @@ const PerfilPage = () => {
         if (pubsRes.ok && userRes.ok) {
           setPublicaciones(publicacionesData);
           setUser(userData);
-
-          // 👇 Fetch para seguidores y seguidos
           const seguimientoRes = await fetch(
-            `http://localhost:3000/seguimientos/${userData.id_usuario}`,
+            `http://localhost:3000/seguidores-contar`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -55,11 +53,14 @@ const PerfilPage = () => {
           );
 
           if (seguimientoRes.ok) {
-            const { seguidores, seguidos } = await seguimientoRes.json();
-            setSeguidores(seguidores);
-            setSeguidos(seguidos);
+            const { seguidoresCount, seguidosCount } =
+              await seguimientoRes.json();
+            setSeguidores(seguidoresCount);
+            setSeguidos(seguidosCount);
           } else {
-            console.warn("No se pudieron obtener seguidores/seguidos");
+            console.warn(
+              "No se pudieron obtener los conteos de seguidores/seguidos"
+            );
           }
         } else {
           console.error("Error al cargar datos del perfil o publicaciones");
@@ -304,11 +305,11 @@ const PerfilPage = () => {
                 <span> publicaciones</span>
               </div>
               <div>
-                <strong>{seguidores.length}</strong>
+                <strong>{seguidores}</strong>
                 <span> seguidores</span>
               </div>
               <div>
-                <strong>{seguidos.length}</strong>
+                <strong>{seguidos}</strong>
                 <span> seguidos</span>
               </div>
             </div>
