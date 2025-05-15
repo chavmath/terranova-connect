@@ -16,6 +16,8 @@ const RewardsPage = () => {
   const [mostrarOverlayFelicidades, setMostrarOverlayFelicidades] =
     useState(false);
   const [recompensaReclamada, setRecompensaReclamada] = useState(null);
+  const [loadingReclamar, setLoadingReclamar] = useState(false);
+  const [recompensasReclamadas, setRecompensasReclamadas] = useState([]);
 
   const getCurrentUserId = () => {
     const token = Cookies.get("token");
@@ -77,6 +79,33 @@ const RewardsPage = () => {
             foto_perfil?.[0]?.url ||
             "https://cdn-icons-png.flaticon.com/512/149/149071.png",
         });
+
+        const resCanjes = await fetch("http://localhost:3000/canjes", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+        const dataCanjes = await resCanjes.json();
+
+        // Filtra solo los canjes del usuario actual (por nombre completo)
+        const nombreCompleto =
+          `${dataUsuario.nombre} ${dataUsuario.apellido}`.toLowerCase();
+        const canjesDelUsuario = dataCanjes.filter(
+          (c) =>
+            `${c.nombre ?? ""} ${c.apellido ?? ""}`.trim().toLowerCase() ===
+            nombreCompleto
+        );
+
+        // Formatea para mostrar
+        const recompensasFormateadas = canjesDelUsuario.map((c) => ({
+          id: c.idCanje,
+          nombre: c.recompensa,
+          descripcion: c.descripcion,
+        }));
+
+        setRecompensasReclamadas(recompensasFormateadas);
       } catch (err) {
         console.error("Error cargando datos:", err);
       }
@@ -111,11 +140,9 @@ const RewardsPage = () => {
   const handleReclamar = async () => {
     if (!recompensaSeleccionada) return;
     const token = Cookies.get("token");
+    setLoadingReclamar(true);
 
     try {
-      console.log("Recompensa reclamada:", {
-        id_recompensa: recompensaSeleccionada.id_recompensa,
-      });
       const res = await fetch("http://localhost:3000/cajerRecompensa", {
         method: "POST",
         headers: {
@@ -147,6 +174,8 @@ const RewardsPage = () => {
     } catch (err) {
       console.error("Error al reclamar:", err);
       alert("No se pudo reclamar la recompensa.");
+    } finally {
+      setLoadingReclamar(false); // <- desactiva spinner
     }
   };
 
@@ -174,31 +203,56 @@ const RewardsPage = () => {
 
           <h3 className="rewards-subtitle">Canjea tus puntos</h3>
           <div className="canje-grid">
-            {recompensas.map((r) => {
-              const puedeReclamar = user.puntos >= r.puntosRequeridos;
-              return (
-                <div
-                  key={r.id_recompensa}
-                  className={`canje-card ${
-                    !puedeReclamar ? "canje-disabled" : ""
-                  }`}
-                >
-                  <div className="canje-icon">{r.icono || "🎁"}</div>
-                  <h4 className="canje-nombre">{r.nombre}</h4>
-                  <p className="canje-puntos">{r.puntosRequeridos} puntos</p>
-                  <button
-                    className="canje-boton"
-                    disabled={!puedeReclamar}
-                    onClick={() =>
-                      puedeReclamar && setRecompensaSeleccionada(r)
-                    }
+            {recompensas
+              .filter((r) => {
+                return !recompensasReclamadas.some(
+                  (rr) => rr.nombre.toLowerCase() === r.nombre.toLowerCase()
+                );
+              })
+              .map((r) => {
+                const puedeReclamar = user.puntos >= r.puntosRequeridos;
+                return (
+                  <div
+                    key={r.id_recompensa}
+                    className={`canje-card ${
+                      !puedeReclamar ? "canje-disabled" : ""
+                    }`}
                   >
-                    Reclamar
-                  </button>
-                </div>
-              );
-            })}
+                    <div className="canje-icon">{r.icono || "🎁"}</div>
+                    <h4 className="canje-nombre">{r.nombre}</h4>
+                    <p className="canje-puntos">{r.puntosRequeridos} puntos</p>
+                    <button
+                      className="canje-boton"
+                      disabled={!puedeReclamar}
+                      onClick={() =>
+                        puedeReclamar && setRecompensaSeleccionada(r)
+                      }
+                    >
+                      Reclamar
+                    </button>
+                  </div>
+                );
+              })}
           </div>
+          {recompensasReclamadas.length > 0 && (
+            <>
+              <h3 className="insignias-reclamadas-subtitle">
+                Recompensas Reclamadas
+              </h3>
+              <div className="canje-grid">
+                {recompensasReclamadas.map((r) => (
+                  <div key={r.id} className="canje-card canje-disabled">
+                    <div className="canje-icon">🎉</div>
+                    <h4 className="canje-nombre">{r.nombre}</h4>
+                    <p className="canje-puntos">{r.descripcion}</p>
+                    <button className="canje-boton" disabled>
+                      Ya reclamado
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
 
           {recompensaSeleccionada && (
             <div
@@ -227,9 +281,18 @@ const RewardsPage = () => {
                   </strong>
                 </p>
                 <div className="modal-rewards-buttons">
-                  <button className="confirmar-boton" onClick={handleReclamar}>
-                    Sí, reclamar
+                  <button
+                    className="confirmar-boton"
+                    onClick={handleReclamar}
+                    disabled={loadingReclamar}
+                  >
+                    {loadingReclamar ? (
+                      <span className="spinner-rewards"></span>
+                    ) : (
+                      "Sí, reclamar"
+                    )}
                   </button>
+
                   <button
                     className="cancelar-boton"
                     onClick={() => setRecompensaSeleccionada(null)}

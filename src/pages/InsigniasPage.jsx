@@ -17,6 +17,7 @@ const InsigniasPage = () => {
   const [mostrarOverlayFelicidades, setMostrarOverlayFelicidades] =
     useState(false);
   const [insigniaReclamada, setInsigniaReclamada] = useState(null);
+  const [isLoadingReclamo, setIsLoadingReclamo] = useState(false);
 
   const getCurrentUserId = () => {
     const token = Cookies.get("token");
@@ -128,11 +129,9 @@ const InsigniasPage = () => {
   const handleReclamar = async () => {
     if (!insigniaSeleccionada) return;
     const token = Cookies.get("token");
+    setIsLoadingReclamo(true);
 
     try {
-      console.log("Insignia reclamada:", {
-        id_insignia: insigniaSeleccionada.id_insignia,
-      });
       const res = await fetch("http://localhost:3000/reclamar", {
         method: "POST",
         headers: {
@@ -167,6 +166,8 @@ const InsigniasPage = () => {
     } catch (err) {
       console.error("Error al reclamar:", err);
       alert("No se pudo reclamar la insignia.");
+    } finally {
+      setIsLoadingReclamo(false); // <--- FIN carga
     }
   };
 
@@ -289,9 +290,20 @@ const InsigniasPage = () => {
                   </strong>
                 </p>
                 <div className="modal-insignias-buttons">
-                  <button className="confirmar-boton" onClick={handleReclamar}>
-                    Sí, reclamar
+                  <button
+                    className="confirmar-boton"
+                    onClick={handleReclamar}
+                    disabled={isLoadingReclamo}
+                  >
+                    {isLoadingReclamo ? (
+                      <span className="spinner-insignias-container">
+                        <span className="spinner-insignias"></span>
+                      </span>
+                    ) : (
+                      "Sí, reclamar"
+                    )}
                   </button>
+
                   <button
                     className="cancelar-boton"
                     onClick={() => setInsigniaSeleccionada(null)}
@@ -305,7 +317,7 @@ const InsigniasPage = () => {
         </div>
       </main>
 
-      {mostrarAnimacion && (
+      {mostrarAnimacion && !mostrarOverlayFelicidades && (
         <div className="insignia-animacion">
           🎉 ¡Insignia reclamada con éxito!
         </div>
