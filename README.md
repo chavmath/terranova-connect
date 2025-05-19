@@ -1,12 +1,102 @@
-# React + Vite
+# Terranova Connect - Proyecto Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Terranova Connect es una plataforma de red social escolar donde los estudiantes y profesores pueden interactuar, compartir publicaciones, participar en actividades, recibir recompensas y gestionar su perfil. Los administradores tienen acceso a una interfaz para gestionar usuarios, actividades y misiones.
 
-Currently, two official plugins are available:
+## Índice
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [Instalación](#instalación)
+- [Configuración](#configuración)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [Tecnologías utilizadas](#tecnologías-utilizadas)
+- [Funcionalidades](#funcionalidades)
+- [Autenticación y Autorización](#autenticación-y-autorización)
+- [Endpoints API](#endpoints-api)
+- [Contribuciones](#contribuciones)
 
-## Expanding the ESLint configuration
+## Instalación
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Requisitos previos
+
+- **Node.js** (v14.0 o superior)
+- **NPM** o **Yarn**
+- **MongoDB** o cualquier base de datos compatible con el backend (si es necesario)
+
+### Pasos para instalar el proyecto
+
+1. **Clonar el repositorio:**
+
+   ```bash
+   git clone https://github.com/tu-usuario/terranova-connect.git
+   cd terranova-connect
+
+2. **Instalar dependencias:**
+
+   ```bash
+   npm install
+   ```
+   o
+
+   ```bash
+   yarn install
+   ```
+3. **Iniciar el proyecto**
+    ```bash
+    npm run dev
+    ```
+    o
+    
+    ```bash
+    yarn dev
+    ```
+4. **Acceder a la aplicación:**
+    Abre tu navegador y ve a `http://localhost:3000` (o el puerto que se configure).
+
+5. **Backend**
+    Asegúrate de tener el backend corriendo también
+
+### Estructura del Proyecto
+
+/public
+/src
+  /assets           # Archivos de imágenes, iconos, fuentes
+  /components       # Componentes reutilizables
+  /pages            # Páginas principales (Dashboard, Login, Perfil, etc.)
+  /routes           # Rutas de la aplicación
+  /styles           # Archivos de estilos (CSS)
+  /utils            # Utilidades y helpers
+/tests
+
+### Tecnologías utilizadas
+- **Frontend:**
+  - React.js
+  - React Router
+  - State Management
+  - SweetAlert2
+  - CSS
+- **Backend:**
+  - Node.js
+  - Express.js
+  - MongoDB
+  - JWT para autenticación
+
+### Funcionalidades
+- **Para Uuarios**
+  - Crear y actualizar perfil
+  - Ver publicaciones de otros usuarios
+  - Crear publicaciones
+  - Comentar y dar "me gusta" a publicaciones
+  - Participar en actividades y misiones
+  - Ver recompensas acumuladas y canjearlas.
+  - Ver insgnias acumuladas y canjearlas
+- **Para Administradores**
+  - Gestionar usuarios (crear, editar, eliminar)
+  - Gestionar actividades y misiones
+  - Gestionar recompensas e insignias
+  - Ver estadísticas de uso y participación
+  - Aprobar evidencias subidas por los usuarios.
+
+### Autenticación y Autorización
+- **Login** Los usuarios pueden iniciar sesión usando su correo y contraseña.
+- **2FA** Verificación de dos pasos para una seguridad adicional.
+- **Roles** Los usuarios tienen diferentes roles (Estudiante, Profesor, Administrador). El acceso a diferentes rutas y acciones se controla con base en el rol.
+- **JWT** Usamos tokens JWT para gestionar la sesión de los usuarios.

@@ -84,6 +84,14 @@
   margin-bottom: 0.5rem;
 }
 
+.react-calendar__tile.actividad-rango {
+  background-color: #dbeafe;
+  border-radius: 6px;
+}
+.react-calendar__tile.actividad-rango:hover {
+  background-color: #bfdbfe;
+}
+
 .calendar-row-container {
   display: flex;
   flex-wrap: wrap;

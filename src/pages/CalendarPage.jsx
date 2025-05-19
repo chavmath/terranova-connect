@@ -62,6 +62,13 @@ const CalendarPage = () => {
       (evento) => evento.fecha.toDateString() === fecha.toDateString()
     );
 
+  const estaEnRango = (date, inicio, fin) => {
+    const d = date.setHours(0, 0, 0, 0);
+    const i = inicio.setHours(0, 0, 0, 0);
+    const f = fin.setHours(0, 0, 0, 0);
+    return d >= i && d <= f;
+  };
+
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       <Sidebar active="Calendario de actividades" />
@@ -83,6 +90,23 @@ const CalendarPage = () => {
                 return eventos.length > 0 ? (
                   <div className="calendar-dot" />
                 ) : null;
+              }}
+              tileClassName={({ date }) => {
+                const clases = [];
+
+                eventos.forEach((evento) => {
+                  if (
+                    estaEnRango(
+                      new Date(date),
+                      new Date(evento.fecha),
+                      new Date(evento.fechaFin)
+                    )
+                  ) {
+                    clases.push("actividad-rango");
+                  }
+                });
+
+                return clases;
               }}
             />
           </div>

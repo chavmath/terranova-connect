@@ -1,4 +1,7 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import Cookies from "js-cookie";
+import Swal from "sweetalert2"; // 👈 importa SweetAlert2
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import ParticiparPage from "./pages/ParticiparPage";
@@ -18,6 +21,49 @@ import EstadisticasAdminPage from "./pages/EstadisticasAdminPage";
 import InsigniasPage from "./pages/InsigniasPage";
 
 function App() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (!token) return;
+
+    let payload;
+    try {
+      payload = JSON.parse(atob(token.split(".")[1]));
+    } catch {
+      logout("Token inválido. Por favor, inicia sesión nuevamente.");
+      return;
+    }
+
+    const expMs   = payload.exp * 1000;
+    const nowMs   = Date.now();
+    const timeout = expMs - nowMs;
+
+    if (timeout <= 0) {
+      logout("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      logout("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
+    }, timeout);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const logout = (message) => {
+    Cookies.remove("token", { path: "/" });
+    Swal.fire({
+      icon: "info",
+      title: "Sesión expirada",
+      text: message,
+      confirmButtonText: "Iniciar sesión",
+      allowOutsideClick: false,
+    }).then(() => {
+      navigate("/");
+    });
+  };
+
   return (
     <Routes>
       <Route path="/" element={<RutaPublica><LoginPage /></RutaPublica>} />
