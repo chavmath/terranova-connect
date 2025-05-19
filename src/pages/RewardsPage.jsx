@@ -80,7 +80,7 @@ const RewardsPage = () => {
             "https://cdn-icons-png.flaticon.com/512/149/149071.png",
         });
 
-        const resCanjes = await fetch("http://localhost:3000/canjes", {
+        const resCanjes = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/canjes", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -146,7 +146,7 @@ const RewardsPage = () => {
       console.log("Recompensa reclamada:", {
         id_recompensa: recompensaSeleccionada.id_recompensa,
       });
-      const res = await fetch("http://localhost:3000/cajerRecompensa", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/cajerRecompensa", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

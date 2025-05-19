@@ -231,11 +231,7 @@ const LoginPage = () => {
 
   const handleCambiarContrasenia = async (e) => {
     e.preventDefault();
-      console.log({
-    correo: nuevoCorreo,
-    codigo: codigoRecuperacion,
-    contrasenia: nuevaContrasenia
-  });
+ 
 
     /*if (nuevoCodigo !== codigoRecuperacion) {
       Swal.fire({
