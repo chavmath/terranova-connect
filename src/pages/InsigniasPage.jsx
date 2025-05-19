@@ -135,7 +135,7 @@ const InsigniasPage = () => {
       console.log("Insignia reclamada:", {
         id_insignia: insigniaSeleccionada.id_insignia,
       });
-      const res = await fetch("http://localhost:3000/reclamar", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/reclamar", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
