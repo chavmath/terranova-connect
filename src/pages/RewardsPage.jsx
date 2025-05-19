@@ -38,7 +38,7 @@ const RewardsPage = () => {
         const token = Cookies.get("token");
 
         const resRecompensas = await fetch(
-          "http://localhost:3000/recompensas",
+          "https://kong-7df170cea7usbksss.kongcloud.dev/recompensas/usuario",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -53,7 +53,7 @@ const RewardsPage = () => {
         }
 
         const resUsuario = await fetch(
-          `http://localhost:3000/usuario/${userId}`,
+          `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -116,7 +116,7 @@ const RewardsPage = () => {
       console.log("Recompensa reclamada:", {
         id_recompensa: recompensaSeleccionada.id_recompensa,
       });
-      const res = await fetch("http://localhost:3000/cajerRecompensa", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/cajerRecompensa", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

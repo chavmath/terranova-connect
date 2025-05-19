@@ -27,62 +27,63 @@ const ParticiparPage = () => {
   });
 
   // Justo después de useState...
-  const fetchDatos = async () => {
-    try {
-      const token = Cookies.get("token");
+const fetchDatos = async () => {
+  try {
+    const token = Cookies.get("token");
 
-      const [misRes, activasRes] = await Promise.all([
-        fetch("http://localhost:3000/misiones", {
-          headers: { Authorization: `Bearer ${token}` },
-          credentials: "include",
-        }),
-        fetch("http://localhost:3000/activas", {
-          headers: { Authorization: `Bearer ${token}` },
-          credentials: "include",
-        }),
-      ]);
+    const [misRes, activasRes] = await Promise.all([
+      fetch("https://kong-7df170cea7usbksss.kongcloud.dev/misiones", {
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
+      }),
+      fetch("https://kong-7df170cea7usbksss.kongcloud.dev/activas", {
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
+      }),
+    ]);
 
-      const misionesData = await misRes.json();
-      const activasData = await activasRes.json();
+    const misionesData = await misRes.json();
+    const activasData = await activasRes.json();
 
-      setInscritas(activasData);
+    console.log("Misiones:", misionesData);
+    console.log("Activas:", activasData);
 
-      const activas = Array.isArray(activasData)
-        ? activasData
-        : activasData.data || [];
+    setInscritas(activasData);
 
-      const misionesFormateadas = misionesData.misiones.map((m) => {
-        const activa = activas.find((a) => a.id_mision === m.id_mision);
+    const activas = Array.isArray(activasData) ? activasData : activasData.data || [];
 
-        let estado = "Inscribirse";
-        if (activa) {
-          if (activa.estado === true) {
-            estado = "Puntos otorgados";
-          } else {
-            estado = activa.estadoEvidencia
-              ? "Ver progreso"
-              : "Subir evidencia";
-          }
+    const misionesFormateadas = misionesData.map((m) => {
+      // Aquí m._id es el id de la misión que obtuviste en consola
+      const activa = activas.find((a) => a.id_mision === m.id_mision);
+
+      let estado = "Inscribirse";
+      if (activa) {
+        if (activa.estado === true) {
+          estado = "Puntos otorgados";
+        } else {
+          estado = activa.estadoEvidencia ? "Ver progreso" : "Subir evidencia";
         }
+      }
 
-        return {
-          id: m.id_mision,
-          nombre: m.titulo,
-          descripcion: m.descripcion,
-          puntos: m.puntos,
-          duracion: m.duracion ?? "No especificada",
-          modalidad: m.modalidad ?? "Individual",
-          tipo: "Misión",
-          estado,
-          id_inscripcion: activa?.id_inscripcion ?? null,
-        };
-      });
+      return {
+        id: m.id_mision,
+        nombre: m.titulo,
+        descripcion: m.descripcion,
+        puntos: m.puntos,
+        duracion: m.duracion ?? "No especificada",
+        modalidad: m.modalidad ?? "Individual",
+        tipo: "Misión",
+        estado,
+        id_inscripcion: activa?.id_inscripcion ?? null,
+      };
+    });
 
-      setMisiones(misionesFormateadas);
-    } catch (err) {
-      console.error("Error al cargar misiones:", err);
-    }
-  };
+    setMisiones(misionesFormateadas);
+  } catch (err) {
+    console.error("Error al cargar misiones:", err);
+  }
+};
+
 
   useEffect(() => {
     fetchDatos();
@@ -100,7 +101,7 @@ const ParticiparPage = () => {
     const token = Cookies.get("token");
 
     try {
-      const res = await fetch("http://localhost:3000/subir", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/subir", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -167,7 +168,7 @@ const ParticiparPage = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/evidencia/${idInscripcionActual}`,
+        `https://kong-7df170cea7usbksss.kongcloud.dev/evidencia/${idInscripcionActual}`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -194,7 +195,7 @@ const ParticiparPage = () => {
     const token = Cookies.get("token");
     try {
       const res = await fetch(
-        `http://localhost:3000/ver-progreso/${id_inscripcion}`,
+        `https://kong-7df170cea7usbksss.kongcloud.dev/ver-progreso/${id_inscripcion}`,
         {
           headers: { Authorization: `Bearer ${token}` },
           credentials: "include",

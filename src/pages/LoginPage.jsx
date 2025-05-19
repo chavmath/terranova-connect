@@ -36,7 +36,7 @@ const LoginPage = () => {
     });
 
     try {
-      const res = await fetch("http://localhost:3000/login", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -83,7 +83,7 @@ const LoginPage = () => {
     });
 
     try {
-      const res = await fetch("http://localhost:3000/2fa", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/2fa", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -142,7 +142,7 @@ const LoginPage = () => {
     });
 
     try {
-      const res = await fetch("http://localhost:3000/admin/login", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -192,7 +192,7 @@ const LoginPage = () => {
 
     try {
       const res = await fetch(
-        "http://localhost:3000/solicitar-cambio-contrasenia",
+        "https://kong-7df170cea7usbksss.kongcloud.dev/solicitar-cambio-contrasenia",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -231,28 +231,33 @@ const LoginPage = () => {
 
   const handleCambiarContrasenia = async (e) => {
     e.preventDefault();
+      console.log({
+    correo: nuevoCorreo,
+    codigo: codigoRecuperacion,
+    contrasenia: nuevaContrasenia
+  });
 
-    if (nuevoCodigo !== codigoRecuperacion) {
+    /*if (nuevoCodigo !== codigoRecuperacion) {
       Swal.fire({
         icon: "error",
         title: "Error",
         text: "El código ingresado es incorrecto",
       });
       return;
-    }
+    }*/
 
     try {
-      const res = await fetch("http://localhost:3000/cambiar-contrasenia", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/cambiar-contrasenia", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           correo: nuevoCorreo,
-          codigo: nuevoCodigo,
+          codigo: codigoRecuperacion,
           contrasenia: nuevaContrasenia,
         }),
       });
-
       const data = await res.json();
+      
 
       if (res.ok) {
         Swal.fire({
@@ -260,7 +265,7 @@ const LoginPage = () => {
           title: "Contraseña cambiada",
           text: "Tu contraseña ha sido actualizada exitosamente.",
         }).then(() => {
-          window.location.href = "/login"; // Redirigir a la página de login
+          window.location.href = "/"; // Redirigir a la página de login
         });
       } else {
         Swal.fire({
@@ -297,7 +302,7 @@ const LoginPage = () => {
 
     try {
       const res = await fetch(
-        "http://localhost:3000/solicitar-nuevo-codigo-admin",
+        "https://kong-7df170cea7usbksss.kongcloud.dev/solicitar-nuevo-codigo-admin",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

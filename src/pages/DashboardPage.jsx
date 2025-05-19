@@ -45,7 +45,7 @@ const DashboardPage = () => {
     const fetchData = async () => {
       try {
         // 1) Datos del usuario
-        const resUser = await fetch(`http://localhost:3000/usuario/${userId}`, {
+        const resUser = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
           credentials: "include",
         });
@@ -55,7 +55,7 @@ const DashboardPage = () => {
 
         // 3) Estadísticas de misiones
         const resMissions = await fetch(
-          "http://localhost:3000/misiones-estadisticas",
+          "https://kong-7df170cea7usbksss.kongcloud.dev/misiones-estadisticas",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -66,7 +66,7 @@ const DashboardPage = () => {
 
         // 4) Estadísticas de insignias
         const resBadges = await fetch(
-          "http://localhost:3000/insignias-reclamadas-estadisticas",
+          "https://kong-7df170cea7usbksss.kongcloud.dev/insignias-reclamadas-estadisticas",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -77,7 +77,7 @@ const DashboardPage = () => {
 
         // 5) Publicaciones
         const resPosts = await fetch(
-          "http://localhost:3000/mis-publicaciones",
+          "https://kong-7df170cea7usbksss.kongcloud.dev/mis-publicaciones",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -87,7 +87,7 @@ const DashboardPage = () => {
         setPosts(postsData);
 
         // 6) Actividades próximas
-        const resActivities = await fetch("http://localhost:3000/actividades", {
+        const resActivities = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/actividades", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!resActivities.ok) throw new Error("Error al cargar actividades");

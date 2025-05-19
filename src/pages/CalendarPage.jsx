@@ -13,7 +13,7 @@ const CalendarPage = () => {
     const fetchActividades = async () => {
       try {
         const token = Cookies.get("token");
-        const response = await fetch("http://localhost:3000/actividades", {
+        const response = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/actividades", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

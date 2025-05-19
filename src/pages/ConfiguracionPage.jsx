@@ -180,7 +180,7 @@ const ConfiguracionPage = () => {
   const token = Cookies.get("token");
 
   const obtenerUsuarios = async () => {
-    const res = await fetch("http://localhost:3000/usuarios", {
+    const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/usuarios", {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -192,7 +192,7 @@ const ConfiguracionPage = () => {
   };
 
   const obtenerActividades = async () => {
-    const res = await fetch("http://localhost:3000/actividades", {
+    const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/actividades", {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -204,7 +204,7 @@ const ConfiguracionPage = () => {
   };
 
   const obtenerMisiones = async () => {
-    const res = await fetch("http://localhost:3000/misiones", {
+    const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev//misiones/admin", {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -221,7 +221,7 @@ const ConfiguracionPage = () => {
 
   const obtenerRecompensas = async () => {
     try {
-      const res = await fetch("http://localhost:3000/recompensas", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/recompensas/admin", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -244,7 +244,7 @@ const ConfiguracionPage = () => {
 
   const obtenerInsignias = async () => {
     try {
-      const res = await fetch("http://localhost:3000/insignias", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/insignias", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -273,7 +273,7 @@ const ConfiguracionPage = () => {
     if (!confirmacion.isConfirmed) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/usuario/${id_usuario}`, {
+      const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${id_usuario}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -315,7 +315,7 @@ const ConfiguracionPage = () => {
     if (!confirmacion.isConfirmed) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/actividad/${id}`, {
+      const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/actividad/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -357,7 +357,7 @@ const ConfiguracionPage = () => {
     if (!confirmacion.isConfirmed) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/mision/${id_mision}`, {
+      const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/mision/${id_mision}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -397,7 +397,7 @@ const ConfiguracionPage = () => {
     if (!confirmacion.isConfirmed) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/recompensa/${id}`, {
+      const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/recompensa/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
         credentials: "include",
@@ -428,7 +428,7 @@ const ConfiguracionPage = () => {
     if (!confirmacion.isConfirmed) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/insignia/${id_insignia}`, {
+      const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/insignia/${id_insignia}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
         credentials: "include",
@@ -456,7 +456,7 @@ const ConfiguracionPage = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:3000/crear-admin", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/crear-admin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -505,7 +505,7 @@ const ConfiguracionPage = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:3000/actividad", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/actividad", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -554,7 +554,7 @@ const ConfiguracionPage = () => {
     setLoading(true); // Mostrar el spinner
 
     try {
-      const res = await fetch("http://localhost:3000/mision", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/mision", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -613,7 +613,7 @@ const ConfiguracionPage = () => {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/recompensa", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/recompensa", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -671,7 +671,7 @@ const ConfiguracionPage = () => {
         formData.append("insignia", nuevaImagen);
       }
 
-      const res = await fetch("http://localhost:3000/insignia", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/insignia", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -763,12 +763,12 @@ const ConfiguracionPage = () => {
     setLoading(true);
 
     // Validación simple antes de enviar
-    if (!datos.nombre || !datos.apellido || !datos.correo || !datos.rol) {
+    if (!datos.nombre || !datos.apellido || !datos.correo ) {
       Swal.fire("Error", "Todos los campos deben estar completos", "error");
       return;
     }
 
-    const url = `http://localhost:3000/usuario/${id_usuario}`;
+    const url = `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${id_usuario}`;
     const headers = {
       Authorization: `Bearer ${token}`,
     };
@@ -824,7 +824,7 @@ const ConfiguracionPage = () => {
       return;
     }
 
-    const res = await fetch(`http://localhost:3000/actividad/${id_actividad}`, {
+    const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/actividad/${id_actividad}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -859,7 +859,7 @@ const ConfiguracionPage = () => {
       return;
     }
 
-    const res = await fetch(`http://localhost:3000/mision/${id_mision}`, {
+    const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/mision/${id_mision}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -898,7 +898,7 @@ const ConfiguracionPage = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:3000/recompensa/${id_recompensa}`,
+        `https://kong-7df170cea7usbksss.kongcloud.dev/recompensa/${id_recompensa}`,
         {
           method: "PUT",
           headers: {
@@ -952,7 +952,7 @@ const ConfiguracionPage = () => {
         formData.append("insignia", modalData.nuevaFoto);
       }
 
-      const res = await fetch(`http://localhost:3000/insignia/${id_insignia}`, {
+      const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/insignia/${id_insignia}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -1628,20 +1628,7 @@ const ConfiguracionPage = () => {
                       placeholder="Correo"
                     />
 
-                    <label>Rol</label>
-                    <select
-                      value={modalData.rol}
-                      onChange={(e) =>
-                        setModalData({ ...modalData, rol: e.target.value })
-                      }
-                      className="modal-select"
-                    >
-                      <option value="">Seleccionar rol</option>
-                      <option value="profesor">Profesor</option>
-                      <option value="estudiante">Estudiante</option>
-                      <option value="representante">Representante</option>
-                      <option value="administrador">Administrador</option>
-                    </select>
+
 
                     <button onClick={handleEditarUsuario} disabled={loading}>
                       Guardar

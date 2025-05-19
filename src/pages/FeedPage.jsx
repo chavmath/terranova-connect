@@ -3,14 +3,13 @@ import Sidebar from "../components/Sidebar";
 import "../styles/feed.css";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import Cookies from "js-cookie"; // agrego esto matias
+import Cookies from "js-cookie";
 import { PacmanLoader } from "react-spinners";
 
 const getCurrentUserId = () => {
   const token = Cookies.get("token");
   if (!token) return null;
   try {
-    // JWT = header.payload.signature
     const payloadBase64 = token.split(".")[1];
     const jsonPayload = atob(
       payloadBase64.replace(/-/g, "+").replace(/_/g, "/")
@@ -29,150 +28,87 @@ const FeedPage = () => {
   const [nuevaDescripcion, setNuevaDescripcion] = useState("");
   const [archivos, setArchivos] = useState(null);
   const [previews, setPreviews] = useState([]);
-  const [previewActivo, setPreviewActivo] = useState(null); // { url, tipo }
+  const [previewActivo, setPreviewActivo] = useState(null);
   const [comentarios, setComentarios] = useState({});
   const [nuevoComentario, setNuevoComentario] = useState({});
   const currentUserId = getCurrentUserId();
-  const [loading, setLoading] = useState(false); // Para manejar el estado de carga
-  const [page, setPage] = useState(1); // Controlar la página actual
-  const [hasMore, setHasMore] = useState(true); // Para verificar si hay más publicaciones
+  const [loading, setLoading] = useState(false);
+  const [cantidadMostrar, setCantidadMostrar] = useState(5);
   const navigate = useNavigate();
 
-  // 📥 Cargar publicaciones desde el backend
-  const obtenerPublicaciones = async () => {
-    if (loading || !hasMore) {
-      console.log("Ya está cargando o no hay más publicaciones.");
-      return; // No hacer nada si ya está cargando o no hay más publicaciones
-    }
+  // Fetch todas las publicaciones solo una vez (sin paginación backend)
+  useEffect(() => {
+    const fetchPublicaciones = async () => {
+      setLoading(true);
+      const token = Cookies.get("token");
 
-    console.log("Cargando publicaciones para la página:", page);
-    setLoading(true); // Activar estado de carga
-
-    const token = Cookies.get("token");
-
-    try {
-      const res = await fetch(
-        `http://localhost:3000/publicaciones?page=${page}&size=10`, // Pasar page y size aquí
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
-      );
-
-      console.log("Respuesta de la API: ", res); // Verifica la respuesta
-
-      if (!res.ok) {
-        console.log("Error en la respuesta del servidor:", res);
-        throw new Error("Error al cargar publicaciones");
-      }
-
-      const publicacionesRaw = await res.json();
-      console.log("Publicaciones recibidas:", publicacionesRaw);
-
-      if (publicacionesRaw.length === 0) {
-        console.log("No hay más publicaciones para cargar.");
-        setHasMore(false); // Ya no hay más publicaciones
-      }
-
-      const autorCache = new Map();
-      const publicacionesConAutor = await Promise.all(
-        publicacionesRaw.map(async (pub) => {
-          let autor = autorCache.get(pub.autorId);
-
-          if (!autor) {
-            try {
-              const resAutor = await fetch(
-                `http://localhost:3000/usuario/${pub.autorId}`,
-                {
-                  method: "GET",
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                  },
-                  credentials: "include",
-                }
-              );
-
-              if (resAutor.ok) {
-                autor = await resAutor.json();
-                autorCache.set(pub.autorId, autor);
-              }
-            } catch (err) {
-              console.warn("Error al obtener autor", pub.autorId, err);
-            }
+      try {
+        const res = await fetch(
+          `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones`, // sin page ni size
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
           }
-
-          return {
-            ...pub,
-            autor: autor || null,
-          };
-        })
-      );
-
-      console.log("Publicaciones enriquecidas:", publicacionesConAutor);
-
-      // Actualizar el estado de las publicaciones
-      setPublicaciones((prev) => {
-        // Filtrar las publicaciones que ya están en el estado
-        const existingIds = new Set(prev.map((pub) => pub.id_publicacion));
-
-        const nuevasPublicaciones = publicacionesConAutor.filter(
-          (pub) => !existingIds.has(pub.id_publicacion)
         );
 
-        console.log(
-          "Publicaciones nuevas sin duplicados: ",
-          nuevasPublicaciones
-        ); // Verifica que las nuevas publicaciones estén siendo procesadas
+        if (!res.ok) throw new Error("Error al cargar publicaciones");
 
-        // Devolver las publicaciones combinadas
-        return [...prev, ...nuevasPublicaciones];
-      });
-    } catch (error) {
-      console.error("Error al obtener publicaciones:", error);
-      Swal.fire(
-        "Error",
-        "Hubo un problema al cargar las publicaciones",
-        "error"
-      );
-    } finally {
-      console.log("Fin de la carga de publicaciones.");
-      setLoading(false); // Desactivar el estado de carga
-    }
-  };
+        const publicacionesRaw = await res.json();
 
-  useEffect(() => {
-    console.log("Página actual:", page);
-    obtenerPublicaciones();
-  }, [page]); // Esto asegura que se llamará a obtenerPublicaciones cada vez que cambie la página
+        const autorCache = new Map();
+        const publicacionesConAutor = await Promise.all(
+          publicacionesRaw.map(async (pub) => {
+            let autor = autorCache.get(pub.autorId);
+            if (!autor) {
+              try {
+                const resAutor = await fetch(
+                  `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${pub.autorId}`,
+                  {
+                    method: "GET",
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                      "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                  }
+                );
+                if (resAutor.ok) {
+                  autor = await resAutor.json();
+                  autorCache.set(pub.autorId, autor);
+                }
+              } catch (err) {
+                console.warn("Error al obtener autor", pub.autorId, err);
+              }
+            }
+            return { ...pub, autor: autor || null };
+          })
+        );
 
-  // Detectar cuando se llega al final de la página
-  const handleScroll = (e) => {
-    const bottom =
-      e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 10;
-
-    if (bottom && hasMore && !loading) {
-      console.log("Llegamos al final del feed, cargando más publicaciones...");
-      setLoading(true); // Activar estado de carga
-      setPage((prev) => prev + 1); // Avanzar a la siguiente página
-    }
-  };
-
-  useEffect(() => {
-    // Añadir el evento de scroll
-    const feedElement = document.querySelector(".feed-main");
-    feedElement.addEventListener("scroll", handleScroll);
-
-    return () => {
-      // Limpiar el evento cuando el componente se desmonte
-      feedElement.removeEventListener("scroll", handleScroll);
+        setPublicaciones(publicacionesConAutor);
+      } catch (error) {
+        Swal.fire(
+          "Error",
+          "Hubo un problema al cargar las publicaciones",
+          "error"
+        );
+      } finally {
+        setLoading(false);
+      }
     };
-  }, [loading, hasMore]); // Ejecutar cada vez que loading o hasMore cambien
-  // Like a publicación
+
+    fetchPublicaciones();
+  }, []);
+
+  // Función para mostrar más publicaciones (de 5 en 5)
+  const mostrarMas = () => {
+    setCantidadMostrar((prev) => prev + 5);
+  };
+
+  // Like toggle (igual que antes)
   const toggleLike = async (id_publicacion) => {
     const updated = publicaciones.map((pub) =>
       pub.id_publicacion === id_publicacion
@@ -191,10 +127,10 @@ const FeedPage = () => {
 
     try {
       await fetch(
-        `http://localhost:3000/publicaciones/${id_publicacion}/like`,
+        `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${id_publicacion}/like`,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
           method: "POST",
@@ -205,6 +141,7 @@ const FeedPage = () => {
       console.error("Error al dar like:", err);
     }
   };
+
   const avatarPorDefecto =
     "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
@@ -216,7 +153,7 @@ const FeedPage = () => {
     }
   };
 
-  // ➕ Crear publicación
+  // Crear publicación (igual que antes)
   const handlePublicar = async () => {
     if (!nuevaDescripcion || !archivos?.length) {
       Swal.fire("Error", "Todos los campos son obligatorios", "error");
@@ -239,26 +176,28 @@ const FeedPage = () => {
     const token = Cookies.get("token");
 
     try {
-      const res = await fetch("http://localhost:3000/publicaciones", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`, // solo autorización
-        },
-        body: formData, // body = FormData
-        credentials: "include",
-      });
+      const res = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
       Swal.close();
 
       if (res.ok) {
-        Swal.fire("¡Publicado!", "Tu publicación ha sido guardada", "success");
         try {
           const resAutor = await fetch(
-            `http://localhost:3000/usuario/${data.autorId}`,
+            `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${data.autorId}`,
             {
               headers: {
-                Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+                Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
               },
               credentials: "include",
@@ -308,14 +247,15 @@ const FeedPage = () => {
     setPreviewActivo(null);
   };
 
+  // Cargar comentarios (igual)
   const cargarComentarios = async (id_publicacion) => {
     const token = Cookies.get("token");
     try {
       const res = await fetch(
-        `http://localhost:3000/publicaciones/${id_publicacion}/comentarios`,
+        `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${id_publicacion}/comentarios`,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
           credentials: "include",
@@ -328,7 +268,6 @@ const FeedPage = () => {
         return;
       }
 
-      // Enriquecer cada comentario con datos del autor (igual que publicaciones)
       const autorCache = new Map();
 
       const comentariosConAutor = await Promise.all(
@@ -338,10 +277,10 @@ const FeedPage = () => {
           if (!autor) {
             try {
               const resAutor = await fetch(
-                `http://localhost:3000/usuario/${comentario.autorId}`,
+                `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${comentario.autorId}`,
                 {
                   headers: {
-                    Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+                    Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                   },
                   credentials: "include",
@@ -386,15 +325,15 @@ const FeedPage = () => {
     try {
       const token = Cookies.get("token");
       const res = await fetch(
-        `http://localhost:3000/publicaciones/${id_publicacion}/comentarios`,
+        `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${id_publicacion}/comentarios`,
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify({ texto, publicacionId: id_publicacion }), // 👈 Incluido aquí
+          body: JSON.stringify({ texto, publicacionId: id_publicacion }),
         }
       );
 
@@ -406,7 +345,6 @@ const FeedPage = () => {
           [id_publicacion]: [data, ...(prev[id_publicacion] || [])],
         }));
       } else {
-        console.error("Error al comentar:", data.error);
         Swal.fire(
           "Error",
           data.error || "No se pudo enviar el comentario",
@@ -423,7 +361,6 @@ const FeedPage = () => {
     const nuevasPreviews = [...previews];
     nuevasPreviews.splice(index, 1);
 
-    // Actualiza archivos también (porque se usan en el FormData)
     const nuevosArchivos = Array.from(archivos).filter((_, i) => i !== index);
 
     setPreviews(nuevasPreviews);
@@ -431,7 +368,7 @@ const FeedPage = () => {
   };
 
   return (
-    <div style={{ display: "flex", height: "100vh" }} onScroll={handleScroll}>
+    <div style={{ display: "flex", height: "100vh" }}>
       <Sidebar active="Publicaciones" />
 
       <main className="feed-main">
@@ -442,7 +379,7 @@ const FeedPage = () => {
           </p>
         </div>
 
-        {publicaciones.map((pub) => (
+        {publicaciones.slice(0, cantidadMostrar).map((pub) => (
           <div className="feed-card" key={pub.id_publicacion}>
             <div className="feed-header">
               <img
@@ -526,8 +463,7 @@ const FeedPage = () => {
               {comentarios[pub.id_publicacion]?.map((c) => (
                 <div key={c.id_comentario} className="feed-comentario">
                   <strong>
-                    @{c.autor?.nombre || "usuario"}{" "}
-                    {c.autor?.apellido || "usuario"}
+                    @{c.autor?.nombre || "usuario"} {c.autor?.apellido || "usuario"}
                   </strong>{" "}
                   {c.texto}
                 </div>
@@ -561,16 +497,32 @@ const FeedPage = () => {
           </div>
         ))}
 
-        <button className="feed-fab" onClick={() => setMostrarModal(true)}>
-          ➕ Publicar
-        </button>
         {loading && (
-          <div className="spinner-container">
+          <div
+            className="spinner-container"
+            style={{ textAlign: "center", margin: "1rem" }}
+          >
             <PacmanLoader size={30} color={"#e67e22"} loading={loading} />
           </div>
         )}
 
-        {!hasMore && <p>No hay más publicaciones</p>}
+        {cantidadMostrar < publicaciones.length && (
+          <div style={{ textAlign: "center", margin: "1rem" }}>
+            <button className="mostrar-mas-btn" onClick={mostrarMas}>
+              Mostrar más
+            </button>
+          </div>
+        )}
+
+        {publicaciones.length > 0 && cantidadMostrar >= publicaciones.length && (
+          <p style={{ textAlign: "center", margin: "1rem" }}>
+            No hay más publicaciones
+          </p>
+        )}
+
+        <button className="feed-fab" onClick={() => setMostrarModal(true)}>
+          ➕ Publicar
+        </button>
       </main>
 
       {/* MODAL */}
@@ -616,7 +568,7 @@ const FeedPage = () => {
                 multiple
                 onChange={(e) => {
                   const files = Array.from(e.target.files);
-                  setArchivos(e.target.files); // sigue siendo necesario para el FormData
+                  setArchivos(e.target.files);
 
                   const newPreviews = files.map((file) => ({
                     file,
@@ -671,6 +623,7 @@ const FeedPage = () => {
           </div>
         </div>
       )}
+
       {previewActivo && (
         <div
           className="preview-full-overlay"

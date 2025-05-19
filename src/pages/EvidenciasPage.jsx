@@ -30,7 +30,7 @@ const EvidenciasPage = () => {
   }, []);
 
   const obtenerEvidencias = async () => {
-    const res = await fetch("http://localhost:3000/evidencias", {
+    const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/evidencias", {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -48,7 +48,7 @@ const EvidenciasPage = () => {
   const handleAprobarEvidencia = async (id) => {
     setLoadingId(id);
 
-    const url = `http://localhost:3000/evidencia/${id}`;
+    const url = `https://kong-7df170cea7usbksss.kongcloud.dev/evidencia/${id}`;
     console.log("📡 Ruta de aprobación:", url);
 
     try {

@@ -65,7 +65,7 @@ const Sidebar = () => {
       if (rol === "administrador") {
         (async () => {
           try {
-            const res = await fetch(`http://localhost:3000/usuario/${userId}`, {
+            const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`, {
               headers: { Authorization: `Bearer ${token}` },
               credentials: "include",
             });
@@ -84,7 +84,7 @@ const Sidebar = () => {
         // Si no es administrador, obtener los datos del usuario normal
         (async () => {
           try {
-            const res = await fetch(`http://localhost:3000/usuario/${userId}`, {
+            const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`, {
               headers: { Authorization: `Bearer ${token}` },
               credentials: "include",
             });

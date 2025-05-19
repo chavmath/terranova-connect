@@ -39,7 +39,7 @@ const InsigniasPage = () => {
       const token = Cookies.get("token");
 
       // Fetch insignias disponibles
-      const resInsignias = await fetch("http://localhost:3000/insignias", {
+      const resInsignias = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/insignias", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -53,7 +53,7 @@ const InsigniasPage = () => {
 
       // Fetch insignias reclamadas
       const resInsigniasReclamadas = await fetch(
-        "http://localhost:3000/reclamadas",
+        "https://kong-7df170cea7usbksss.kongcloud.dev/reclamadas",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -69,7 +69,7 @@ const InsigniasPage = () => {
 
       // Fetch user data
       const resUsuario = await fetch(
-        `http://localhost:3000/usuario/${userId}`,
+        `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -133,7 +133,7 @@ const InsigniasPage = () => {
       console.log("Insignia reclamada:", {
         id_insignia: insigniaSeleccionada.id_insignia,
       });
-      const res = await fetch("http://localhost:3000/reclamar", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/reclamar", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

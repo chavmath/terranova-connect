@@ -28,7 +28,7 @@ const PublicProfilePage = () => {
     // 1) Carga datos del usuario
     const fetchUser = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/usuario/${userId}`, {
+        const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -41,7 +41,7 @@ const PublicProfilePage = () => {
 
         // 2) Obtener seguidores y seguidos usando /seguimientos/:idPerfil
         const resSeguimiento = await fetch(
-          `http://localhost:3000/seguimientos/${userId}`,
+          `https://kong-7df170cea7usbksss.kongcloud.dev/seguimientos/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -85,7 +85,7 @@ const PublicProfilePage = () => {
     const fetchPublicaciones = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/publicaciones/usuario/${userId}`,
+          `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/usuario/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Agregar el token para el autor también
@@ -132,7 +132,7 @@ const PublicProfilePage = () => {
   const fetchComentarios = async (postId) => {
     try {
       const res = await fetch(
-        `http://localhost:3000/publicaciones/${postId}/comentarios`,
+        `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${postId}/comentarios`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -154,7 +154,7 @@ const PublicProfilePage = () => {
           let autor = autorCache.get(comentario.autorId);
           if (!autor) {
             const resAutor = await fetch(
-              `http://localhost:3000/usuario/${comentario.autorId}`,
+              `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${comentario.autorId}`,
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -178,7 +178,7 @@ const PublicProfilePage = () => {
 
   const toggleFollow = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/seguimiento`, {
+      const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/seguimiento`, {
         method: isFollowing ? "DELETE" : "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -208,7 +208,7 @@ const PublicProfilePage = () => {
     if (!selectedPost || selectedPost.liked) return;
     try {
       const res = await fetch(
-        `http://localhost:3000/publicaciones/${selectedPost.id}/like`,
+        `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${selectedPost.id}/like`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -246,7 +246,7 @@ const PublicProfilePage = () => {
     try {
       // 1) POST para crear comentario
       const res = await fetch(
-        `http://localhost:3000/publicaciones/${postId}/comentarios`,
+        `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${postId}/comentarios`,
         {
           method: "POST",
           headers: {
@@ -278,7 +278,7 @@ const PublicProfilePage = () => {
 
       // 3) recargo los comentarios
       const resComentarios = await fetch(
-        `http://localhost:3000/publicaciones/${postId}/comentarios`,
+        `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${postId}/comentarios`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -301,7 +301,7 @@ const PublicProfilePage = () => {
           let autor = autorCache.get(comentario.autorId);
           if (!autor) {
             const resAutor = await fetch(
-              `http://localhost:3000/usuario/${comentario.autorId}`,
+              `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${comentario.autorId}`,
               {
                 headers: { Authorization: `Bearer ${token}` },
                 credentials: "include",

@@ -46,7 +46,7 @@ const EstadisticasPage = () => {
   // Obtener las participaciones del usuario
   /* const obtenerParticipaciones = async () => {
     try {
-      const res = await fetch("http://localhost:3000/participaciones", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/participaciones", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -63,7 +63,7 @@ const EstadisticasPage = () => {
   // Obtener los usuarios
   const obtenerUsuarios = async () => {
     try {
-      const res = await fetch("http://localhost:3000/usuarios", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/usuarios", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -80,7 +80,7 @@ const EstadisticasPage = () => {
   // Obtener las misiones
   const obtenerMisiones = async () => {
     try {
-      const res = await fetch("http://localhost:3000/misiones", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/misiones/admin", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -97,7 +97,7 @@ const EstadisticasPage = () => {
   // Obtener las publicaciones
   const obtenerPublicaciones = async () => {
     try {
-      const res = await fetch("http://localhost:3000/publicaciones", {
+      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
