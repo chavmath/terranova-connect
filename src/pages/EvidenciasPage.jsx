@@ -30,13 +30,16 @@ const EvidenciasPage = () => {
   }, []);
 
   const obtenerEvidencias = async () => {
-    const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/evidencias", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
+    const res = await fetch(
+      "https://kong-7df170cea7usbksss.kongcloud.dev/evidencias",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
     const data = await res.json();
     if (res.ok) {
       setEvidencias(data);
@@ -130,6 +133,10 @@ const EvidenciasPage = () => {
                       <h3 className="evidencia-titulo">
                         {evidencia.descripcion}
                       </h3>
+                      <p className="evidencia-usuario">
+                        Enviado por: {evidencia.usuario?.nombre}{" "}
+                        {evidencia.usuario?.apellido}
+                      </p>
                       <button
                         className="evidencia-ver-floating"
                         onClick={() => handleVerEvidencia(evidencia)}
@@ -198,6 +205,10 @@ const EvidenciasPage = () => {
 
               <div className="modal-content-scrollable">
                 <h3 className="modal-titulo">{vistaPrevia.descripcion}</h3>
+                <p className="modal-usuario">
+                  Enviado por: {vistaPrevia.usuario?.nombre}{" "}
+                  {vistaPrevia.usuario?.apellido}
+                </p>
                 <p className="modal-fecha">
                   Subida: {formatearFecha(vistaPrevia.fechaSubida)}
                 </p>

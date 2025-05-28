@@ -375,7 +375,7 @@ const FeedPage = () => {
         <div className="feed-title-container">
           <h2 className="feed-title">Publicaciones recientes</h2>
           <p className="feed-subtitle">
-            Explora lo que comparten otros estudiantes y profesores
+            Explora lo que comparten los estudiantes y profesores
           </p>
         </div>
 
@@ -520,9 +520,9 @@ const FeedPage = () => {
           </p>
         )}
 
-        <button className="feed-fab" onClick={() => setMostrarModal(true)}>
+        {/* <button className="feed-fab" onClick={() => setMostrarModal(true)}>
           ➕ <span className="texto-publicar">Publicar</span>
-        </button>
+        </button> */}
       </main>
 
       {/* MODAL */}

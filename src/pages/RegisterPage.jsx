@@ -26,10 +26,44 @@ const RegisterPage = () => {
       setFormData({ ...formData, [name]: value });
     }
   };
+  // Dominios comunes correctos
+  const dominiosComunes = [
+    "gmail.com",
+    "outlook.com",
+    "hotmail.com",
+    "yahoo.com",
+    "live.com",
+    "icloud.com",
+  ];
+
+  // Función simple para calcular distancia de Levenshtein (corta, para demo)
+  function distanciaLevenshtein(a, b) {
+    const matriz = Array(b.length + 1)
+      .fill(null)
+      .map(() => Array(a.length + 1).fill(null));
+
+    for (let i = 0; i <= a.length; i++) matriz[0][i] = i;
+    for (let j = 0; j <= b.length; j++) matriz[j][0] = j;
+
+    for (let j = 1; j <= b.length; j++) {
+      for (let i = 1; i <= a.length; i++) {
+        const indicador = a[i - 1] === b[j - 1] ? 0 : 1;
+        matriz[j][i] = Math.min(
+          matriz[j][i - 1] + 1,
+          matriz[j - 1][i] + 1,
+          matriz[j - 1][i - 1] + indicador
+        );
+      }
+    }
+    return matriz[b.length][a.length];
+  }
+
+  const fechaMaxima = new Date();
+  fechaMaxima.setFullYear(fechaMaxima.getFullYear() - 10);
 
   const validarFormulario = () => {
     const errores = {};
-  
+
     if (formData.password.length < 8) {
       errores.password = "Debe tener al menos 8 caracteres";
     } else if (!/[A-Z]/.test(formData.password)) {
@@ -41,13 +75,46 @@ const RegisterPage = () => {
     } else if (!/[@_#?¿&=¡!,+$*-]/.test(formData.password)) {
       errores.password = "Debe contener un carácter especial permitido";
     }
-  
+
+    if (!formData.fechaNacimiento) {
+      errores.fechaNacimiento = "Debes ingresar tu fecha de nacimiento";
+    } else {
+      const fechaNac = new Date(formData.fechaNacimiento);
+      if (fechaNac > fechaMaxima) {
+        errores.fechaNacimiento =
+          "Debes tener al menos 10 años para registrarte";
+      }
+    }
+
+    if (!formData.correo) {
+      errores.correo = "Debes ingresar un correo electrónico";
+    } else {
+      const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!correoRegex.test(formData.correo)) {
+        errores.correo = "Formato de correo inválido";
+      } else {
+        const dominio = formData.correo.split("@")[1].toLowerCase();
+
+        // Detectar si dominio es typo de alguno común con distancia <=2
+        const typoDetectado = dominiosComunes.find((dominioComun) => {
+          return (
+            distanciaLevenshtein(dominio, dominioComun) > 0 &&
+            distanciaLevenshtein(dominio, dominioComun) <= 2
+          );
+        });
+
+        if (typoDetectado) {
+          errores.correo = `¿Querías decir "${typoDetectado}"? Revisa el dominio del correo.`;
+        }
+      }
+    }
+
     /* if (!formData.rol) {
       errores.rol = "Debes seleccionar un rol";
     } */
-  
+
     return errores;
-  };  
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,7 +137,7 @@ const RegisterPage = () => {
     formToSend.append("correo", formData.correo);
     formToSend.append("contrasenia", formData.password);
     formToSend.append("fecha_nacimiento", formData.fechaNacimiento);
-    /* formToSend.append("rol", formData.rol); */
+    formToSend.append("rol", formData.rol);
     if (formData.archivo) {
       formToSend.append("foto_perfil", formData.archivo);
     }
@@ -87,11 +154,14 @@ const RegisterPage = () => {
     await new Promise((resolve) => setTimeout(resolve, 100)); // <- ¡importante!
 
     try {
-      const response = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/register-temp", {
-        method: "POST",
-        body: formToSend,
-        credentials: "include",
-      });
+      const response = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/register-temp",
+        {
+          method: "POST",
+          body: formToSend,
+          credentials: "include",
+        }
+      );
 
       const data = await response.json();
       Swal.close();
@@ -137,14 +207,17 @@ const RegisterPage = () => {
     });
 
     try {
-      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/verify-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ correo: correoTemporal, codigo }),
-      });
+      const res = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/verify-email",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ correo: correoTemporal, codigo }),
+        }
+      );
 
       const data = await res.json();
       Swal.close();
@@ -214,6 +287,7 @@ const RegisterPage = () => {
               onChange={handleChange}
               required
             />
+            {errors.correo && <p className="error-text">{errors.correo}</p>}
 
             <div className="form-row">
               <div className="form-group">
@@ -236,12 +310,16 @@ const RegisterPage = () => {
                   name="fechaNacimiento"
                   value={formData.fechaNacimiento}
                   onChange={handleChange}
+                  max={fechaMaxima.toISOString().split("T")[0]}
                   required
                 />
+                {errors.fechaNacimiento && (
+                  <p className="error-text">{errors.fechaNacimiento}</p>
+                )}
               </div>
             </div>
 
-            {/* <label>Rol</label>
+            <label>Rol</label>
             <select
               name="rol"
               value={formData.rol}
@@ -252,7 +330,7 @@ const RegisterPage = () => {
               <option value="estudiante">Estudiante</option>
               <option value="profesor">Profesor</option>
               <option value="representante">Representante</option>
-            </select> */}
+            </select>
             {errors.rol && <p className="error-text">{errors.rol}</p>}
 
             <label>Foto de perfil</label>

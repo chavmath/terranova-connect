@@ -19,6 +19,8 @@ import EvidenciasPage from "./pages/EvidenciasPage";
 import RutaAdmin from "./components/RutaAdmin";
 import EstadisticasAdminPage from "./pages/EstadisticasAdminPage";
 import InsigniasPage from "./pages/InsigniasPage";
+import FeedParents from "./pages/FeedParents";
+import RutaPadre from "./components/RutaPadre";
 
 function App() {
   const navigate = useNavigate();
@@ -80,6 +82,7 @@ function App() {
       <Route path="/evidencias" element={<RutaAdmin> <EvidenciasPage /></RutaAdmin>} />
       <Route path="/estadisticas-admin" element={<RutaAdmin> <EstadisticasAdminPage /></RutaAdmin>} />
       <Route path="/insignias" element={<RutaProtegida> <InsigniasPage /></RutaProtegida>} />
+      <Route path="/publicacionesp" element={<RutaPadre> <FeedParents /></RutaPadre>} />
     </Routes>
   );
 }

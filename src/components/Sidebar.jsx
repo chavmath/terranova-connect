@@ -15,6 +15,7 @@ import {
   FaJediOrder,
   FaEmpire,
   FaRebel,
+  FaBars,
 } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import "../styles/sidebar.css";
@@ -48,6 +49,7 @@ const Sidebar = () => {
   const token = getToken();
   const userId = getCurrentUserId();
   const rol = getUserRole();
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     // Asegurarse de que el token y userId estén disponibles
@@ -58,22 +60,28 @@ const Sidebar = () => {
       }
       return;
     }
-  
+
     // Si el user no está seteado, hacemos la petición
     if (!user) {
       // Si es administrador, obtener los datos a través del endpoint /usuario
       if (rol === "administrador") {
         (async () => {
           try {
-            const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`, {
-              headers: { Authorization: `Bearer ${token}` },
-              credentials: "include",
-            });
+            const res = await fetch(
+              `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+                credentials: "include",
+              }
+            );
             if (!res.ok) throw new Error();
             const data = await res.json();
             setUser(data); // Establecer los datos del administrador
           } catch (error) {
-            console.error("Error al obtener los datos del administrador:", error);
+            console.error(
+              "Error al obtener los datos del administrador:",
+              error
+            );
             // Si hay error en la consulta, redirigir a "/"
             if (location.pathname !== "/") {
               navigate("/");
@@ -84,10 +92,13 @@ const Sidebar = () => {
         // Si no es administrador, obtener los datos del usuario normal
         (async () => {
           try {
-            const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`, {
-              headers: { Authorization: `Bearer ${token}` },
-              credentials: "include",
-            });
+            const res = await fetch(
+              `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+                credentials: "include",
+              }
+            );
             if (!res.ok) throw new Error();
             const data = await res.json();
             setUser(data);
@@ -102,8 +113,6 @@ const Sidebar = () => {
       }
     }
   }, [token, userId, rol, user, location.pathname, navigate]);
-  
-  
 
   if (!user) {
     return (
@@ -136,8 +145,7 @@ const Sidebar = () => {
       { label: "Calendario", path: "/calendario", icon: <FaCalendarAlt /> },
     ],
     representante: [
-      { label: "Inicio", path: "/dashboard", icon: <FaHome /> },
-      { label: "Mi representado", path: "/perfil", icon: <FaUser /> },
+      { label: "Publicaciones", path: "/publicacionesp", icon: <FaBullhorn /> },
       { label: "Calendario", path: "/calendario", icon: <FaCalendarAlt /> },
     ],
     administrador: [
@@ -172,52 +180,78 @@ const Sidebar = () => {
     if (location.pathname !== "/") navigate("/");
   };
 
+  const toggleMenu = () => {
+    setIsOpen((prev) => !prev);
+  };
+
+  const closeMenu = () => {
+    setIsOpen(false);
+  };
+
   return (
-    <aside className="sidebar">
-      <div className="sidebar__top">
-        {avatarUrl ? (
-          <img src={avatarUrl} alt="Avatar" className="sidebar__avatar" />
-        ) : (
-          <FaUserCircle className="sidebar__user-icon" />
-        )}
-        <div className="sidebar__user-info">
-          <span className="sidebar__name">
-            {nombre} {apellido}
-          </span>
-          <span className="sidebar__email">{correo}</span>
+    <>
+      {/* Botón hamburger visible solo en mobile */}
+      <button
+        className="hamburger-btn"
+        onClick={toggleMenu}
+        aria-label="Abrir menú"
+      >
+        <FaBars />
+      </button>
+
+      {/* Overlay para cerrar menú */}
+      {isOpen && <div className="sidebar-overlay" onClick={closeMenu} />}
+
+      <aside className={`sidebar ${isOpen ? "sidebar--open" : ""}`}>
+        <div className="sidebar__top">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="Avatar" className="sidebar__avatar" />
+          ) : (
+            <FaUserCircle className="sidebar__user-icon" />
+          )}
+          <div className="sidebar__user-info">
+            <span className="sidebar__name">
+              {nombre} {apellido}
+            </span>
+            <span className="sidebar__email">{correo}</span>
+          </div>
         </div>
-      </div>
 
-      <div className="sidebar__content">
-        <ul className="sidebar__menu">
-          {items.map(({ label, path, icon }) => (
-            <li key={label}>
-              <Link
-                to={path}
-                className={`sidebar__item ${isActive(path) ? "active" : ""}`}
+        <div className="sidebar__content">
+          <ul className="sidebar__menu">
+            {items.map(({ label, path, icon }) => (
+              <li key={label}>
+                <Link
+                  to={path}
+                  className={`sidebar__item ${isActive(path) ? "active" : ""}`}
+                  onClick={closeMenu} // cerrar menú al navegar
+                >
+                  <span className="sidebar__icon">{icon}</span>
+                  <span>{label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <ul className="sidebar__menu">
+            <li>
+              <button
+                onClick={() => {
+                  handleLogout();
+                  closeMenu();
+                }}
+                className="sidebar__item logout-item"
               >
-                <span className="sidebar__icon">{icon}</span>
-                <span>{label}</span>
-              </Link>
+                <span className="sidebar__icon">
+                  <FiLogOut />
+                </span>
+                <span>Cerrar sesión</span>
+              </button>
             </li>
-          ))}
-        </ul>
-
-        <ul className="sidebar__menu">
-          <li>
-            <button
-              onClick={handleLogout}
-              className="sidebar__item logout-item"
-            >
-              <span className="sidebar__icon">
-                <FiLogOut />
-              </span>
-              <span>Cerrar sesión</span>
-            </button>
-          </li>
-        </ul>
-      </div>
-    </aside>
+          </ul>
+        </div>
+      </aside>
+    </>
   );
 };
 

@@ -19,13 +19,16 @@ const PerfilPage = () => {
       try {
         const token = Cookies.get("token");
         const [pubsRes, userRes] = await Promise.all([
-          fetch("https://kong-7df170cea7usbksss.kongcloud.dev/mis-publicaciones", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-          }),
+          fetch(
+            "https://kong-7df170cea7usbksss.kongcloud.dev/mis-publicaciones",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+            }
+          ),
           fetch("https://kong-7df170cea7usbksss.kongcloud.dev/profile", {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -322,20 +325,26 @@ const PerfilPage = () => {
 
         {/* GALERÍA */}
         <div className="perfil-galeria">
-          {publicaciones.map((post) => (
-            <div
-              key={post.id_publicacion}
-              className="perfil-post"
-              onClick={() => setSelectedPost(post)}
-            >
-              <img
-                src={
-                  post.imagenes?.[0]?.url || "https://via.placeholder.com/600"
-                }
-                alt={`post-${post.id_publicacion}`}
-              />
-            </div>
-          ))}
+          {publicaciones.length === 0 ? (
+            <p className="perfil-no-publicaciones">
+              Aún no tienes publicaciones, ¡comienza a crear contenido!
+            </p>
+          ) : (
+            publicaciones.map((post) => (
+              <div
+                key={post.id_publicacion}
+                className="perfil-post"
+                onClick={() => setSelectedPost(post)}
+              >
+                <img
+                  src={
+                    post.imagenes?.[0]?.url || "https://via.placeholder.com/600"
+                  }
+                  alt={`post-${post.id_publicacion}`}
+                />
+              </div>
+            ))
+          )}
         </div>
       </main>
 

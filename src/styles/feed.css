@@ -567,3 +567,28 @@
     transform: rotate(360deg);
   }
 }
+
+.mostrar-mas-btn {
+  background-color: #031f7b;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}	
+.mostrar-mas-btn:hover {
+  background-color: #e67e22;
+}
+
+@media (max-width: 768px) {
+  .feed-fab {
+    padding: 10px;
+    font-size: 20px;
+  }
+  
+  .texto-publicar {
+    display: none;
+  }
+}

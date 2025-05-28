@@ -107,7 +107,6 @@
   background-color: #002a61;
 }
 
-
 .register-form button {
   width: 100%;
   max-width: 400px;
@@ -184,5 +183,22 @@
 @media (max-width: 600px) {
   .form-row {
     flex-direction: column;
+  }
+}
+/* ...tus estilos actuales... */
+
+@media (max-width: 900px) {
+  .register-container {
+    flex-direction: column;
+    height: auto;
+  }
+  .register-form {
+    width: 90%;
+    max-width: none;
+    margin: 2rem auto;
+    padding: 2rem 1rem;
+  }
+  .register-side-panel {
+    display: none;
   }
 }

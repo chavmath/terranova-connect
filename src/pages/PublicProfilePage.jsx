@@ -4,6 +4,7 @@ import Sidebar from "../components/Sidebar";
 import Cookies from "js-cookie";
 import "../styles/perfil.css";
 import Swal from "sweetalert2";
+import { PacmanLoader } from "react-spinners";
 
 const PublicProfilePage = () => {
   const { userId } = useParams();
@@ -18,6 +19,7 @@ const PublicProfilePage = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
   const [seguidos, setSeguidos] = useState([]); // Nuevo estado para seguidos
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!userId) {
@@ -28,13 +30,16 @@ const PublicProfilePage = () => {
     // 1) Carga datos del usuario
     const fetchUser = async () => {
       try {
-        const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
+        const res = await fetch(
+          `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
         if (!res.ok) throw new Error("Usuario no encontrado");
         const u = await res.json();
         setUser(u);
@@ -69,6 +74,8 @@ const PublicProfilePage = () => {
       } catch (err) {
         console.error(err);
         navigate("/not-found");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -121,6 +128,13 @@ const PublicProfilePage = () => {
     fetchUser();
     fetchPublicaciones();
   }, [userId, token, navigate]);
+
+  if (loading)
+    return (
+      <div className="loading-container">
+        <PacmanLoader color="#e67e22" size={40} />
+      </div>
+    );
 
   // Abre el modal y carga comentarios
   const openPost = (post) => {
@@ -178,15 +192,18 @@ const PublicProfilePage = () => {
 
   const toggleFollow = async () => {
     try {
-      const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/seguimiento`, {
-        method: isFollowing ? "DELETE" : "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ seguidoId: userId }),
-      });
+      const res = await fetch(
+        `https://kong-7df170cea7usbksss.kongcloud.dev/seguimiento`,
+        {
+          method: isFollowing ? "DELETE" : "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ seguidoId: userId }),
+        }
+      );
 
       if (!res.ok)
         throw new Error(
@@ -389,15 +406,21 @@ const PublicProfilePage = () => {
 
         {/* Galería */}
         <div className="perfil-galeria">
-          {publicaciones.map((post) => (
-            <div
-              key={post.id}
-              className="perfil-post"
-              onClick={() => openPost(post)}
-            >
-              <img src={post.imagenes[0]?.url} alt={post.descripcion} />
-            </div>
-          ))}
+          {publicaciones.length === 0 ? (
+            <p className="perfil-no-publicaciones">
+              Este usuario aún no tiene publicaciones.
+            </p>
+          ) : (
+            publicaciones.map((post) => (
+              <div
+                key={post.id}
+                className="perfil-post"
+                onClick={() => openPost(post)}
+              >
+                <img src={post.imagenes[0]?.url} alt={post.descripcion} />
+              </div>
+            ))
+          )}
         </div>
 
         {/* Modal de publicación */}

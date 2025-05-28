@@ -11,6 +11,7 @@ const ConfiguracionPage = () => {
   const [actividades, setActividades] = useState([]);
   const [misiones, setMisiones] = useState([]);
   const [recompensas, setRecompensas] = useState([]);
+  const [fechaError, setFechaError] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCreateRecompensaModal, setShowCreateRecompensaModal] =
     useState(false);
@@ -177,40 +178,65 @@ const ConfiguracionPage = () => {
 
   const paginateInsignias = (pageNumber) => setCurrentPageInsignia(pageNumber);
 
+  const validarFechas = (fechaInicio, fechaFin) => {
+    if (!fechaInicio || !fechaFin) {
+      setFechaError("");
+      return true; // No validamos si alguna fecha está vacía todavía
+    }
+    if (new Date(fechaFin) < new Date(fechaInicio)) {
+      setFechaError(
+        "La fecha de fin no puede ser anterior a la fecha de inicio."
+      );
+      return false;
+    } else {
+      setFechaError("");
+      return true;
+    }
+  };
+
   const token = Cookies.get("token");
 
   const obtenerUsuarios = async () => {
-    const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/usuarios", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
+    const res = await fetch(
+      "https://kong-7df170cea7usbksss.kongcloud.dev/usuarios",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
     const data = await res.json();
     setUsuarios(data);
   };
 
   const obtenerActividades = async () => {
-    const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/actividades", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
+    const res = await fetch(
+      "https://kong-7df170cea7usbksss.kongcloud.dev/actividades",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
     const data = await res.json();
     setActividades(data);
   };
 
   const obtenerMisiones = async () => {
-    const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev//misiones/admin", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
+    const res = await fetch(
+      "https://kong-7df170cea7usbksss.kongcloud.dev//misiones/admin",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
     const data = await res.json();
     if (Array.isArray(data.misiones)) {
       setMisiones(data.misiones);
@@ -221,13 +247,16 @@ const ConfiguracionPage = () => {
 
   const obtenerRecompensas = async () => {
     try {
-      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/recompensas/admin", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const res = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/recompensas/admin",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
       const data = await res.json();
 
       if (Array.isArray(data.recompensas)) {
@@ -244,13 +273,16 @@ const ConfiguracionPage = () => {
 
   const obtenerInsignias = async () => {
     try {
-      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/insignias", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const res = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/insignias",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
       const data = await res.json();
       setInsignias(data);
     } catch (err) {
@@ -273,13 +305,16 @@ const ConfiguracionPage = () => {
     if (!confirmacion.isConfirmed) return;
 
     try {
-      const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${id_usuario}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: "include",
-      });
+      const res = await fetch(
+        `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${id_usuario}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+        }
+      );
 
       if (res.ok) {
         Swal.fire("Eliminado", "Usuario eliminado con éxito", "success");
@@ -315,13 +350,16 @@ const ConfiguracionPage = () => {
     if (!confirmacion.isConfirmed) return;
 
     try {
-      const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/actividad/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: "include",
-      });
+      const res = await fetch(
+        `https://kong-7df170cea7usbksss.kongcloud.dev/actividad/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+        }
+      );
 
       if (res.ok) {
         Swal.fire("Eliminada", "Actividad eliminada con éxito", "success");
@@ -357,13 +395,16 @@ const ConfiguracionPage = () => {
     if (!confirmacion.isConfirmed) return;
 
     try {
-      const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/mision/${id_mision}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: "include",
-      });
+      const res = await fetch(
+        `https://kong-7df170cea7usbksss.kongcloud.dev/mision/${id_mision}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+        }
+      );
 
       if (res.ok) {
         Swal.fire("Eliminada", "Misión eliminada con éxito", "success");
@@ -397,11 +438,14 @@ const ConfiguracionPage = () => {
     if (!confirmacion.isConfirmed) return;
 
     try {
-      const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/recompensa/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-        credentials: "include",
-      });
+      const res = await fetch(
+        `https://kong-7df170cea7usbksss.kongcloud.dev/recompensa/${id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
+        }
+      );
       if (res.ok) {
         Swal.fire("Eliminada", "Recompensa eliminada con éxito", "success");
         obtenerRecompensas();
@@ -428,11 +472,14 @@ const ConfiguracionPage = () => {
     if (!confirmacion.isConfirmed) return;
 
     try {
-      const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/insignia/${id_insignia}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-        credentials: "include",
-      });
+      const res = await fetch(
+        `https://kong-7df170cea7usbksss.kongcloud.dev/insignia/${id_insignia}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
+        }
+      );
       if (res.ok) {
         Swal.fire("Eliminada", "Insignia eliminada con éxito", "success");
         obtenerInsignias();
@@ -456,15 +503,18 @@ const ConfiguracionPage = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/crear-admin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ nombre, apellido, correo, fecha_nacimiento }),
-        credentials: "include",
-      });
+      const res = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/crear-admin",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ nombre, apellido, correo, fecha_nacimiento }),
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
 
@@ -505,15 +555,18 @@ const ConfiguracionPage = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/actividad", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ titulo, descripcion, fechaInicio, fechaFin }),
-        credentials: "include",
-      });
+      const res = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/actividad",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ titulo, descripcion, fechaInicio, fechaFin }),
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
 
@@ -554,21 +607,24 @@ const ConfiguracionPage = () => {
     setLoading(true); // Mostrar el spinner
 
     try {
-      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/mision", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          titulo,
-          descripcion,
-          puntos,
-          fechaInicio,
-          fechaFin,
-        }),
-        credentials: "include",
-      });
+      const res = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/mision",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            titulo,
+            descripcion,
+            puntos,
+            fechaInicio,
+            fechaFin,
+          }),
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
 
@@ -613,20 +669,23 @@ const ConfiguracionPage = () => {
 
     setLoading(true);
     try {
-      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/recompensa", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          nombre,
-          descripcion,
-          puntosRequeridos,
-          cantidadDisponible,
-        }),
-        credentials: "include",
-      });
+      const res = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/recompensa",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            nombre,
+            descripcion,
+            puntosRequeridos,
+            cantidadDisponible,
+          }),
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
       if (res.ok) {
@@ -671,14 +730,17 @@ const ConfiguracionPage = () => {
         formData.append("insignia", nuevaImagen);
       }
 
-      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/insignia", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-        credentials: "include",
-      });
+      const res = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/insignia",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
       if (res.ok) {
@@ -763,7 +825,7 @@ const ConfiguracionPage = () => {
     setLoading(true);
 
     // Validación simple antes de enviar
-    if (!datos.nombre || !datos.apellido || !datos.correo ) {
+    if (!datos.nombre || !datos.apellido || !datos.correo || !datos.rol) {
       Swal.fire("Error", "Todos los campos deben estar completos", "error");
       return;
     }
@@ -824,15 +886,18 @@ const ConfiguracionPage = () => {
       return;
     }
 
-    const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/actividad/${id_actividad}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ ...datos, fechaInicio, fechaFin }),
-      credentials: "include",
-    });
+    const res = await fetch(
+      `https://kong-7df170cea7usbksss.kongcloud.dev/actividad/${id_actividad}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ...datos, fechaInicio, fechaFin }),
+        credentials: "include",
+      }
+    );
 
     if (res.ok) {
       Swal.fire(
@@ -859,15 +924,18 @@ const ConfiguracionPage = () => {
       return;
     }
 
-    const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/mision/${id_mision}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ ...datos, fechaInicio, fechaFin }),
-      credentials: "include",
-    });
+    const res = await fetch(
+      `https://kong-7df170cea7usbksss.kongcloud.dev/mision/${id_mision}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ...datos, fechaInicio, fechaFin }),
+        credentials: "include",
+      }
+    );
 
     if (res.ok) {
       Swal.fire("Actualizada", "Misión actualizada correctamente", "success");
@@ -952,14 +1020,17 @@ const ConfiguracionPage = () => {
         formData.append("insignia", modalData.nuevaFoto);
       }
 
-      const res = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/insignia/${id_insignia}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-        credentials: "include",
-      });
+      const res = await fetch(
+        `https://kong-7df170cea7usbksss.kongcloud.dev/insignia/${id_insignia}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
       if (res.ok) {
@@ -1627,8 +1698,19 @@ const ConfiguracionPage = () => {
                       }
                       placeholder="Correo"
                     />
-
-
+                    <label>Rol</label>
+                    <select
+                      value={modalData.rol}
+                      onChange={(e) =>
+                        setModalData({ ...modalData, rol: e.target.value })
+                      }
+                      className="modal-select"
+                    >
+                      <option value="">Seleccionar rol</option>
+                      <option value="profesor">Profesor</option>
+                      <option value="estudiante">Estudiante</option>
+                      <option value="representante">Representante</option>
+                    </select>
 
                     <button onClick={handleEditarUsuario} disabled={loading}>
                       Guardar
@@ -1661,22 +1743,41 @@ const ConfiguracionPage = () => {
                     <input
                       type="date"
                       value={modalData.fechaInicio?.split("T")[0]}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const nuevaFechaInicio = e.target.value;
                         setModalData({
                           ...modalData,
-                          fechaInicio: e.target.value,
-                        })
-                      }
+                          fechaInicio: nuevaFechaInicio,
+                        });
+                        validarFechas(nuevaFechaInicio, modalData.fechaFin);
+                      }}
                     />
                     <label>Fecha de Fin:</label>
                     <input
                       type="date"
                       value={modalData.fechaFin?.split("T")[0]}
-                      onChange={(e) =>
-                        setModalData({ ...modalData, fechaFin: e.target.value })
-                      }
+                      onChange={(e) => {
+                        const nuevaFechaFin = e.target.value;
+                        setModalData({ ...modalData, fechaFin: nuevaFechaFin });
+                        validarFechas(modalData.fechaInicio, nuevaFechaFin);
+                      }}
                     />
-                    <button onClick={handleEditarActividad} disabled={loading}>
+                    {fechaError && (
+                      <p
+                        style={{
+                          color: "red",
+                          marginTop: "-0.9rem",
+                          marginBottom: "0.5rem",
+                        }}
+                      >
+                        {fechaError}
+                      </p>
+                    )}
+
+                    <button
+                      onClick={handleEditarActividad}
+                      disabled={loading || fechaError}
+                    >
                       Guardar
                     </button>
                   </>
@@ -1721,22 +1822,40 @@ const ConfiguracionPage = () => {
                     <input
                       type="date"
                       value={modalData.fechaInicio?.split("T")[0]}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const nuevaFechaInicio = e.target.value;
                         setModalData({
                           ...modalData,
-                          fechaInicio: e.target.value,
-                        })
-                      }
+                          fechaInicio: nuevaFechaInicio,
+                        });
+                        validarFechas(nuevaFechaInicio, modalData.fechaFin);
+                      }}
                     />
                     <label>Fecha de Fin:</label>
                     <input
                       type="date"
                       value={modalData.fechaFin?.split("T")[0]}
-                      onChange={(e) =>
-                        setModalData({ ...modalData, fechaFin: e.target.value })
-                      }
+                      onChange={(e) => {
+                        const nuevaFechaFin = e.target.value;
+                        setModalData({ ...modalData, fechaFin: nuevaFechaFin });
+                        validarFechas(modalData.fechaInicio, nuevaFechaFin);
+                      }}
                     />
-                    <button onClick={handleEditarMision} disabled={loading}>
+                    {fechaError && (
+                      <p
+                        style={{
+                          color: "red",
+                          marginTop: "-0.9rem",
+                          marginBottom: "0.5rem",
+                        }}
+                      >
+                        {fechaError}
+                      </p>
+                    )}
+                    <button
+                      onClick={handleEditarMision}
+                      disabled={loading || fechaError}
+                    >
                       Guardar
                     </button>
                   </>
@@ -2013,27 +2132,45 @@ const ConfiguracionPage = () => {
                 <input
                   type="date"
                   value={nuevaActividad.fechaInicio}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const nuevaFechaInicio = e.target.value;
                     setNuevaActividad({
                       ...nuevaActividad,
-                      fechaInicio: e.target.value,
-                    })
-                  }
+                      fechaInicio: nuevaFechaInicio,
+                    });
+                    validarFechas(nuevaFechaInicio, nuevaActividad.fechaFin);
+                  }}
                 />
 
                 <label>Fecha de Fin</label>
                 <input
                   type="date"
                   value={nuevaActividad.fechaFin}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const nuevaFechaFin = e.target.value;
                     setNuevaActividad({
                       ...nuevaActividad,
-                      fechaFin: e.target.value,
-                    })
-                  }
+                      fechaFin: nuevaFechaFin,
+                    });
+                    validarFechas(nuevaActividad.fechaInicio, nuevaFechaFin);
+                  }}
                 />
+                {fechaError && (
+                  <p
+                    style={{
+                      color: "red",
+                      marginTop: "-0.9rem",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    {fechaError}
+                  </p>
+                )}
 
-                <button onClick={handleCrearActividad} disabled={loading}>
+                <button
+                  onClick={handleCrearActividad}
+                  disabled={loading || fechaError}
+                >
                   {loading ? "Creando..." : "Crear Actividad"}
                 </button>
                 <button onClick={() => setShowCreateModal(false)}>
@@ -2094,27 +2231,44 @@ const ConfiguracionPage = () => {
                 <input
                   type="date"
                   value={nuevaMision.fechaInicio}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const nuevaFechaInicio = e.target.value;
                     setNuevaMision({
                       ...nuevaMision,
-                      fechaInicio: e.target.value,
-                    })
-                  }
+                      fechaInicio: nuevaFechaInicio,
+                    });
+                    validarFechas(nuevaFechaInicio, nuevaMision.fechaFin);
+                  }}
                 />
 
                 <label>Fecha de Fin</label>
                 <input
                   type="date"
                   value={nuevaMision.fechaFin}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const nuevaFechaFin = e.target.value;
                     setNuevaMision({
                       ...nuevaMision,
-                      fechaFin: e.target.value,
-                    })
-                  }
+                      fechaFin: nuevaFechaFin,
+                    });
+                    validarFechas(nuevaMision.fechaInicio, nuevaFechaFin);
+                  }}
                 />
-
-                <button onClick={handleCrearMision} disabled={loading}>
+                {fechaError && (
+                  <p
+                    style={{
+                      color: "red",
+                      marginTop: "-0.9rem",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    {fechaError}
+                  </p>
+                )}
+                <button
+                  onClick={handleCrearMision}
+                  disabled={loading || fechaError}
+                >
                   {loading ? "Creando..." : "Crear Misión"}
                 </button>
                 <button onClick={() => setShowCreateMisionModal(false)}>

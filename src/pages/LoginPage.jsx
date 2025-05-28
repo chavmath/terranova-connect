@@ -36,12 +36,15 @@ const LoginPage = () => {
     });
 
     try {
-      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(form),
-      });
+      const res = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(form),
+        }
+      );
 
       const data = await res.json();
       Swal.close();
@@ -83,12 +86,15 @@ const LoginPage = () => {
     });
 
     try {
-      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/2fa", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ correo: correoTemporal, codigo }),
-      });
+      const res = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/2fa",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ correo: correoTemporal, codigo }),
+        }
+      );
 
       const data = await res.json();
       Swal.close();
@@ -109,8 +115,10 @@ const LoginPage = () => {
           text: "Acceso concedido",
         }).then(() => {
           const rol = getUserRole();
-          if (rol === "admin") {
-            window.location.href = "/configuracion"; // o cualquier ruta admin principal
+          if (rol === "administrador") {
+            window.location.href = "/configuracion";
+          } else if (rol === "representante") {
+            window.location.href = "/publicacionesp";
           } else {
             window.location.href = "/dashboard";
           }
@@ -142,12 +150,15 @@ const LoginPage = () => {
     });
 
     try {
-      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ codigo: adminCode }),
-      });
+      const res = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/admin/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ codigo: adminCode }),
+        }
+      );
 
       const data = await res.json();
       Swal.close();
@@ -231,7 +242,6 @@ const LoginPage = () => {
 
   const handleCambiarContrasenia = async (e) => {
     e.preventDefault();
- 
 
     /*if (nuevoCodigo !== codigoRecuperacion) {
       Swal.fire({
@@ -243,17 +253,19 @@ const LoginPage = () => {
     }*/
 
     try {
-      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/cambiar-contrasenia", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          correo: nuevoCorreo,
-          codigo: codigoRecuperacion,
-          contrasenia: nuevaContrasenia,
-        }),
-      });
+      const res = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/cambiar-contrasenia",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            correo: nuevoCorreo,
+            codigo: codigoRecuperacion,
+            contrasenia: nuevaContrasenia,
+          }),
+        }
+      );
       const data = await res.json();
-      
 
       if (res.ok) {
         Swal.fire({

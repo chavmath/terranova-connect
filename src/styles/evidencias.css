@@ -221,6 +221,14 @@
   background-color: #e67e22;
 }
 
+.modal-usuario {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 6px;
+  font-style: italic;
+  text-align: center;
+}
+
 .toast {
   position: fixed;
   bottom: 30px;
@@ -303,6 +311,13 @@
   margin-top: 8px;
 }
 
+.evidencia-usuario {
+  font-size: 13px;
+  color: #555;
+  margin: 4px 0 8px 0;
+  font-style: italic;
+}
+
 @media (max-width: 768px) {
   .modal-content-scrollable {
     padding: 1rem;
@@ -314,5 +329,9 @@
 
   .modal-fecha {
     font-size: 12px;
+  }
+
+  .evidencias-title {
+    font-size: 33px;
   }
 }

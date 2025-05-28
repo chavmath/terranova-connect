@@ -271,7 +271,7 @@ a {
   border-color: #031f7b;
 }
 
-.modal-login form{
+.modal-login form {
   width: 100%;
 }
 
@@ -313,3 +313,32 @@ a {
 button[type="button"]:hover {
   background-color: #d35400;
 } */
+
+/* Para pantallas pequeñas */
+@media (max-width: 768px) {
+  .login-wrapper {
+    flex-direction: column;
+  }
+
+  .login-left {
+    display: none; /* Ocultar la parte izquierda en móvil */
+  }
+
+  .login-right {
+    width: 100% !important; /* Ocupa todo el ancho */
+    height: 100vh; /* Para que ocupe toda la altura */
+    padding: 1.5rem;
+  }
+
+  form {
+    width: 100% !important;
+  }
+
+  .logo {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin-bottom: 5rem;
+    width: 150px;
+  }
+}

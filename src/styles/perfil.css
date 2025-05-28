@@ -92,7 +92,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000 !important;
+  z-index: 1300;
 }
 
 .modal-instagram {
@@ -429,4 +429,50 @@
 .follow-button.following {
   background-color: #ccc;
   color: #333;
+}
+
+@media (max-width: 700px) {
+  .modal-instagram {
+    flex-direction: column;
+    width: 95%;
+    height: auto;
+    max-height: 95vh;
+  }
+
+  .modal-left,
+  .modal-right {
+    flex: none;
+    width: 100%;
+    max-height: none;
+  }
+
+  .modal-left img {
+    max-height: 300px;
+    width: 100%;
+    object-fit: contain;
+  }
+
+  .modal-right {
+    padding: 1rem;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+
+  .ig-header {
+    padding: 12px 0;
+  }
+
+  .ig-comment-form input,
+  .ig-comment-form button {
+    font-size: 16px;
+  }
+}
+
+.perfil-no-publicaciones {
+  text-align: center;
+  font-style: italic;
+  color: #777;
+  font-size: 16px;
+  padding: 2rem 0;
+  grid-column: 1 / -1; /* que ocupe todo el ancho si está dentro de grid */
 }

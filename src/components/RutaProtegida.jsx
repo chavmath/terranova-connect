@@ -1,17 +1,26 @@
-// src/components/RutaProtegida.jsx
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { isLoggedIn, getUserRole } from "../utils/auth";
 
 const RutaProtegida = ({ children }) => {
+  const location = useLocation();
+
   if (!isLoggedIn()) {
     return <Navigate to="/" replace />;
   }
-
   const rol = getUserRole();
+
   if (rol === "administrador") {
-    // 🔒 Si es admin, redirige a su espacio
     return <Navigate to="/configuracion" replace />;
+  }
+  if (rol === "representante") {
+    // Permitir representantes solo en /publicacionesp y /calendario
+    if (
+      location.pathname !== "/publicacionesp" &&
+      location.pathname !== "/calendario"
+    ) {
+      return <Navigate to="/publicacionesp" replace />;
+    }
   }
 
   return children;

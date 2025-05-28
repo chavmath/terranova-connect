@@ -180,7 +180,7 @@ const DashboardPage = () => {
         <div className="card-container">
           <div className="dashboard-card">
             <FaTasks className="icon" />
-            <h3>Misiones</h3>
+            <h3>Misiones Inscritas</h3>
             <p>
               {misionesCompletadas} completadas de{" "}
               {misionesCompletadas + misionesPendientes}
