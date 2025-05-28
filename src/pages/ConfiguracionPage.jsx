@@ -227,16 +227,13 @@ const ConfiguracionPage = () => {
   };
 
   const obtenerMisiones = async () => {
-    const res = await fetch(
-      "https://kong-7df170cea7usbksss.kongcloud.dev//misiones/admin",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      }
-    );
+    const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/misiones/admin", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
     const data = await res.json();
     if (Array.isArray(data.misiones)) {
       setMisiones(data.misiones);
