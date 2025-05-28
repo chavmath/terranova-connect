@@ -209,17 +209,17 @@ const RewardsPage = () => {
             {recompensas
               .filter((r) => {
                 return !recompensasReclamadas.some(
-                  (rr) => rr.nombre.toLowerCase() === r.nombre.toLowerCase()
+                  (rr) => (rr.nombre ?? '').toLowerCase() === (r.nombre ?? '').toLowerCase()
                 );
               })
+
               .map((r) => {
                 const puedeReclamar = user.puntos >= r.puntosRequeridos;
                 return (
                   <div
                     key={r.id_recompensa}
-                    className={`canje-card ${
-                      !puedeReclamar ? "canje-disabled" : ""
-                    }`}
+                    className={`canje-card ${!puedeReclamar ? "canje-disabled" : ""
+                      }`}
                   >
                     <div className="canje-icon">{r.icono || "🎁"}</div>
                     <h4 className="canje-nombre">{r.nombre}</h4>
