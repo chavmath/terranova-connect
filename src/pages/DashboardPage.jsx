@@ -7,7 +7,6 @@ import "../styles/dashboard.css";
 import { FaTasks, FaMedal, FaBullhorn } from "react-icons/fa";
 import { PacmanLoader } from "react-spinners";
 
-// Decodifica el JWT y extrae el campo "id"
 const getCurrentUserId = () => {
   const token = Cookies.get("token");
   if (!token) return null;
@@ -26,17 +25,16 @@ const getCurrentUserId = () => {
 const DashboardPage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [missions, setMissions] = useState(null); // Estadísticas de misiones
-  const [badges, setBadges] = useState(null); // Estadísticas de insignias
-  const [posts, setPosts] = useState([]); // Publicaciones
-  const [activities, setActivities] = useState([]); // Actividades próximas
+  const [missions, setMissions] = useState(null);
+  const [badges, setBadges] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const userId = getCurrentUserId();
   const token = Cookies.get("token");
 
   useEffect(() => {
-    // Si no hay token o no podemos extraer userId, volvemos al login
     if (!token || !userId) {
       navigate("/");
       return;
@@ -86,14 +84,12 @@ const DashboardPage = () => {
         const postsData = await resPosts.json();
         setPosts(postsData);
 
-        // 6) Actividades próximas
         const resActivities = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/actividades", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!resActivities.ok) throw new Error("Error al cargar actividades");
         const activitiesData = await resActivities.json();
 
-        // Filtrar actividades próximas (aquellas cuya fecha de inicio es posterior a la fecha actual)
         const now = new Date();
         const upcomingActivities = activitiesData.filter((activity) => {
           const activityStartDate = new Date(activity.fechaInicio);
@@ -120,15 +116,12 @@ const DashboardPage = () => {
 
   if (!user) return <div>Error al cargar los datos del usuario.</div>;
 
-  // Desestructuramos las misiones y las insignias
   const { misionesCompletadas = 0, misionesPendientes = 0 } = missions || {};
 
   const { reclamadas = 0, insigniasTotales = 0 } = badges || {};
 
-  // Publicaciones
   const publicacionesCompartidas = posts.length;
 
-  // Saludo y fecha
   const now = new Date();
   const hour = now.getHours();
   const greeting =
@@ -142,10 +135,9 @@ const DashboardPage = () => {
 
   const avatarUrl = user.foto_perfil?.[0]?.url || "https://i.pravatar.cc/100";
 
-  // Función para formatear la fecha en formato "YYYY-MM-DD"
   const formatDate = (date) => {
     const d = new Date(date);
-    return d.toISOString().split("T")[0]; // Solo la parte de la fecha sin hora
+    return d.toISOString().split("T")[0];
   };
 
   return (

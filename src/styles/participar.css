@@ -564,3 +564,34 @@
   color: white;
   cursor: default;
 }
+
+.slider-container {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+}
+
+.slider-item {
+  position: relative;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.slider-item img {
+  max-width: 120px;
+  height: auto;
+  border-radius: 5px;
+}
+
+.eliminar-archivo-boton {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}

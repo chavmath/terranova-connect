@@ -13,7 +13,7 @@ const RutaAdmin = ({ children }) => {
     setLoading(false);
   }, []);
 
-  if (loading) return null; // o un loader si prefieres
+  if (loading) return null;
 
   return accessGranted ? children : <Navigate to="/dashboard" replace />;
 };

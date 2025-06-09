@@ -3,18 +3,21 @@ import Swal from "sweetalert2";
 import Sidebar from "../components/Sidebar";
 import "../styles/evidencias.css";
 import Cookies from "js-cookie";
-import { FiEye, FiCheckCircle } from "react-icons/fi"; // Para el botón de ver y aprobar
+import { FiEye, FiCheckCircle } from "react-icons/fi";
+import { AiFillFilePdf } from "react-icons/ai";
 
 const EvidenciasPage = () => {
   const [evidencias, setEvidencias] = useState([]);
-  const [vistaPrevia, setVistaPrevia] = useState(null); // Para la vista previa de la evidencia
+  const [vistaPrevia, setVistaPrevia] = useState(null);
+  const [indiceMediaActual, setIndiceMediaActual] = useState(0);
+
   const token = Cookies.get("token");
   const [toast, setToast] = useState({
     visible: false,
     message: "",
     type: "success",
   });
-  const [loadingId, setLoadingId] = useState(null); // ID de evidencia que está en proceso
+  const [loadingId, setLoadingId] = useState(null);
 
   const showToast = (message, type = "success") => {
     setToast({ visible: true, message, type });
@@ -24,7 +27,6 @@ const EvidenciasPage = () => {
     );
   };
 
-  // Obtener las evidencias del backend
   useEffect(() => {
     obtenerEvidencias();
   }, []);
@@ -62,7 +64,10 @@ const EvidenciasPage = () => {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ revisado: true }),
+        body: JSON.stringify({
+          revisado: false,
+          tipo: false,
+        }),
       });
 
       if (res.ok) {
@@ -81,6 +86,7 @@ const EvidenciasPage = () => {
 
   const handleVerEvidencia = (evidencia) => {
     setVistaPrevia(evidencia);
+    setIndiceMediaActual(0);
   };
 
   const handleCerrarVistaPrevia = () => {
@@ -147,19 +153,37 @@ const EvidenciasPage = () => {
                     </div>
 
                     <div className="evidencia-card-media">
-                      {evidencia.imagenes[0]?.tipo === "imagen" ? (
-                        <img
-                          src={evidencia.imagenes[0]?.url}
-                          alt="Evidencia"
-                          className="evidencia-imagen"
-                        />
-                      ) : (
-                        <video
-                          src={evidencia.imagenes[0]?.url}
-                          controls
-                          className="evidencia-video"
-                        />
-                      )}
+                      {(() => {
+                        const archivo = evidencia.imagenes[0];
+                        if (!archivo) return <p>Sin archivos</p>;
+
+                        if (archivo.tipo === "imagen") {
+                          return (
+                            <img
+                              src={archivo.url}
+                              alt="Evidencia"
+                              className="evidencia-imagen"
+                            />
+                          );
+                        } else if (archivo.tipo === "video") {
+                          return (
+                            <video
+                              src={archivo.url}
+                              controls
+                              className="evidencia-video"
+                            />
+                          );
+                        } else if (archivo.tipo === "pdf") {
+                          return (
+                            <div className="pdf-icon-container">
+                              <AiFillFilePdf className="pdf-icon" />
+                              <p>Archivo PDF</p>
+                            </div>
+                          );
+                        } else {
+                          return <p>Archivo no soportado</p>;
+                        }
+                      })()}
                     </div>
 
                     <p className="evidencia-fecha">
@@ -214,30 +238,101 @@ const EvidenciasPage = () => {
                 </p>
                 <div className="modal-divider"></div>
 
-                {vistaPrevia.imagenes[0]?.tipo === "imagen" ? (
-                  <img
-                    src={vistaPrevia.imagenes[0]?.url}
-                    alt="Evidencia"
-                    className="modal-imagen"
-                  />
-                ) : (
-                  <video
-                    src={vistaPrevia.imagenes[0]?.url}
-                    controls
-                    className="modal-video"
-                  />
+                {vistaPrevia.imagenes.length > 0 && (
+                  <div className="carrusel-evidencia">
+                    {vistaPrevia.imagenes.length > 1 && (
+                      <button
+                        className="carrusel-btn"
+                        onClick={() =>
+                          setIndiceMediaActual(
+                            (indiceMediaActual -
+                              1 +
+                              vistaPrevia.imagenes.length) %
+                              vistaPrevia.imagenes.length
+                          )
+                        }
+                      >
+                        ◀
+                      </button>
+                    )}
+
+                    <div className="carrusel-media">
+                      {(() => {
+                        const media = vistaPrevia.imagenes[indiceMediaActual];
+                        if (media.tipo === "imagen") {
+                          return (
+                            <img
+                              src={media.url}
+                              alt="Evidencia"
+                              className="modal-imagen"
+                            />
+                          );
+                        } else if (media.tipo === "video") {
+                          return (
+                            <video
+                              src={media.url}
+                              controls
+                              className="modal-video"
+                            />
+                          );
+                        } else if (media.tipo === "pdf") {
+                          const nombreArchivo = media.url
+                            .split("/")
+                            .pop()
+                            .split("?")[0];
+                          return (
+                            <div className="pdf-preview">
+                              <p className="pdf-nombre">
+                                Archivo PDF: {nombreArchivo}
+                              </p>
+                              <a
+                                href={media.url}
+                                download
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <button className="btn-descargar">
+                                  Abrir PDF
+                                </button>
+                              </a>
+                            </div>
+                          );
+                        } else {
+                          return <p>Tipo de archivo no soportado.</p>;
+                        }
+                      })()}
+                    </div>
+
+                    {vistaPrevia.imagenes.length > 1 && (
+                      <button
+                        className="carrusel-btn"
+                        onClick={() =>
+                          setIndiceMediaActual(
+                            (indiceMediaActual + 1) %
+                              vistaPrevia.imagenes.length
+                          )
+                        }
+                      >
+                        ▶
+                      </button>
+                    )}
+                  </div>
                 )}
 
-                <div className="modal-actions">
-                  <button
-                    className="modal-fullscreen"
-                    onClick={() =>
-                      handleFullscreen(vistaPrevia.imagenes[0]?.tipo)
-                    }
-                  >
-                    Ver en pantalla completa
-                  </button>
-                </div>
+                {vistaPrevia.imagenes[indiceMediaActual]?.tipo !== "pdf" && (
+                  <div className="modal-actions">
+                    <button
+                      className="modal-fullscreen"
+                      onClick={() =>
+                        handleFullscreen(
+                          vistaPrevia.imagenes[indiceMediaActual]?.tipo
+                        )
+                      }
+                    >
+                      Ver en pantalla completa
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

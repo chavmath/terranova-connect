@@ -46,7 +46,6 @@ const EstadisticasPage = () => {
     obtenerPublicaciones();
   }, []);
 
-  // Obtener las estadísticas
   const obtenerEstadisticas = async () => {
     try {
       const insigniasRes = await fetch(
@@ -85,7 +84,6 @@ const EstadisticasPage = () => {
     }
   };
 
-  // Obtener los usuarios
   const obtenerUsuarios = async () => {
     try {
       const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/usuarios", {
@@ -102,7 +100,6 @@ const EstadisticasPage = () => {
     }
   };
 
-  // Obtener las misiones
   const obtenerMisiones = async () => {
     try {
       const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/misiones", {
@@ -119,7 +116,6 @@ const EstadisticasPage = () => {
     }
   };
 
-  // Obtener las publicaciones
   const obtenerPublicaciones = async () => {
     try {
       const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/mis-publicaciones", {
@@ -267,13 +263,11 @@ const EstadisticasPage = () => {
           <div className="estadisticas-card">
             <h3>Publicación con Más Likes</h3>
 
-            {/* Verificamos si la publicación tiene descripción y mostramos */}
             <p className="descripcion">
               {publicacionConMasLikes.descripcion ||
                 "Descripción no disponible"}
             </p>
 
-            {/* Si la publicación tiene imágenes, mostramos la primera imagen como previsualización */}
             {publicacionConMasLikes.imagenes &&
               publicacionConMasLikes.imagenes.length > 0 && (
                 <div className="previsualizacion-imagen">
@@ -284,8 +278,6 @@ const EstadisticasPage = () => {
                   />
                 </div>
               )}
-
-            {/* Contador de Likes */}
             <p className="contador-likes">
               {`Likes: ${publicacionConMasLikes.likes.length}`}
             </p>

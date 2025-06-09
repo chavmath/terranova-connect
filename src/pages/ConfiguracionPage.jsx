@@ -36,6 +36,7 @@ const ConfiguracionPage = () => {
     descripcion: "",
     puntosRequeridos: "",
     cantidadDisponible: "",
+    imagen: null,
   });
   const [nuevaCuentaAdmin, setNuevaCuentaAdmin] = useState({
     nombre: "",
@@ -227,13 +228,16 @@ const ConfiguracionPage = () => {
   };
 
   const obtenerMisiones = async () => {
-    const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/misiones/admin", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
+    const res = await fetch(
+      "https://kong-7df170cea7usbksss.kongcloud.dev/misiones/admin",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
     const data = await res.json();
     if (Array.isArray(data.misiones)) {
       setMisiones(data.misiones);
@@ -652,8 +656,13 @@ const ConfiguracionPage = () => {
   };
 
   const handleCrearRecompensa = async () => {
-    const { nombre, descripcion, puntosRequeridos, cantidadDisponible } =
-      nuevaRecompensa;
+    const {
+      nombre,
+      descripcion,
+      puntosRequeridos,
+      cantidadDisponible,
+      imagen,
+    } = nuevaRecompensa;
 
     if (!nombre || !descripcion || !puntosRequeridos) {
       Swal.fire(
@@ -666,20 +675,24 @@ const ConfiguracionPage = () => {
 
     setLoading(true);
     try {
+      const formData = new FormData();
+      formData.append("nombre", nombre);
+      formData.append("descripcion", descripcion);
+      formData.append("puntosRequeridos", puntosRequeridos);
+      formData.append("cantidadDisponible", cantidadDisponible || 0);
+
+      if (imagen) {
+        formData.append("imagen", imagen); // asegurarte que el backend espera "imagen"
+      }
+
       const res = await fetch(
         "https://kong-7df170cea7usbksss.kongcloud.dev/recompensa",
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            nombre,
-            descripcion,
-            puntosRequeridos,
-            cantidadDisponible,
-          }),
+          body: formData,
           credentials: "include",
         }
       );
@@ -693,10 +706,15 @@ const ConfiguracionPage = () => {
           descripcion: "",
           puntosRequeridos: "",
           cantidadDisponible: "",
+          imagen: null,
         });
         obtenerRecompensas();
       } else {
-        Swal.fire("Error", data.message, "error");
+        Swal.fire(
+          "Error",
+          data.message || "No se pudo crear la recompensa",
+          "error"
+        );
       }
     } catch (error) {
       console.error(error);
@@ -949,6 +967,7 @@ const ConfiguracionPage = () => {
       descripcion,
       puntosRequeridos,
       cantidadDisponible,
+      nuevaImagen, // imagen seleccionada desde el input
     } = modalData;
 
     if (!nombre || !descripcion || !puntosRequeridos) {
@@ -962,21 +981,25 @@ const ConfiguracionPage = () => {
 
     setLoading(true);
     try {
+      const formData = new FormData();
+      formData.append("nombre", nombre);
+      formData.append("descripcion", descripcion);
+      formData.append("puntosRequeridos", puntosRequeridos);
+      formData.append("cantidadDisponible", cantidadDisponible || 0);
+      formData.append("activa", true);
+
+      if (nuevaImagen) {
+        formData.append("imagen", nuevaImagen); // asegúrate que tu backend use esta misma clave
+      }
+
       const res = await fetch(
         `https://kong-7df170cea7usbksss.kongcloud.dev/recompensa/${id_recompensa}`,
         {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            nombre,
-            descripcion,
-            puntosRequeridos,
-            cantidadDisponible,
-            activa: true,
-          }),
+          body: formData,
           credentials: "include",
         }
       );
@@ -987,7 +1010,11 @@ const ConfiguracionPage = () => {
         obtenerRecompensas();
         cerrarModal();
       } else {
-        Swal.fire("Error", data.message, "error");
+        Swal.fire(
+          "Error",
+          data.message || "No se pudo editar la recompensa",
+          "error"
+        );
       }
     } catch (error) {
       console.error(error);
@@ -1904,11 +1931,48 @@ const ConfiguracionPage = () => {
                       }
                     />
 
+                    {/* Mostrar imagen actual */}
+                    {modalData.imagenUrl && (
+                      <div
+                        style={{ textAlign: "center", marginBottom: "1rem" }}
+                      >
+                        <img
+                          src={modalData.imagenUrl}
+                          alt="Recompensa actual"
+                          style={{
+                            width: "100px",
+                            height: "100px",
+                            borderRadius: "10px",
+                            objectFit: "cover",
+                            margin: "5px",
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    <label>Cambiar imagen</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setModalData({
+                            ...modalData,
+                            nuevaImagen: file,
+                            nuevaImagenPreview: URL.createObjectURL(file),
+                          });
+                        }
+                      }}
+                      style={{ marginBottom: "1rem" }}
+                    />
+
                     <button onClick={handleEditarRecompensa} disabled={loading}>
-                      Guardar
+                      {loading ? "Guardando..." : "Guardar"}
                     </button>
                   </>
                 )}
+
                 {modalTipo === "insignia" && (
                   <div className="modal-overlay">
                     <div className="modal">
@@ -2332,6 +2396,19 @@ const ConfiguracionPage = () => {
                       cantidadDisponible: Number(e.target.value),
                     })
                   }
+                />
+
+                <label>Imagen</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    setNuevaRecompensa({
+                      ...nuevaRecompensa,
+                      imagen: e.target.files[0],
+                    })
+                  }
+                  style={{ marginBottom: "1rem" }}
                 />
 
                 <button onClick={handleCrearRecompensa} disabled={loading}>

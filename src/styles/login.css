@@ -321,12 +321,12 @@ button[type="button"]:hover {
   }
 
   .login-left {
-    display: none; /* Ocultar la parte izquierda en móvil */
+    display: none;
   }
 
   .login-right {
-    width: 100% !important; /* Ocupa todo el ancho */
-    height: 100vh; /* Para que ocupe toda la altura */
+    width: 100% !important;
+    height: 100vh;
     padding: 1.5rem;
   }
 

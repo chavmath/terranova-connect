@@ -36,7 +36,6 @@ const FeedPage = () => {
   const [cantidadMostrar, setCantidadMostrar] = useState(5);
   const navigate = useNavigate();
 
-  // Fetch todas las publicaciones solo una vez (sin paginación backend)
   useEffect(() => {
     const fetchPublicaciones = async () => {
       setLoading(true);
@@ -44,7 +43,7 @@ const FeedPage = () => {
 
       try {
         const res = await fetch(
-          `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones`, // sin page ni size
+          `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones`,
           {
             method: "GET",
             headers: {
@@ -103,12 +102,10 @@ const FeedPage = () => {
     fetchPublicaciones();
   }, []);
 
-  // Función para mostrar más publicaciones (de 5 en 5)
   const mostrarMas = () => {
     setCantidadMostrar((prev) => prev + 5);
   };
 
-  // Like toggle (igual que antes)
   const toggleLike = async (id_publicacion) => {
     const updated = publicaciones.map((pub) =>
       pub.id_publicacion === id_publicacion
@@ -153,7 +150,6 @@ const FeedPage = () => {
     }
   };
 
-  // Crear publicación (igual que antes)
   const handlePublicar = async () => {
     if (!nuevaDescripcion || !archivos?.length) {
       Swal.fire("Error", "Todos los campos son obligatorios", "error");
@@ -247,7 +243,6 @@ const FeedPage = () => {
     setPreviewActivo(null);
   };
 
-  // Cargar comentarios (igual)
   const cargarComentarios = async (id_publicacion) => {
     const token = Cookies.get("token");
     try {

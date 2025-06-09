@@ -15,10 +15,10 @@ const LoginPage = () => {
   const [nuevoCorreo, setNuevoCorreo] = useState("");
   const [nuevaContrasenia, setNuevaContrasenia] = useState("");
   const [codigoRecuperacion, setCodigoRecuperacion] = useState("");
-  const [nuevoCodigo] = useState("");
+  /* const [nuevoCodigo] = useState(""); */
   const [mostrarRecuperacion, setMostrarRecuperacion] = useState(false);
-  const [mostrarModal, setMostrarModal] = useState(false); // To control modal visibility
-  const [mostrarModalAdmin, setMostrarModalAdmin] = useState(false); // Modal for admin code recovery
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [mostrarModalAdmin, setMostrarModalAdmin] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -170,11 +170,11 @@ const LoginPage = () => {
         Cookies.set("token", token, {
           path: "/",
           sameSite: "Lax",
-          secure: false, // true en producción con HTTPS
-          expires: 1, // 1 día
+          secure: false,
+          expires: 1,
         });
 
-        window.location.href = "/configuracion"; // redirigir admin
+        window.location.href = "/configuracion";
       } else {
         Swal.fire({
           icon: "error",
@@ -221,7 +221,7 @@ const LoginPage = () => {
           text:
             data.message || "Revisa tu correo para el código de recuperación.",
         }).then(() => {
-          setMostrarModal(true); // Mostrar el modal para cambiar la contraseña
+          setMostrarModal(true);
         });
       } else {
         Swal.fire({
@@ -273,7 +273,7 @@ const LoginPage = () => {
           title: "Contraseña cambiada",
           text: "Tu contraseña ha sido actualizada exitosamente.",
         }).then(() => {
-          window.location.href = "/"; // Redirigir a la página de login
+          window.location.href = "/";
         });
       } else {
         Swal.fire({
@@ -291,12 +291,10 @@ const LoginPage = () => {
     }
   };
 
-  // Función para mostrar el modal de recuperación de código de administrador
   const handleRecuperarCodigoAdmin = () => {
-    setMostrarModalAdmin(true); // Mostrar el modal
+    setMostrarModalAdmin(true);
   };
 
-  // Función para enviar la solicitud de nuevo código de administrador
   const handleRecuperarCodigoAdminSubmit = async (e) => {
     e.preventDefault();
 
@@ -314,7 +312,7 @@ const LoginPage = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ correo: nuevoCorreo }), // Se pasa el correo para enviar el código
+          body: JSON.stringify({ correo: nuevoCorreo }),
         }
       );
 
@@ -329,7 +327,7 @@ const LoginPage = () => {
             data.message ||
             "Se ha enviado un nuevo código de administrador al correo.",
         });
-        setMostrarModalAdmin(false); // Cerrar el modal
+        setMostrarModalAdmin(false);
       } else {
         Swal.fire({
           icon: "error",
@@ -453,7 +451,6 @@ const LoginPage = () => {
             />
             <button type="submit">Acceder como admin</button>
 
-            {/* Botón para abrir el modal de recuperar código de administrador */}
             <button
               className="recover-admin-button"
               onClick={handleRecuperarCodigoAdmin}

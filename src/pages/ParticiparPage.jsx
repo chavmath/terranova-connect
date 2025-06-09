@@ -16,74 +16,75 @@ const ParticiparPage = () => {
 
   const [formData, setFormData] = useState({
     descripcion: "",
-    archivo: null,
+    archivos: [],
   });
 
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState([]);
   const [toast, setToast] = useState({
     visible: false,
     message: "",
     type: "success",
   });
 
-  // Justo después de useState...
-const fetchDatos = async () => {
-  try {
-    const token = Cookies.get("token");
+  const fetchDatos = async () => {
+    try {
+      const token = Cookies.get("token");
 
-    const [misRes, activasRes] = await Promise.all([
-      fetch("https://kong-7df170cea7usbksss.kongcloud.dev/misiones", {
-        headers: { Authorization: `Bearer ${token}` },
-        credentials: "include",
-      }),
-      fetch("https://kong-7df170cea7usbksss.kongcloud.dev/activas", {
-        headers: { Authorization: `Bearer ${token}` },
-        credentials: "include",
-      }),
-    ]);
+      const [misRes, activasRes] = await Promise.all([
+        fetch("https://kong-7df170cea7usbksss.kongcloud.dev/misiones", {
+          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
+        }),
+        fetch("https://kong-7df170cea7usbksss.kongcloud.dev/activas", {
+          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
+        }),
+      ]);
 
-    const misionesData = await misRes.json();
-    const activasData = await activasRes.json();
+      const misionesData = await misRes.json();
+      const activasData = await activasRes.json();
 
-    console.log("Misiones:", misionesData);
-    console.log("Activas:", activasData);
+      console.log("Misiones:", misionesData);
+      console.log("Activas:", activasData);
 
-    setInscritas(activasData);
+      setInscritas(activasData);
 
-    const activas = Array.isArray(activasData) ? activasData : activasData.data || [];
+      const activas = Array.isArray(activasData)
+        ? activasData
+        : activasData.data || [];
 
-    const misionesFormateadas = misionesData.map((m) => {
-      // Aquí m._id es el id de la misión que obtuviste en consola
-      const activa = activas.find((a) => a.id_mision === m.id_mision);
+      const misionesFormateadas = misionesData.map((m) => {
+        const activa = activas.find((a) => a.id_mision === m.id_mision);
 
-      let estado = "Inscribirse";
-      if (activa) {
-        if (activa.estado === true) {
-          estado = "Puntos otorgados";
-        } else {
-          estado = activa.estadoEvidencia ? "Ver progreso" : "Subir evidencia";
+        let estado = "Inscribirse";
+        if (activa) {
+          if (activa.estado === true) {
+            estado = "Puntos otorgados";
+          } else {
+            estado = activa.estadoEvidencia
+              ? "Ver progreso"
+              : "Subir evidencia";
+          }
         }
-      }
 
-      return {
-        id: m.id_mision,
-        nombre: m.titulo,
-        descripcion: m.descripcion,
-        puntos: m.puntos,
-        duracion: m.duracion ?? "No especificada",
-        modalidad: m.modalidad ?? "Individual",
-        tipo: "Misión",
-        estado,
-        id_inscripcion: activa?.id_inscripcion ?? null,
-      };
-    });
+        return {
+          id: m.id_mision,
+          nombre: m.titulo,
+          descripcion: m.descripcion,
+          puntos: m.puntos,
+          duracion: m.duracion ?? "No especificada",
+          modalidad: m.modalidad ?? "Individual",
+          tipo: "Misión",
+          estado,
+          id_inscripcion: activa?.id_inscripcion ?? null,
+        };
+      });
 
-    setMisiones(misionesFormateadas);
-  } catch (err) {
-    console.error("Error al cargar misiones:", err);
-  }
-};
-
+      setMisiones(misionesFormateadas);
+    } catch (err) {
+      console.error("Error al cargar misiones:", err);
+    }
+  };
 
   useEffect(() => {
     fetchDatos();
@@ -101,15 +102,18 @@ const fetchDatos = async () => {
     const token = Cookies.get("token");
 
     try {
-      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/subir", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ id_mision: mision.id }),
-      });
+      const res = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/subir",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ id_mision: mision.id }),
+        }
+      );
 
       if (!res.ok) throw new Error("No se pudo inscribir");
 
@@ -127,7 +131,7 @@ const fetchDatos = async () => {
       setMisiones(actualizadas);
       setActividadSeleccionada(null);
       showToast("✅ Inscripción realizada con éxito");
-      await fetchDatos(); // <--- recarga las misiones
+      await fetchDatos();
     } catch (err) {
       showToast("❌ No se pudo inscribir. Intenta más tarde.", err);
     }
@@ -147,11 +151,19 @@ const fetchDatos = async () => {
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (files) {
-      const file = files[0];
-      setPreviewUrl(
-        file.type.startsWith("image/") ? URL.createObjectURL(file) : file.name
-      );
-      setFormData((prev) => ({ ...prev, archivo: file }));
+      const nuevosArchivos = Array.from(files);
+
+      setFormData((prev) => ({
+        ...prev,
+        archivos: [...(prev.archivos || []), ...nuevosArchivos],
+      }));
+
+      setPreviewUrl((prev) => [
+        ...(Array.isArray(prev) ? prev : []),
+        ...nuevosArchivos.map((file) =>
+          file.type.startsWith("image/") ? URL.createObjectURL(file) : file.name
+        ),
+      ]);
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -164,7 +176,9 @@ const fetchDatos = async () => {
 
     const form = new FormData();
     form.append("descripcion", formData.descripcion);
-    form.append("evidencia", formData.archivo);
+    formData.archivos.forEach((archivo) => {
+      form.append("evidencia", archivo);
+    });
 
     try {
       const res = await fetch(
@@ -184,7 +198,7 @@ const fetchDatos = async () => {
       setMisionesConEvidencia(nuevas);
       setModalEvidenciaVisible(false);
       showToast("✅ Evidencia enviada con éxito");
-      await fetchDatos(); // <--- recarga las misiones
+      await fetchDatos();
     } catch (err) {
       showToast("❌ Error al subir evidencia", err);
     }
@@ -225,6 +239,17 @@ const fetchDatos = async () => {
     } catch (err) {
       showToast("❌ No se pudo cargar el progreso", err);
     }
+  };
+
+  const handleRemoveArchivo = (index) => {
+    const nuevosArchivos = [...formData.archivos];
+    nuevosArchivos.splice(index, 1);
+
+    const nuevasPreviews = [...previewUrl];
+    nuevasPreviews.splice(index, 1);
+
+    setFormData((prev) => ({ ...prev, archivos: nuevosArchivos }));
+    setPreviewUrl(nuevasPreviews);
   };
 
   return (
@@ -337,11 +362,12 @@ const fetchDatos = async () => {
                 </button>
                 <h3>Subir Evidencia</h3>
                 <p className="modal-evidencia-subtitle">
-                  Adjunta una imagen para comprobar tu participación
-                  en esta misión.
+                  Adjunta una imagen para comprobar tu participación en esta
+                  misión.
                 </p>
                 <p className="modal-evidencia-subtitle">
-                  Solo podrás subir un archivo por misión. Asegúrate de que sea el correcto.
+                  Solo podrás subir un archivo por misión. Asegúrate de que sea
+                  el correcto.
                 </p>
 
                 <form onSubmit={handleSubmit}>
@@ -357,21 +383,32 @@ const fetchDatos = async () => {
                     type="file"
                     name="archivo"
                     onChange={handleChange}
-                    required
+                    multiple
+                    required={
+                      !formData.archivos || formData.archivos.length === 0
+                    }
                   />
-                  {previewUrl && (
-                    <div className="file-preview">
-                      {previewUrl.startsWith("blob:") ? (
-                        <img
-                          src={previewUrl}
-                          alt="Preview"
-                          className="preview-image"
-                        />
-                      ) : (
-                        <span>{previewUrl}</span>
-                      )}
+                  {Array.isArray(previewUrl) && previewUrl.length > 0 && (
+                    <div className="slider-container">
+                      {previewUrl.map((preview, i) => (
+                        <div key={i} className="slider-item">
+                          {preview.startsWith("blob:") ? (
+                            <img src={preview} alt={`Archivo ${i}`} />
+                          ) : (
+                            <span>{preview}</span>
+                          )}
+                          <button
+                            type="button"
+                            className="eliminar-archivo-boton"
+                            onClick={() => handleRemoveArchivo(i)}
+                          >
+                            X
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   )}
+
                   <button
                     type="submit"
                     className="participar-button"

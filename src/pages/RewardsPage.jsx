@@ -221,7 +221,17 @@ const RewardsPage = () => {
                     className={`canje-card ${!puedeReclamar ? "canje-disabled" : ""
                       }`}
                   >
-                    <div className="canje-icon">{r.icono || "🎁"}</div>
+                    <div className="canje-icon">
+                      <img
+                      src={
+                        r.imagenUrl ||
+                        "🎁"
+                      }
+                      alt="🎁"
+                      style={{ width: "100px", height: "100px" }}
+                    />
+
+                    </div>
                     <h4 className="canje-nombre">{r.nombre}</h4>
                     <p className="canje-puntos">{r.puntosRequeridos} puntos</p>
                     <button

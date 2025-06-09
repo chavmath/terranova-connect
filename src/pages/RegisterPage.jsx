@@ -26,7 +26,6 @@ const RegisterPage = () => {
       setFormData({ ...formData, [name]: value });
     }
   };
-  // Dominios comunes correctos
   const dominiosComunes = [
     "gmail.com",
     "outlook.com",
@@ -36,7 +35,7 @@ const RegisterPage = () => {
     "icloud.com",
   ];
 
-  // Función simple para calcular distancia de Levenshtein (corta, para demo)
+  // Función simple para calcular distancia de Levenshtein
   function distanciaLevenshtein(a, b) {
     const matriz = Array(b.length + 1)
       .fill(null)
@@ -95,7 +94,6 @@ const RegisterPage = () => {
       } else {
         const dominio = formData.correo.split("@")[1].toLowerCase();
 
-        // Detectar si dominio es typo de alguno común con distancia <=2
         const typoDetectado = dominiosComunes.find((dominioComun) => {
           return (
             distanciaLevenshtein(dominio, dominioComun) > 0 &&
@@ -151,7 +149,7 @@ const RegisterPage = () => {
         Swal.showLoading();
       },
     });
-    await new Promise((resolve) => setTimeout(resolve, 100)); // <- ¡importante!
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     try {
       const response = await fetch(
