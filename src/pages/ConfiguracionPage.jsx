@@ -835,57 +835,64 @@ const ConfiguracionPage = () => {
   };
 
   const handleEditarUsuario = async () => {
-    const { id_usuario, nuevaFoto, ...datos } = modalData;
-    // Activar el estado de carga (spinner)
-    setLoading(true);
+    const {
+      id_usuario,
+      nuevaFoto,
+      foto_perfil,         // <-- extraído para no incluirlo en datos
+      sesionesIniciadas,   // <-- idem
+      ...datos             // datos sólo tendrá campos planos: nombre, apellido, correo, rol
+    } = modalData;
 
-    // Validación simple antes de enviar
+    // 2) Validación mínima
     if (!datos.nombre || !datos.apellido || !datos.correo || !datos.rol) {
       Swal.fire("Error", "Todos los campos deben estar completos", "error");
       return;
     }
 
-    const url = `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${id_usuario}`;
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
+    setLoading(true);
 
-    let options;
+    try {
+      // 3) Preparamos FormData
+      const form = new FormData();
 
-    // Creamos FormData solo si hay foto nueva
-    const form = new FormData();
-
-    // Si hay nueva foto
-    if (nuevaFoto) {
-      form.append("foto_perfil", nuevaFoto); // Añadir nueva foto
-    }
-
-    // Agregar el resto de los campos, pero no incluimos foto_perfil si no se edita
-    Object.entries(datos).forEach(([key, value]) => {
-      if (key !== "foto_perfil") {
-        form.append(key, value); // Si no hay foto, no la agregamos al FormData
+      // Si hay foto nueva, la incluimos bajo la clave 'foto_perfil'
+      if (nuevaFoto) {
+        form.append("foto_perfil", nuevaFoto);
       }
-    });
 
-    options = {
-      method: "PUT",
-      headers, // form.getHeaders() se agrega implícitamente en el navegador
-      body: form,
-      credentials: "include",
-    };
+      // 4) Adjuntamos los campos planos (texto, numbers, fechas…)
+      Object.entries(datos).forEach(([key, value]) => {
+        form.append(key, value);
+      });
 
-    const res = await fetch(url, options);
-    const data = await res.json();
+      // 5) Disparamos el PUT
+      const res = await fetch(
+        `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${id_usuario}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            // NO establezcas Content-Type: multipart/form-data lo hace el navegador
+          },
+          body: form,
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
 
-    if (res.ok) {
-      Swal.fire("Actualizado", "Usuario actualizado correctamente", "success");
-      cerrarModal();
-      obtenerUsuarios();
-    } else {
-      Swal.fire("Error", data.message || "No se pudo actualizar", "error");
+      // 6) Resultado
+      if (res.ok) {
+        Swal.fire("Actualizado", "Usuario actualizado correctamente", "success");
+        cerrarModal();
+        obtenerUsuarios();
+      } else {
+        Swal.fire("Error", data.message || "No se pudo actualizar", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", err.message, "error");
+    } finally {
+      setLoading(false);
     }
-    // Desactivar el estado de carga después de la respuesta
-    setLoading(false);
   };
 
   const handleEditarActividad = async () => {
@@ -1293,7 +1300,7 @@ const ConfiguracionPage = () => {
                   <button
                     onClick={() =>
                       currentPageActividad <
-                        Math.ceil(totalItemsActividad / itemsPerPage) &&
+                      Math.ceil(totalItemsActividad / itemsPerPage) &&
                       paginateActividad(currentPageActividad + 1)
                     }
                     disabled={
@@ -1405,7 +1412,7 @@ const ConfiguracionPage = () => {
                   <button
                     onClick={() =>
                       currentPageMision <
-                        Math.ceil(totalItemsMision / itemsPerPage) &&
+                      Math.ceil(totalItemsMision / itemsPerPage) &&
                       paginateMision(currentPageMision + 1)
                     }
                     disabled={
@@ -1517,7 +1524,7 @@ const ConfiguracionPage = () => {
                   <button
                     onClick={() =>
                       currentPageRecompensa <
-                        Math.ceil(totalItemsRecompensa / itemsPerPage) &&
+                      Math.ceil(totalItemsRecompensa / itemsPerPage) &&
                       paginateRecompensas(currentPageRecompensa + 1)
                     }
                     disabled={
