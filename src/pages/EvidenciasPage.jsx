@@ -65,8 +65,7 @@ const EvidenciasPage = () => {
         },
         credentials: "include",
         body: JSON.stringify({
-          revisado: false,
-          tipo: false,
+          revisado: true,
         }),
       });
 
@@ -131,87 +130,100 @@ const EvidenciasPage = () => {
 
         <div className="evidencias-description">
           <div className="evidencias-lista">
-            {evidencias.length > 0 ? (
+            {evidencias.filter((e) => e.revisado === false).length > 0 ? (
               <div className="evidencias-cards">
-                {evidencias.map((evidencia) => (
-                  <div key={evidencia.id_evidencia} className="evidencia-card">
-                    <div className="evidencia-card-header">
-                      <h3 className="evidencia-titulo">
-                        {evidencia.descripcion}
-                      </h3>
-                      <p className="evidencia-usuario">
-                        Enviado por: {evidencia.usuario?.nombre}{" "}
-                        {evidencia.usuario?.apellido}
+                {evidencias
+                  .filter((e) => e.revisado === false)
+                  .map((evidencia) => (
+                    <div
+                      key={evidencia.id_evidencia}
+                      className="evidencia-card"
+                    >
+                      <div className="evidencia-card-header">
+                        <h3 className="evidencia-titulo">
+                          {evidencia.descripcion}
+                        </h3>
+                        <p className="evidencia-usuario">
+                          Enviado por: {evidencia.usuario?.nombre}{" "}
+                          {evidencia.usuario?.apellido}
+                        </p>
+                        <button
+                          className="evidencia-ver-floating"
+                          onClick={() => handleVerEvidencia(evidencia)}
+                          title="Ver evidencia"
+                        >
+                          <FiEye />
+                        </button>
+                      </div>
+
+                      <div className="evidencia-card-media">
+                        {(() => {
+                          const archivo = evidencia.imagenes[0];
+                          if (!archivo) return <p>Sin archivos</p>;
+
+                          if (archivo.tipo === "imagen") {
+                            return (
+                              <img
+                                src={archivo.url}
+                                alt="Evidencia"
+                                className="evidencia-imagen"
+                              />
+                            );
+                          } else if (archivo.tipo === "video") {
+                            return (
+                              <video
+                                src={archivo.url}
+                                controls
+                                className="evidencia-video"
+                              />
+                            );
+                          } else if (archivo.tipo === "pdf") {
+                            return (
+                              <div className="pdf-icon-container">
+                                <AiFillFilePdf className="pdf-icon" />
+                                <p>Archivo PDF</p>
+                              </div>
+                            );
+                          } else {
+                            return <p>Archivo no soportado</p>;
+                          }
+                        })()}
+                      </div>
+
+                      <p className="evidencia-fecha">
+                        Subida: {formatearFecha(evidencia.fechaSubida)}
                       </p>
-                      <button
-                        className="evidencia-ver-floating"
-                        onClick={() => handleVerEvidencia(evidencia)}
-                        title="Ver evidencia"
-                      >
-                        <FiEye />
-                      </button>
+
+                      <div className="evidencia-card-footer">
+                        <button
+                          className="evidencia-aprobar"
+                          onClick={() =>
+                            handleAprobarEvidencia(evidencia.id_evidencia)
+                          }
+                          disabled={loadingId === evidencia.id_evidencia}
+                        >
+                          {loadingId === evidencia.id_evidencia ? (
+                            <span className="spinner"></span>
+                          ) : (
+                            <>
+                              <FiCheckCircle /> Aprobar
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
-
-                    <div className="evidencia-card-media">
-                      {(() => {
-                        const archivo = evidencia.imagenes[0];
-                        if (!archivo) return <p>Sin archivos</p>;
-
-                        if (archivo.tipo === "imagen") {
-                          return (
-                            <img
-                              src={archivo.url}
-                              alt="Evidencia"
-                              className="evidencia-imagen"
-                            />
-                          );
-                        } else if (archivo.tipo === "video") {
-                          return (
-                            <video
-                              src={archivo.url}
-                              controls
-                              className="evidencia-video"
-                            />
-                          );
-                        } else if (archivo.tipo === "pdf") {
-                          return (
-                            <div className="pdf-icon-container">
-                              <AiFillFilePdf className="pdf-icon" />
-                              <p>Archivo PDF</p>
-                            </div>
-                          );
-                        } else {
-                          return <p>Archivo no soportado</p>;
-                        }
-                      })()}
-                    </div>
-
-                    <p className="evidencia-fecha">
-                      Subida: {formatearFecha(evidencia.fechaSubida)}
-                    </p>
-
-                    <div className="evidencia-card-footer">
-                      <button
-                        className="evidencia-aprobar"
-                        onClick={() =>
-                          handleAprobarEvidencia(evidencia.id_evidencia)
-                        }
-                        disabled={loadingId === evidencia.id_evidencia}
-                      >
-                        {loadingId === evidencia.id_evidencia ? (
-                          <span className="spinner"></span>
-                        ) : (
-                          <>
-                            <FiCheckCircle /> Aprobar
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             ) : (
-              <p>No hay evidencias para mostrar.</p>
+              <p
+                style={{
+                  textAlign: "center",
+                  marginTop: "2rem",
+                  color: "#666",
+                }}
+              >
+                No hay evidencias pendientes por revisar.
+              </p>
             )}
           </div>
         </div>

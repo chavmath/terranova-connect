@@ -371,3 +371,18 @@
 .pagination span {
   font-size: 16px;
 }
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Opcional: estiliza la barra de scroll en móvil */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #e67e22;
+  border-radius: 4px;
+}

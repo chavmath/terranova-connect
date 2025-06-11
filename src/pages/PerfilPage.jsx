@@ -3,6 +3,7 @@ import Sidebar from "../components/Sidebar";
 import "../styles/perfil.css";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
+import { FiEdit } from "react-icons/fi";
 
 const PerfilPage = () => {
   const [publicaciones, setPublicaciones] = useState([]);
@@ -12,69 +13,175 @@ const PerfilPage = () => {
   const [nuevoComentario, setNuevoComentario] = useState("");
   const [seguidores, setSeguidores] = useState([]);
   const [seguidos, setSeguidos] = useState([]);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [modalData, setModalData] = useState({
+    nombre: "",
+    apellido: "",
+    correo: "",
+    nuevaFoto: null,
+    nuevaFotoPreview: "",
+  });
+  const [loading, setLoading] = useState(false);
 
   // 📥 Cargar publicaciones + perfil
-  useEffect(() => {
-    const cargarDatos = async () => {
-      try {
-        const token = Cookies.get("token");
-        const [pubsRes, userRes] = await Promise.all([
-          fetch(
-            "https://kong-7df170cea7usbksss.kongcloud.dev/mis-publicaciones",
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-              credentials: "include",
-            }
-          ),
-          fetch("https://kong-7df170cea7usbksss.kongcloud.dev/profile", {
+  // 1. Define la función FUERA del useEffect, pero DENTRO del componente
+  const cargarDatos = async () => {
+    try {
+      const token = Cookies.get("token");
+      const [pubsRes, userRes] = await Promise.all([
+        fetch(
+          "https://kong-7df170cea7usbksss.kongcloud.dev/mis-publicaciones",
+          {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
             credentials: "include",
-          }),
-        ]);
-
-        const publicacionesData = await pubsRes.json();
-        const userData = await userRes.json();
-
-        if (pubsRes.ok && userRes.ok) {
-          setPublicaciones(publicacionesData);
-          setUser(userData);
-          const seguimientoRes = await fetch(
-            `https://kong-7df170cea7usbksss.kongcloud.dev/seguidores-contar`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-              credentials: "include",
-            }
-          );
-
-          if (seguimientoRes.ok) {
-            const { seguidoresCount, seguidosCount } =
-              await seguimientoRes.json();
-            setSeguidores(seguidoresCount);
-            setSeguidos(seguidosCount);
-          } else {
-            console.warn(
-              "No se pudieron obtener los conteos de seguidores/seguidos"
-            );
           }
-        } else {
-          console.error("Error al cargar datos del perfil o publicaciones");
-        }
-      } catch (err) {
-        console.error("Error de red:", err);
-      }
-    };
+        ),
+        fetch("https://kong-7df170cea7usbksss.kongcloud.dev/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }),
+      ]);
 
+      const publicacionesData = await pubsRes.json();
+      const userData = await userRes.json();
+
+      if (pubsRes.ok && userRes.ok) {
+        setPublicaciones(publicacionesData);
+        setUser(userData);
+        const seguimientoRes = await fetch(
+          `https://kong-7df170cea7usbksss.kongcloud.dev/seguidores-contar`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
+
+        if (seguimientoRes.ok) {
+          const { seguidoresCount, seguidosCount } =
+            await seguimientoRes.json();
+          setSeguidores(seguidoresCount);
+          setSeguidos(seguidosCount);
+        } else {
+          console.warn(
+            "No se pudieron obtener los conteos de seguidores/seguidos"
+          );
+        }
+      } else {
+        console.error("Error al cargar datos del perfil o publicaciones");
+      }
+    } catch (err) {
+      console.error("Error de red:", err);
+    }
+  };
+  useEffect(() => {
     cargarDatos();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      setModalData({
+        nombre: user.nombre || "",
+        apellido: user.apellido || "",
+        correo: user.correo || "",
+        nuevaFoto: null,
+        nuevaFotoPreview: "",
+      });
+    }
+  }, [user]);
+
+  const getCurrentUserId = () => {
+    const token = Cookies.get("token");
+    if (!token) {
+      console.log("Token no encontrado");
+      return null;
+    }
+
+    try {
+      const payload = token.split(".")[1];
+      const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+      // Base64 decoding
+      const decoded = JSON.parse(atob(base64));
+      const userId = decoded.id_usuario || decoded.id;
+      return userId || null;
+    } catch (error) {
+      console.error("Error al decodificar el token:", error);
+      return null;
+    }
+  };
+
+  const handleEditarUsuario = async (e) => {
+    e.preventDefault();
+    const { nombre, apellido, correo, nuevaFoto } = modalData;
+    if (!nombre || !apellido || !correo) {
+      Swal.fire("Error", "Todos los campos deben estar completos", "error");
+      return;
+    }
+
+    setLoading(true);
+    const token = Cookies.get("token");
+    const userId = getCurrentUserId();
+    if (!userId) {
+      Swal.fire("Error", "No se pudo identificar el usuario", "error");
+      setLoading(false);
+      return;
+    }
+    try {
+      const form = new FormData();
+      if (nuevaFoto) form.append("foto_perfil", nuevaFoto);
+      form.append("nombre", nombre);
+      form.append("apellido", apellido);
+      form.append("correo", correo);
+
+      const res = await fetch(
+        `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`,
+        {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+          body: form,
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
+      if (res.ok) {
+        Swal.fire({
+          title: "Actualizado",
+          text: "Usuario actualizado correctamente",
+          icon: "success",
+          confirmButtonText: "Ok",
+        }).then(() => {
+          setShowEditModal(false);
+          cargarDatos(); // <<--- Recarga los datos del perfil
+        });
+      } else {
+        Swal.fire("Error", data.message || "No se pudo actualizar", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", err.message, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const editInputStyle = {
+    width: "100%",
+    border: "1.2px solid #d1d6f4",
+    borderRadius: 8,
+    padding: "10px 12px",
+    marginBottom: 0,
+    fontSize: 15,
+    fontWeight: 500,
+    outline: "none",
+    background: "#f8f9fd",
+  };
 
   useEffect(() => {
     const cargarComentarios = async () => {
@@ -300,6 +407,13 @@ const PerfilPage = () => {
           <div className="perfil-ig-info">
             <h2 className="perfil-ig-nombre">
               @{user?.nombre} {user?.apellido}
+              <button
+                className="perfil-edit-btn"
+                onClick={() => setShowEditModal(true)}
+                title="Editar perfil"
+              >
+                <FiEdit size={22} color="#031f7b" />
+              </button>
             </h2>
 
             <div className="perfil-ig-contadores">
@@ -516,6 +630,101 @@ const PerfilPage = () => {
                 </form>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {showEditModal && (
+        <div
+          className="perfil-modal-overlay"
+          onClick={() => setShowEditModal(false)}
+        >
+          <div
+            className="perfil-modal-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <form className="perfil-edit-form" onSubmit={handleEditarUsuario}>
+              <h3 className="perfil-edit-title">Editar perfil</h3>
+              <div className="perfil-edit-foto-box">
+                <img
+                  src={
+                    modalData.nuevaFotoPreview ||
+                    user?.foto_perfil ||
+                    "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                  }
+                  alt="Foto de perfil"
+                  className="perfil-edit-foto"
+                />
+                <label
+                  htmlFor="input-foto-perfil"
+                  className="perfil-edit-foto-btn"
+                  title="Cambiar foto de perfil"
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#213a91"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="13" r="3" />
+                    <path d="M5.5 7h1.11a2 2 0 0 0 1.7-.9l.88-1.32a2 2 0 0 1 1.66-.78h2.1a2 2 0 0 1 1.66.78l.88 1.32a2 2 0 0 0 1.7.9H18.5A2.5 2.5 0 0 1 21 9.5v6A2.5 2.5 0 0 1 18.5 18h-13A2.5 2.5 0 0 1 3 15.5v-6A2.5 2.5 0 0 1 5.5 7z" />
+                  </svg>
+                  <input
+                    type="file"
+                    id="input-foto-perfil"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      setModalData((modalData) => ({
+                        ...modalData,
+                        nuevaFoto: file,
+                        nuevaFotoPreview: file ? URL.createObjectURL(file) : "",
+                      }));
+                    }}
+                  />
+                </label>
+              </div>
+              <input
+                className="perfil-edit-input"
+                value={modalData.nombre}
+                onChange={(e) =>
+                  setModalData({ ...modalData, nombre: e.target.value })
+                }
+                placeholder="Nombre"
+                required
+              />
+              <input
+                className="perfil-edit-input"
+                value={modalData.apellido}
+                onChange={(e) =>
+                  setModalData({ ...modalData, apellido: e.target.value })
+                }
+                placeholder="Apellido"
+                required
+              />
+              <input
+                className="perfil-edit-input"
+                value={modalData.correo}
+                onChange={(e) =>
+                  setModalData({ ...modalData, correo: e.target.value })
+                }
+                placeholder="Correo"
+                required
+                type="email"
+                disabled
+              />
+              <button
+                className="perfil-edit-btn-save"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? "Guardando..." : "Guardar cambios"}
+              </button>
+            </form>
           </div>
         </div>
       )}

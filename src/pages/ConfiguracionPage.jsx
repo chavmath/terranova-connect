@@ -117,6 +117,7 @@ const ConfiguracionPage = () => {
     obtenerMisiones();
     obtenerRecompensas();
     obtenerInsignias();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -838,7 +839,9 @@ const ConfiguracionPage = () => {
     const {
       id_usuario,
       nuevaFoto,
+      // eslint-disable-next-line no-unused-vars
       foto_perfil,         // <-- extraído para no incluirlo en datos
+      // eslint-disable-next-line no-unused-vars
       sesionesIniciadas,   // <-- idem
       ...datos             // datos sólo tendrá campos planos: nombre, apellido, correo, rol
     } = modalData;
@@ -1121,47 +1124,51 @@ const ConfiguracionPage = () => {
                     Crear Usuario Administrador
                   </button>
                 </div>
-                <table className="config-table">
-                  <thead>
-                    <tr>
-                      <th>No.</th>
-                      <th>Nombre</th>
-                      <th>Apellido</th>
-                      <th>Correo</th>
-                      <th>Rol</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentItems.map((usuario, index) => (
-                      <tr key={usuario.id_usuario}>
-                        <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                        <td>{usuario.nombre}</td>
-                        <td>{usuario.apellido}</td>
-                        <td>{usuario.correo}</td>
-                        <td>{usuario.rol}</td>
-                        <td>
-                          <button
-                            className="action-button edit"
-                            onClick={() =>
-                              abrirModalEdicion("usuario", usuario)
-                            }
-                          >
-                            Editar
-                          </button>
-                          <button
-                            className="action-button delete"
-                            onClick={() =>
-                              handleEliminarUsuario(usuario.id_usuario)
-                            }
-                          >
-                            Eliminar
-                          </button>
-                        </td>
+                <div className="table-responsive">
+                  <table className="config-table">
+                    <thead>
+                      <tr>
+                        <th>No.</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {currentItems.map((usuario, index) => (
+                        <tr key={usuario.id_usuario}>
+                          <td>
+                            {(currentPage - 1) * itemsPerPage + index + 1}
+                          </td>
+                          <td>{usuario.nombre}</td>
+                          <td>{usuario.apellido}</td>
+                          <td>{usuario.correo}</td>
+                          <td>{usuario.rol}</td>
+                          <td>
+                            <button
+                              className="action-button edit"
+                              onClick={() =>
+                                abrirModalEdicion("usuario", usuario)
+                              }
+                            >
+                              Editar
+                            </button>
+                            <button
+                              className="action-button delete"
+                              onClick={() =>
+                                handleEliminarUsuario(usuario.id_usuario)
+                              }
+                            >
+                              Eliminar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 <div className="pagination">
                   {/* Botón de "Anterior" */}
                   <button
@@ -1227,51 +1234,53 @@ const ConfiguracionPage = () => {
                     Crear Nueva Actividad
                   </button>
                 </div>
-                <table className="config-table">
-                  <thead>
-                    <tr>
-                      <th>No.</th>
-                      <th>Nombre</th>
-                      <th>Descripción</th>
-                      <th>Fecha Inicio</th>
-                      <th>Fecha Fin</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentItemsActividad.map((actividad, index) => (
-                      <tr key={actividad.id_actividad}>
-                        <td>
-                          {(currentPageActividad - 1) * itemsPerPage +
-                            index +
-                            1}
-                        </td>
-                        <td>{actividad.titulo}</td>
-                        <td>{actividad.descripcion}</td>
-                        <td>{formatFecha(actividad.fechaInicio)}</td>
-                        <td>{formatFecha(actividad.fechaFin)}</td>
-                        <td>
-                          <button
-                            className="action-button edit"
-                            onClick={() =>
-                              abrirModalEdicion("actividad", actividad)
-                            }
-                          >
-                            Editar
-                          </button>
-                          <button
-                            className="action-button delete"
-                            onClick={() =>
-                              handleEliminarActividad(actividad.id_actividad)
-                            }
-                          >
-                            Eliminar
-                          </button>
-                        </td>
+                <div className="table-responsive">
+                  <table className="config-table">
+                    <thead>
+                      <tr>
+                        <th>No.</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Fin</th>
+                        <th>Acciones</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {currentItemsActividad.map((actividad, index) => (
+                        <tr key={actividad.id_actividad}>
+                          <td>
+                            {(currentPageActividad - 1) * itemsPerPage +
+                              index +
+                              1}
+                          </td>
+                          <td>{actividad.titulo}</td>
+                          <td>{actividad.descripcion}</td>
+                          <td>{formatFecha(actividad.fechaInicio)}</td>
+                          <td>{formatFecha(actividad.fechaFin)}</td>
+                          <td>
+                            <button
+                              className="action-button edit"
+                              onClick={() =>
+                                abrirModalEdicion("actividad", actividad)
+                              }
+                            >
+                              Editar
+                            </button>
+                            <button
+                              className="action-button delete"
+                              onClick={() =>
+                                handleEliminarActividad(actividad.id_actividad)
+                              }
+                            >
+                              Eliminar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 <div className="pagination">
                   <button
                     onClick={() =>
@@ -1341,49 +1350,53 @@ const ConfiguracionPage = () => {
                     Crear Nueva Misión
                   </button>
                 </div>
-                <table className="config-table">
-                  <thead>
-                    <tr>
-                      <th>No.</th>
-                      <th>Nombre</th>
-                      <th>Descripción</th>
-                      <th>Puntos</th>
-                      <th>Fecha Inicio</th>
-                      <th>Fecha Fin</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentItemsMision.map((mision, index) => (
-                      <tr key={mision.id_mision}>
-                        <td>
-                          {(currentPageMision - 1) * itemsPerPage + index + 1}
-                        </td>
-                        <td>{mision.titulo}</td>
-                        <td>{mision.descripcion}</td>
-                        <td>{mision.puntos}</td>
-                        <td>{formatFecha(mision.fechaInicio)}</td>
-                        <td>{formatFecha(mision.fechaFin)}</td>
-                        <td>
-                          <button
-                            className="action-button edit"
-                            onClick={() => abrirModalEdicion("mision", mision)}
-                          >
-                            Editar
-                          </button>
-                          <button
-                            className="action-button delete"
-                            onClick={() =>
-                              handleEliminarMision(mision.id_mision)
-                            }
-                          >
-                            Eliminar
-                          </button>
-                        </td>
+                <div className="table-responsive">
+                  <table className="config-table">
+                    <thead>
+                      <tr>
+                        <th>No.</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Puntos</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Fin</th>
+                        <th>Acciones</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {currentItemsMision.map((mision, index) => (
+                        <tr key={mision.id_mision}>
+                          <td>
+                            {(currentPageMision - 1) * itemsPerPage + index + 1}
+                          </td>
+                          <td>{mision.titulo}</td>
+                          <td>{mision.descripcion}</td>
+                          <td>{mision.puntos}</td>
+                          <td>{formatFecha(mision.fechaInicio)}</td>
+                          <td>{formatFecha(mision.fechaFin)}</td>
+                          <td>
+                            <button
+                              className="action-button edit"
+                              onClick={() =>
+                                abrirModalEdicion("mision", mision)
+                              }
+                            >
+                              Editar
+                            </button>
+                            <button
+                              className="action-button delete"
+                              onClick={() =>
+                                handleEliminarMision(mision.id_mision)
+                              }
+                            >
+                              Eliminar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 <div className="pagination">
                   <button
                     onClick={() =>
@@ -1453,51 +1466,51 @@ const ConfiguracionPage = () => {
                     Crear Recompensa
                   </button>
                 </div>
-
-                <table className="config-table">
-                  <thead>
-                    <tr>
-                      <th>No.</th>
-                      <th>Nombre</th>
-                      <th>Descripción</th>
-                      <th>Puntos</th>
-                      <th>Disponible</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentRecompensas.map((r, index) => (
-                      <tr key={r.id_recompensa}>
-                        <td>
-                          {(currentPageRecompensa - 1) * itemsPerPage +
-                            index +
-                            1}
-                        </td>
-                        <td>{r.nombre}</td>
-                        <td>{r.descripcion}</td>
-                        <td>{r.puntosRequeridos}</td>
-                        <td>{r.cantidadDisponible}</td>
-                        <td>
-                          <button
-                            className="action-button edit"
-                            onClick={() => abrirModalEdicionRecompensa(r)}
-                          >
-                            Editar
-                          </button>
-                          <button
-                            className="action-button delete"
-                            onClick={() =>
-                              handleEliminarRecompensa(r.id_recompensa)
-                            }
-                          >
-                            Eliminar
-                          </button>
-                        </td>
+                <div className="table-responsive">
+                  <table className="config-table">
+                    <thead>
+                      <tr>
+                        <th>No.</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Puntos</th>
+                        <th>Disponible</th>
+                        <th>Acciones</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-
+                    </thead>
+                    <tbody>
+                      {currentRecompensas.map((r, index) => (
+                        <tr key={r.id_recompensa}>
+                          <td>
+                            {(currentPageRecompensa - 1) * itemsPerPage +
+                              index +
+                              1}
+                          </td>
+                          <td>{r.nombre}</td>
+                          <td>{r.descripcion}</td>
+                          <td>{r.puntosRequeridos}</td>
+                          <td>{r.cantidadDisponible}</td>
+                          <td>
+                            <button
+                              className="action-button edit"
+                              onClick={() => abrirModalEdicionRecompensa(r)}
+                            >
+                              Editar
+                            </button>
+                            <button
+                              className="action-button delete"
+                              onClick={() =>
+                                handleEliminarRecompensa(r.id_recompensa)
+                              }
+                            >
+                              Eliminar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 <div className="pagination">
                   <button
                     onClick={() =>
@@ -1565,50 +1578,52 @@ const ConfiguracionPage = () => {
                     Crear Insignia
                   </button>
                 </div>
-
-                <table className="config-table">
-                  <thead>
-                    <tr>
-                      <th>No.</th>
-                      <th>Nombre</th>
-                      <th>Descripción</th>
-                      <th>Puntos Requeridos</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentItemsInsignia.map((insignia, index) => (
-                      <tr key={insignia.id_insignia}>
-                        <td>
-                          {(currentPageInsignia - 1) * itemsPerPage + index + 1}
-                        </td>
-
-                        <td>{insignia.nombre}</td>
-                        <td>{insignia.descripcion}</td>
-                        <td>{insignia.puntosrequeridos}</td>
-                        <td>
-                          <button
-                            className="action-button edit"
-                            onClick={() =>
-                              abrirModalEdicion("insignia", insignia)
-                            }
-                          >
-                            Editar
-                          </button>
-                          <button
-                            className="action-button delete"
-                            onClick={() =>
-                              handleEliminarInsignia(insignia.id_insignia)
-                            }
-                          >
-                            Eliminar
-                          </button>
-                        </td>
+                <div className="table-responsive">
+                  <table className="config-table">
+                    <thead>
+                      <tr>
+                        <th>No.</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Puntos Requeridos</th>
+                        <th>Acciones</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {currentItemsInsignia.map((insignia, index) => (
+                        <tr key={insignia.id_insignia}>
+                          <td>
+                            {(currentPageInsignia - 1) * itemsPerPage +
+                              index +
+                              1}
+                          </td>
 
+                          <td>{insignia.nombre}</td>
+                          <td>{insignia.descripcion}</td>
+                          <td>{insignia.puntosrequeridos}</td>
+                          <td>
+                            <button
+                              className="action-button edit"
+                              onClick={() =>
+                                abrirModalEdicion("insignia", insignia)
+                              }
+                            >
+                              Editar
+                            </button>
+                            <button
+                              className="action-button delete"
+                              onClick={() =>
+                                handleEliminarInsignia(insignia.id_insignia)
+                              }
+                            >
+                              Eliminar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 <div className="pagination">
                   <button
                     onClick={() => paginateInsignias(currentPageInsignia - 1)}
@@ -1678,7 +1693,7 @@ const ConfiguracionPage = () => {
                     )}
 
                     {/* Condición: Solo mostrar el campo de cambiar foto si el rol no es "administrador" */}
-                    {modalData.rol !== "administrador" && (
+                    {/* {modalData.rol !== "administrador" && (
                       <>
                         <label
                           style={{
@@ -1701,7 +1716,7 @@ const ConfiguracionPage = () => {
                           style={{ marginBottom: "1rem" }}
                         />
                       </>
-                    )}
+                    )} */}
 
                     <label>Nombre</label>
                     <input
