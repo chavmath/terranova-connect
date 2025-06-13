@@ -22,6 +22,9 @@ const PerfilPage = () => {
     nuevaFotoPreview: "",
   });
   const [loading, setLoading] = useState(false);
+  const [insignias, setInsignias] = useState([]);
+  const [insigniasDestacadas, setInsigniasDestacadas] = useState([]);
+  const [showSelectInsignias, setShowSelectInsignias] = useState(false);
 
   // 📥 Cargar publicaciones + perfil
   // 1. Define la función FUERA del useEffect, pero DENTRO del componente
@@ -169,18 +172,6 @@ const PerfilPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const editInputStyle = {
-    width: "100%",
-    border: "1.2px solid #d1d6f4",
-    borderRadius: 8,
-    padding: "10px 12px",
-    marginBottom: 0,
-    fontSize: 15,
-    fontWeight: 500,
-    outline: "none",
-    background: "#f8f9fd",
   };
 
   useEffect(() => {
@@ -394,6 +385,50 @@ const PerfilPage = () => {
   };
   /* const avatarPorDefecto =
     "https://cdn-icons-png.flaticon.com/512/149/149071.png"; */
+  const cargarInsignias = async () => {
+    try {
+      const token = Cookies.get("token");
+      const res = await fetch(
+        "https://kong-7df170cea7usbksss.kongcloud.dev/reclamadas",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setInsignias(data);
+      } else {
+        setInsignias([]);
+      }
+    } catch (err) {
+      console.error("Error al cargar insignias:", err);
+      setInsignias([]);
+    }
+  };
+
+  useEffect(() => {
+    cargarInsignias();
+  }, []);
+
+  useEffect(() => {
+    // Si el usuario ya tiene destacadas guardadas en localStorage, úsalas:
+    const guardadas = localStorage.getItem("insigniasDestacadas");
+    if (guardadas) {
+      try {
+        const parsed = JSON.parse(guardadas);
+        if (Array.isArray(parsed) && parsed.length) {
+          setInsigniasDestacadas(parsed);
+        }
+      // eslint-disable-next-line no-unused-vars
+      } catch (e) { /* empty */ }
+    } else if (insignias.length) {
+      setInsigniasDestacadas(insignias.slice(0, 3).map((i) => i._id));
+    }
+  }, [insignias]);
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
@@ -402,8 +437,54 @@ const PerfilPage = () => {
       <main className="perfil-main">
         {/* PERFIL */}
         <div className="perfil-ig-header">
-          <img src={user?.foto_perfil} alt="" className="perfil-ig-avatar" />
+          {/* Insignias al lado izquierdo */}
+          <div className="perfil-badges-section">
+            <div className="perfil-badges-header">
+              <span className="perfil-badges-title">
+                Mis insignias destacadas
+              </span>
+              <button
+                className="perfil-badges-edit-btn perfil-badges-edit-icon"
+                onClick={() => setShowSelectInsignias(true)}
+                title="Editar insignias destacadas"
+              >
+                <FiEdit size={20} color="#213a91" />
+              </button>
+            </div>
+            <div className="perfil-badges-aside">
+              {insigniasDestacadas.length > 0 ? (
+                insignias
+                  .filter((ins) => insigniasDestacadas.includes(ins._id))
+                  .map((insignia) => (
+                    <div
+                      className="perfil-badge"
+                      key={insignia._id}
+                      title={insignia.descripcion}
+                    >
+                      <img
+                        src={insignia.imagenes?.[0]?.url}
+                        alt={insignia.nombre}
+                        className="perfil-badge-img"
+                      />
+                      <span className="perfil-badge-nombre">
+                        {insignia.nombre}
+                      </span>
+                    </div>
+                  ))
+              ) : (
+                <span className="perfil-badge-placeholder">
+                  Sin insignias destacadas aún
+                </span>
+              )}
+            </div>
+          </div>
 
+          {/* Foto de perfil al centro */}
+          <div className="perfil-ig-avatar-box">
+            <img src={user?.foto_perfil} alt="" className="perfil-ig-avatar" />
+          </div>
+
+          {/* Datos del usuario a la derecha */}
           <div className="perfil-ig-info">
             <h2 className="perfil-ig-nombre">
               @{user?.nombre} {user?.apellido}
@@ -436,6 +517,86 @@ const PerfilPage = () => {
             </p>
           </div>
         </div>
+        {showSelectInsignias && (
+          <div
+            className="perfil-modal-overlay"
+            onClick={() => setShowSelectInsignias(false)}
+          >
+            <div
+              className="perfil-modal-card"
+              style={{ maxWidth: 420 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="perfil-badges-modal-title">
+                Elige tus 3 insignias favoritas
+              </h3>
+              <div className="perfil-badges-list">
+                {insignias.map((ins) => {
+                  const selected = insigniasDestacadas.includes(ins._id);
+                  return (
+                    <div
+                      key={ins._id}
+                      className={`perfil-badge-select ${
+                        selected ? "selected" : ""
+                      }`}
+                      title={ins.descripcion}
+                      onClick={() => {
+                        if (selected) {
+                          setInsigniasDestacadas(
+                            insigniasDestacadas.filter((id) => id !== ins._id)
+                          );
+                        } else if (insigniasDestacadas.length < 3) {
+                          setInsigniasDestacadas([
+                            ...insigniasDestacadas,
+                            ins._id,
+                          ]);
+                        }
+                      }}
+                    >
+                      <img
+                        src={ins.imagenes?.[0]?.url}
+                        alt={ins.nombre}
+                        className="perfil-badge-img"
+                      />
+                      <span className="perfil-badge-nombre">{ins.nombre}</span>
+                      {selected && (
+                        <span className="perfil-badge-check">✔</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <button
+                className="perfil-edit-btn-save"
+                style={{ marginTop: 18 }}
+                disabled={
+                  insigniasDestacadas.length === 0 ||
+                  insigniasDestacadas.length > 3
+                }
+                onClick={() => {
+                  localStorage.setItem(
+                    "insigniasDestacadas",
+                    JSON.stringify(insigniasDestacadas)
+                  );
+                  setShowSelectInsignias(false);
+                }}
+              >
+                Guardar selección
+              </button>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "#e74c3c",
+                  marginTop: 8,
+                  textAlign: "center",
+                }}
+              >
+                {insigniasDestacadas.length > 3 &&
+                  "Solo puedes seleccionar hasta 3 insignias."}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* GALERÍA */}
         <div className="perfil-galeria">
