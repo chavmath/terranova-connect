@@ -31,7 +31,7 @@ const PublicProfilePage = () => {
     const fetchUser = async () => {
       try {
         const res = await fetch(
-          `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`,
+          `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -46,7 +46,7 @@ const PublicProfilePage = () => {
 
         // 2) Obtener seguidores y seguidos usando /seguimientos/:idPerfil
         const resSeguimiento = await fetch(
-          `https://kong-7df170cea7usbksss.kongcloud.dev/seguimientos/${userId}`,
+          `https://kong-0c858408d8us2s9oc.kongcloud.dev/seguimientos/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -92,7 +92,7 @@ const PublicProfilePage = () => {
     const fetchPublicaciones = async () => {
       try {
         const res = await fetch(
-          `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/usuario/${userId}`,
+          `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/usuario/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Agregar el token para el autor también
@@ -146,7 +146,7 @@ const PublicProfilePage = () => {
   const fetchComentarios = async (postId) => {
     try {
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${postId}/comentarios`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${postId}/comentarios`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -168,7 +168,7 @@ const PublicProfilePage = () => {
           let autor = autorCache.get(comentario.autorId);
           if (!autor) {
             const resAutor = await fetch(
-              `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${comentario.autorId}`,
+              `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${comentario.autorId}`,
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -193,7 +193,7 @@ const PublicProfilePage = () => {
   const toggleFollow = async () => {
     try {
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/seguimiento`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/seguimiento`,
         {
           method: isFollowing ? "DELETE" : "POST",
           headers: {
@@ -225,7 +225,7 @@ const PublicProfilePage = () => {
     if (!selectedPost || selectedPost.liked) return;
     try {
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${selectedPost.id}/like`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${selectedPost.id}/like`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -263,7 +263,7 @@ const PublicProfilePage = () => {
     try {
       // 1) POST para crear comentario
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${postId}/comentarios`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${postId}/comentarios`,
         {
           method: "POST",
           headers: {
@@ -295,7 +295,7 @@ const PublicProfilePage = () => {
 
       // 3) recargo los comentarios
       const resComentarios = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${postId}/comentarios`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${postId}/comentarios`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -318,7 +318,7 @@ const PublicProfilePage = () => {
           let autor = autorCache.get(comentario.autorId);
           if (!autor) {
             const resAutor = await fetch(
-              `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${comentario.autorId}`,
+              `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${comentario.autorId}`,
               {
                 headers: { Authorization: `Bearer ${token}` },
                 credentials: "include",

@@ -31,11 +31,11 @@ const ParticiparPage = () => {
       const token = Cookies.get("token");
 
       const [misRes, activasRes] = await Promise.all([
-        fetch("https://kong-7df170cea7usbksss.kongcloud.dev/misiones", {
+        fetch("https://kong-0c858408d8us2s9oc.kongcloud.dev/misiones", {
           headers: { Authorization: `Bearer ${token}` },
           credentials: "include",
         }),
-        fetch("https://kong-7df170cea7usbksss.kongcloud.dev/activas", {
+        fetch("https://kong-0c858408d8us2s9oc.kongcloud.dev/activas", {
           headers: { Authorization: `Bearer ${token}` },
           credentials: "include",
         }),
@@ -103,7 +103,7 @@ const ParticiparPage = () => {
 
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/subir",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/subir",
         {
           method: "POST",
           headers: {
@@ -182,7 +182,7 @@ const ParticiparPage = () => {
 
     try {
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/evidencia/${idInscripcionActual}`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/evidencia/${idInscripcionActual}`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -209,7 +209,7 @@ const ParticiparPage = () => {
     const token = Cookies.get("token");
     try {
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/ver-progreso/${id_inscripcion}`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/ver-progreso/${id_inscripcion}`,
         {
           headers: { Authorization: `Bearer ${token}` },
           credentials: "include",

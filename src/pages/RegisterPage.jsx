@@ -153,7 +153,7 @@ const RegisterPage = () => {
 
     try {
       const response = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/register-temp",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/register-temp",
         {
           method: "POST",
           body: formToSend,
@@ -206,7 +206,7 @@ const RegisterPage = () => {
 
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/verify-email",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/verify-email",
         {
           method: "POST",
           headers: {

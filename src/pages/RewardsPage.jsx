@@ -40,7 +40,7 @@ const RewardsPage = () => {
         const token = Cookies.get("token");
 
         const resRecompensas = await fetch(
-          "https://kong-7df170cea7usbksss.kongcloud.dev/recompensas/usuario",
+          "https://kong-0c858408d8us2s9oc.kongcloud.dev/recompensas/usuario",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -55,7 +55,7 @@ const RewardsPage = () => {
         }
 
         const resUsuario = await fetch(
-          `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`,
+          `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -80,7 +80,7 @@ const RewardsPage = () => {
             "https://cdn-icons-png.flaticon.com/512/149/149071.png",
         });
 
-        const resCanjes = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/canjes", {
+        const resCanjes = await fetch("https://kong-0c858408d8us2s9oc.kongcloud.dev/canjes", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -146,7 +146,7 @@ const RewardsPage = () => {
       console.log("Recompensa reclamada:", {
         id_recompensa: recompensaSeleccionada.id_recompensa,
       });
-      const res = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/cajerRecompensa", {
+      const res = await fetch("https://kong-0c858408d8us2s9oc.kongcloud.dev/cajerRecompensa", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

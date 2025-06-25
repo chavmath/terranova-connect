@@ -200,7 +200,7 @@ const ConfiguracionPage = () => {
 
   const obtenerUsuarios = async () => {
     const res = await fetch(
-      "https://kong-7df170cea7usbksss.kongcloud.dev/usuarios",
+      "https://kong-0c858408d8us2s9oc.kongcloud.dev/usuarios",
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -215,7 +215,7 @@ const ConfiguracionPage = () => {
 
   const obtenerActividades = async () => {
     const res = await fetch(
-      "https://kong-7df170cea7usbksss.kongcloud.dev/actividades",
+      "https://kong-0c858408d8us2s9oc.kongcloud.dev/actividades",
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -230,7 +230,7 @@ const ConfiguracionPage = () => {
 
   const obtenerMisiones = async () => {
     const res = await fetch(
-      "https://kong-7df170cea7usbksss.kongcloud.dev/misiones/admin",
+      "https://kong-0c858408d8us2s9oc.kongcloud.dev/misiones/admin",
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -250,7 +250,7 @@ const ConfiguracionPage = () => {
   const obtenerRecompensas = async () => {
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/recompensas/admin",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/recompensas/admin",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -276,7 +276,7 @@ const ConfiguracionPage = () => {
   const obtenerInsignias = async () => {
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/insignias",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/insignias",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -308,7 +308,7 @@ const ConfiguracionPage = () => {
 
     try {
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${id_usuario}`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${id_usuario}`,
         {
           method: "DELETE",
           headers: {
@@ -353,7 +353,7 @@ const ConfiguracionPage = () => {
 
     try {
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/actividad/${id}`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/actividad/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -398,7 +398,7 @@ const ConfiguracionPage = () => {
 
     try {
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/mision/${id_mision}`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/mision/${id_mision}`,
         {
           method: "DELETE",
           headers: {
@@ -441,7 +441,7 @@ const ConfiguracionPage = () => {
 
     try {
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/recompensa/${id}`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/recompensa/${id}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -475,7 +475,7 @@ const ConfiguracionPage = () => {
 
     try {
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/insignia/${id_insignia}`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/insignia/${id_insignia}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -506,7 +506,7 @@ const ConfiguracionPage = () => {
 
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/crear-admin",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/crear-admin",
         {
           method: "POST",
           headers: {
@@ -558,7 +558,7 @@ const ConfiguracionPage = () => {
 
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/actividad",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/actividad",
         {
           method: "POST",
           headers: {
@@ -610,7 +610,7 @@ const ConfiguracionPage = () => {
 
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/mision",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/mision",
         {
           method: "POST",
           headers: {
@@ -687,7 +687,7 @@ const ConfiguracionPage = () => {
       }
 
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/recompensa",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/recompensa",
         {
           method: "POST",
           headers: {
@@ -747,7 +747,7 @@ const ConfiguracionPage = () => {
       }
 
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/insignia",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/insignia",
         {
           method: "POST",
           headers: {
@@ -870,7 +870,7 @@ const ConfiguracionPage = () => {
 
       // 5) Disparamos el PUT
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${id_usuario}`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${id_usuario}`,
         {
           method: "PUT",
           headers: {
@@ -912,7 +912,7 @@ const ConfiguracionPage = () => {
     }
 
     const res = await fetch(
-      `https://kong-7df170cea7usbksss.kongcloud.dev/actividad/${id_actividad}`,
+      `https://kong-0c858408d8us2s9oc.kongcloud.dev/actividad/${id_actividad}`,
       {
         method: "PUT",
         headers: {
@@ -950,7 +950,7 @@ const ConfiguracionPage = () => {
     }
 
     const res = await fetch(
-      `https://kong-7df170cea7usbksss.kongcloud.dev/mision/${id_mision}`,
+      `https://kong-0c858408d8us2s9oc.kongcloud.dev/mision/${id_mision}`,
       {
         method: "PUT",
         headers: {
@@ -1003,7 +1003,7 @@ const ConfiguracionPage = () => {
       }
 
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/recompensa/${id_recompensa}`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/recompensa/${id_recompensa}`,
         {
           method: "PUT",
           headers: {
@@ -1055,7 +1055,7 @@ const ConfiguracionPage = () => {
       }
 
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/insignia/${id_insignia}`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/insignia/${id_insignia}`,
         {
           method: "PUT",
           headers: {

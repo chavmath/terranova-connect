@@ -33,7 +33,7 @@ const PerfilPage = () => {
       const token = Cookies.get("token");
       const [pubsRes, userRes] = await Promise.all([
         fetch(
-          "https://kong-7df170cea7usbksss.kongcloud.dev/mis-publicaciones",
+          "https://kong-0c858408d8us2s9oc.kongcloud.dev/mis-publicaciones",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -42,7 +42,7 @@ const PerfilPage = () => {
             credentials: "include",
           }
         ),
-        fetch("https://kong-7df170cea7usbksss.kongcloud.dev/profile", {
+        fetch("https://kong-0c858408d8us2s9oc.kongcloud.dev/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -58,7 +58,7 @@ const PerfilPage = () => {
         setPublicaciones(publicacionesData);
         setUser(userData);
         const seguimientoRes = await fetch(
-          `https://kong-7df170cea7usbksss.kongcloud.dev/seguidores-contar`,
+          `https://kong-0c858408d8us2s9oc.kongcloud.dev/seguidores-contar`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -145,7 +145,7 @@ const PerfilPage = () => {
       form.append("correo", correo);
 
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${userId}`,
         {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },
@@ -181,7 +181,7 @@ const PerfilPage = () => {
 
       try {
         const res = await fetch(
-          `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${selectedPost.id_publicacion}/comentarios`,
+          `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${selectedPost.id_publicacion}/comentarios`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
@@ -207,7 +207,7 @@ const PerfilPage = () => {
 
             if (!autor) {
               const resAutor = await fetch(
-                `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${comentario.autorId}`,
+                `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${comentario.autorId}`,
                 {
                   headers: {
                     Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
@@ -262,7 +262,7 @@ const PerfilPage = () => {
     const token = Cookies.get("token");
     // Llamada al backend
     fetch(
-      `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${selectedPost.id_publicacion}/like`,
+      `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${selectedPost.id_publicacion}/like`,
       {
         headers: {
           Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
@@ -283,7 +283,7 @@ const PerfilPage = () => {
     const token = Cookies.get("token");
     try {
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${selectedPost.id_publicacion}/comentarios`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${selectedPost.id_publicacion}/comentarios`,
         {
           method: "POST",
           headers: {
@@ -304,7 +304,7 @@ const PerfilPage = () => {
 
         // Vuelve a cargar todos los comentarios incluyendo autor
         const resComentarios = await fetch(
-          `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${selectedPost.id_publicacion}/comentarios`,
+          `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${selectedPost.id_publicacion}/comentarios`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
@@ -323,7 +323,7 @@ const PerfilPage = () => {
 
               if (!autor) {
                 const resAutor = await fetch(
-                  `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${comentario.autorId}`,
+                  `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${comentario.autorId}`,
                   {
                     headers: {
                       Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
@@ -389,7 +389,7 @@ const PerfilPage = () => {
     try {
       const token = Cookies.get("token");
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/reclamadas",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/reclamadas",
         {
           headers: {
             Authorization: `Bearer ${token}`,

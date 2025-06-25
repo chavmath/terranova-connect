@@ -43,7 +43,7 @@ const FeedPage = () => {
 
       try {
         const res = await fetch(
-          `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones`,
+          `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones`,
           {
             method: "GET",
             headers: {
@@ -65,7 +65,7 @@ const FeedPage = () => {
             if (!autor) {
               try {
                 const resAutor = await fetch(
-                  `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${pub.autorId}`,
+                  `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${pub.autorId}`,
                   {
                     method: "GET",
                     headers: {
@@ -124,7 +124,7 @@ const FeedPage = () => {
 
     try {
       await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${id_publicacion}/like`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${id_publicacion}/like`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -173,7 +173,7 @@ const FeedPage = () => {
 
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones",
         {
           method: "POST",
           headers: {
@@ -190,7 +190,7 @@ const FeedPage = () => {
       if (res.ok) {
         try {
           const resAutor = await fetch(
-            `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${data.autorId}`,
+            `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${data.autorId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -247,7 +247,7 @@ const FeedPage = () => {
     const token = Cookies.get("token");
     try {
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${id_publicacion}/comentarios`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${id_publicacion}/comentarios`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -272,7 +272,7 @@ const FeedPage = () => {
           if (!autor) {
             try {
               const resAutor = await fetch(
-                `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${comentario.autorId}`,
+                `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${comentario.autorId}`,
                 {
                   headers: {
                     Authorization: `Bearer ${token}`,
@@ -320,7 +320,7 @@ const FeedPage = () => {
     try {
       const token = Cookies.get("token");
       const res = await fetch(
-        `https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones/${id_publicacion}/comentarios`,
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${id_publicacion}/comentarios`,
         {
           method: "POST",
           headers: {

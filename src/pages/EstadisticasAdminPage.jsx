@@ -55,7 +55,7 @@ const EstadisticasPage = () => {
   const obtenerUsuarios = async () => {
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/usuarios",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/usuarios",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -74,7 +74,7 @@ const EstadisticasPage = () => {
  /*  const obtenerMisiones = async () => {
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/misiones/admin",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/misiones/admin",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -93,7 +93,7 @@ const EstadisticasPage = () => {
   const obtenerPublicaciones = async () => {
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/publicaciones",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -112,7 +112,7 @@ const EstadisticasPage = () => {
   const obtenerRecompensas = async () => {
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/recompensas/admin",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/recompensas/admin",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -130,7 +130,7 @@ const EstadisticasPage = () => {
   const obtenerRanking = async () => {
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/ranking",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/ranking",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -144,7 +144,7 @@ const EstadisticasPage = () => {
   const obtenerCanjes = async () => {
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/canjes",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/canjes",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -297,7 +297,7 @@ const EstadisticasPage = () => {
       if (publicacionConMasLikes && publicacionConMasLikes.autorId) {
         try {
           const res = await fetch(
-            `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${publicacionConMasLikes.autorId}`,
+            `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${publicacionConMasLikes.autorId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,

@@ -43,7 +43,7 @@ const DashboardPage = () => {
     const fetchData = async () => {
       try {
         // 1) Datos del usuario
-        const resUser = await fetch(`https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`, {
+        const resUser = await fetch(`https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
           credentials: "include",
         });
@@ -53,7 +53,7 @@ const DashboardPage = () => {
 
         // 3) Estadísticas de misiones
         const resMissions = await fetch(
-          "https://kong-7df170cea7usbksss.kongcloud.dev/misiones-estadisticas",
+          "https://kong-0c858408d8us2s9oc.kongcloud.dev/misiones-estadisticas",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -64,7 +64,7 @@ const DashboardPage = () => {
 
         // 4) Estadísticas de insignias
         const resBadges = await fetch(
-          "https://kong-7df170cea7usbksss.kongcloud.dev/insignias-reclamadas-estadisticas",
+          "https://kong-0c858408d8us2s9oc.kongcloud.dev/insignias-reclamadas-estadisticas",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -75,7 +75,7 @@ const DashboardPage = () => {
 
         // 5) Publicaciones
         const resPosts = await fetch(
-          "https://kong-7df170cea7usbksss.kongcloud.dev/mis-publicaciones",
+          "https://kong-0c858408d8us2s9oc.kongcloud.dev/mis-publicaciones",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -84,7 +84,7 @@ const DashboardPage = () => {
         const postsData = await resPosts.json();
         setPosts(postsData);
 
-        const resActivities = await fetch("https://kong-7df170cea7usbksss.kongcloud.dev/actividades", {
+        const resActivities = await fetch("https://kong-0c858408d8us2s9oc.kongcloud.dev/actividades", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!resActivities.ok) throw new Error("Error al cargar actividades");

@@ -37,7 +37,7 @@ const LoginPage = () => {
 
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/login",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -87,7 +87,7 @@ const LoginPage = () => {
 
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/2fa",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/2fa",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -151,7 +151,7 @@ const LoginPage = () => {
 
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/admin/login",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/admin/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -203,7 +203,7 @@ const LoginPage = () => {
 
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/solicitar-cambio-contrasenia",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/solicitar-cambio-contrasenia",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -254,7 +254,7 @@ const LoginPage = () => {
 
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/cambiar-contrasenia",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/cambiar-contrasenia",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -308,7 +308,7 @@ const LoginPage = () => {
 
     try {
       const res = await fetch(
-        "https://kong-7df170cea7usbksss.kongcloud.dev/solicitar-nuevo-codigo-admin",
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/solicitar-nuevo-codigo-admin",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
