@@ -68,7 +68,7 @@ const Sidebar = () => {
         (async () => {
           try {
             const res = await fetch(
-              `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`,
+              `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${userId}`,
               {
                 headers: { Authorization: `Bearer ${token}` },
                 credentials: "include",
@@ -93,7 +93,7 @@ const Sidebar = () => {
         (async () => {
           try {
             const res = await fetch(
-              `https://kong-7df170cea7usbksss.kongcloud.dev/usuario/${userId}`,
+              `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${userId}`,
               {
                 headers: { Authorization: `Bearer ${token}` },
                 credentials: "include",
