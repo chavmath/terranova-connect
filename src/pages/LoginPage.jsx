@@ -19,6 +19,8 @@ const LoginPage = () => {
   const [mostrarRecuperacion, setMostrarRecuperacion] = useState(false);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalAdmin, setMostrarModalAdmin] = useState(false);
+  const [loadingCambiarContrasenia, setLoadingCambiarContrasenia] =
+    useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -242,6 +244,7 @@ const LoginPage = () => {
 
   const handleCambiarContrasenia = async (e) => {
     e.preventDefault();
+    setLoadingCambiarContrasenia(true);
 
     /*if (nuevoCodigo !== codigoRecuperacion) {
       Swal.fire({
@@ -288,6 +291,8 @@ const LoginPage = () => {
         title: "Error del servidor",
         text: "Hubo un error al cambiar la contraseña." + error,
       });
+    } finally {
+      setLoadingCambiarContrasenia(false);
     }
   };
 
@@ -469,7 +474,7 @@ const LoginPage = () => {
 
         {/* Modal para cambiar contraseña */}
         {mostrarModal && (
-          <div className="modal-overlay">
+          <div className="modal-login-overlay">
             <div className="modal-login">
               <h3>Cambiar Contraseña</h3>
               <form onSubmit={handleCambiarContrasenia}>
@@ -493,7 +498,14 @@ const LoginPage = () => {
                   required
                 />
 
-                <button type="submit">Cambiar Contraseña</button>
+                <button type="submit" disabled={loadingCambiarContrasenia}>
+                  {loadingCambiarContrasenia ? (
+                    <span className="loader-button"></span>
+                  ) : (
+                    "Cambiar Contraseña"
+                  )}
+                </button>
+
                 <button type="button" onClick={() => setMostrarModal(false)}>
                   Cancelar
                 </button>
@@ -504,7 +516,7 @@ const LoginPage = () => {
 
         {/* Modal para recuperar código de administrador */}
         {mostrarModalAdmin && (
-          <div className="modal-overlay">
+          <div className="modal-login-overlay">
             <div className="modal-login">
               <h3>Recuperar código de administrador</h3>
               <form onSubmit={handleRecuperarCodigoAdminSubmit}>
