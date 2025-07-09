@@ -25,6 +25,7 @@ const PerfilPage = () => {
   const [insignias, setInsignias] = useState([]);
   const [insigniasDestacadas, setInsigniasDestacadas] = useState([]);
   const [showSelectInsignias, setShowSelectInsignias] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
 
   // 📥 Cargar publicaciones + perfil
   // 1. Define la función FUERA del useEffect, pero DENTRO del componente
@@ -364,6 +365,74 @@ const PerfilPage = () => {
     }
   };
 
+  const handleEliminarPublicacion = async () => {
+    Swal.fire({
+      title: "¿Eliminar publicación?",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      customClass: {
+        popup: "swal-z-index-custom",
+      },
+    }).then(async (result) => {
+      if (!result.isConfirmed) return;
+
+      try {
+        const token = Cookies.get("token");
+        const res = await fetch(
+          `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${selectedPost.id_publicacion}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
+
+        if (res.ok) {
+          Swal.fire({
+            title: "Eliminado",
+            text: "La publicación fue eliminada.",
+            icon: "success",
+            customClass: {
+              popup: "swal-z-index-custom",
+            },
+          });
+          setSelectedPost(null);
+          setPublicaciones((prev) =>
+            prev.filter((p) => p.id_publicacion !== selectedPost.id_publicacion)
+          );
+        } else {
+          const data = await res.json();
+          Swal.fire({
+            title: "Error",
+            text: data.message || "No se pudo eliminar.",
+            icon: "error",
+            customClass: {
+              popup: "swal-z-index-custom",
+            },
+          });
+        }
+      } catch (err) {
+        Swal.fire({
+          title: "Error",
+          text: "Error de red al eliminar publicación",
+          icon: "error",
+          customClass: {
+            popup: "swal-z-index-custom",
+          },
+        });
+      }
+    });
+
+    setShowOptions(false);
+  };
+
   const tiempoTranscurrido = (fecha) => {
     const ahora = new Date();
     const publicada = new Date(fecha);
@@ -423,8 +492,10 @@ const PerfilPage = () => {
         if (Array.isArray(parsed) && parsed.length) {
           setInsigniasDestacadas(parsed);
         }
-      // eslint-disable-next-line no-unused-vars
-      } catch (e) { /* empty */ }
+        // eslint-disable-next-line no-unused-vars
+      } catch (e) {
+        /* empty */
+      }
     } else if (insignias.length) {
       setInsigniasDestacadas(insignias.slice(0, 3).map((i) => i._id));
     }
@@ -519,7 +590,7 @@ const PerfilPage = () => {
         </div>
         {showSelectInsignias && (
           <div
-            className="perfil-modal-overlay"
+            className="perfil-insignia-modal-overlay"
             onClick={() => setShowSelectInsignias(false)}
           >
             <div
@@ -625,7 +696,7 @@ const PerfilPage = () => {
 
       {/* MODAL */}
       {selectedPost && (
-        <div className="modal-overlay" onClick={() => setSelectedPost(null)}>
+        <div className="modal-overlay-perfil" onClick={() => setSelectedPost(null)}>
           <div className="modal-instagram" onClick={(e) => e.stopPropagation()}>
             <div className="modal-left">
               <img
@@ -648,16 +719,39 @@ const PerfilPage = () => {
                 <span className="ig-username">
                   @{user?.nombre} {user?.apellido}
                 </span>
-                <button
-                  className="ig-close-button"
-                  onClick={() => {
-                    setSelectedPost(null);
-                    setNuevoComentario("");
-                  }}
-                >
-                  ✖
-                </button>
+
+                <div className="ig-header-actions">
+                  <button
+                    className="ig-options-button"
+                    onClick={() => setShowOptions((prev) => !prev)}
+                    title="Opciones"
+                  >
+                    ⋯
+                  </button>
+                  {showOptions && (
+                    <div className="ig-options-dropdown">
+                      <button
+                        className="ig-options-item"
+                        onClick={handleEliminarPublicacion}
+                      >
+                        🗑 Eliminar publicación
+                      </button>
+                    </div>
+                  )}
+
+                  <button
+                    className="ig-close-button"
+                    onClick={() => {
+                      setSelectedPost(null);
+                      setNuevoComentario("");
+                      setShowOptions(false);
+                    }}
+                  >
+                    ✖
+                  </button>
+                </div>
               </div>
+
               <hr />
 
               {/* Descripción */}

@@ -91,7 +91,7 @@
 }
 
 /* ===== MODAL INSTAGRAM ===== */
-.modal-overlay {
+.modal-overlay-perfil {
   position: fixed;
   top: 0;
   left: 0;
@@ -101,7 +101,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1300;
+  z-index: 1000;
 }
 
 .modal-instagram {
@@ -461,7 +461,7 @@
 }
 
 /* === Modal overlay === */
-.perfil-modal-overlay {
+.perfil-insignia-modal-overlay {
   position: fixed;
   z-index: 1000;
   inset: 0;
@@ -835,4 +835,49 @@
   display: flex;
   align-items: flex-start;
   gap: 2rem;
+}
+.ig-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  position: relative;
+}
+
+.ig-options-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  color: #333;
+}
+
+.ig-options-dropdown {
+  position: absolute;
+  top: 28px;
+  right: 32px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+.ig-options-item {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.ig-options-item:hover {
+  background-color: #f2f2f2;
+}
+
+.swal-z-index-custom {
+  z-index: 9999 !important;
 }

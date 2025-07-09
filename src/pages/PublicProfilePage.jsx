@@ -20,6 +20,8 @@ const PublicProfilePage = () => {
   const [followersCount, setFollowersCount] = useState(0);
   const [seguidos, setSeguidos] = useState([]); // Nuevo estado para seguidos
   const [loading, setLoading] = useState(true);
+  const [insigniasDestacadas, setInsigniasDestacadas] = useState([]);
+  const [insignias, setInsignias] = useState([]);
 
   useEffect(() => {
     if (!userId) {
@@ -125,8 +127,36 @@ const PublicProfilePage = () => {
       }
     };
 
+    const fetchInsigniasReclamadas = async () => {
+      try {
+        const res = await fetch(
+          `https://kong-0c858408d8us2s9oc.kongcloud.dev/reclamadas/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
+
+        if (!res.ok) throw new Error("No se pudieron obtener las insignias");
+
+        const data = await res.json();
+        setInsignias(data); // Aquí actualizas el estado con todas las insignias reclamadas
+
+        // Opcional: Si deseas destacar las 3 primeras por ejemplo
+        const idsDestacadas = data.slice(0, 3).map((ins) => ins._id);
+        setInsigniasDestacadas(idsDestacadas);
+      } catch (err) {
+        console.warn("Error al obtener insignias:", err);
+        setInsignias([]);
+      }
+    };
+
     fetchUser();
     fetchPublicaciones();
+    fetchInsigniasReclamadas();
   }, [userId, token, navigate]);
 
   if (loading)
@@ -366,6 +396,39 @@ const PublicProfilePage = () => {
       <main className="perfil-main">
         {/* Header */}
         <div className="perfil-ig-header">
+          <div className="perfil-badges-section">
+            <div className="perfil-badges-header">
+              <span className="perfil-badges-title">
+                Insignias Destacadas
+              </span>
+            </div>
+            <div className="perfil-badges-aside">
+              {insigniasDestacadas.length > 0 ? (
+                insignias
+                  .filter((ins) => insigniasDestacadas.includes(ins._id))
+                  .map((insignia) => (
+                    <div
+                      className="perfil-badge"
+                      key={insignia._id}
+                      title={insignia.descripcion}
+                    >
+                      <img
+                        src={insignia.imagenes?.[0]?.url}
+                        alt={insignia.nombre}
+                        className="perfil-badge-img"
+                      />
+                      <span className="perfil-badge-nombre">
+                        {insignia.nombre}
+                      </span>
+                    </div>
+                  ))
+              ) : (
+                <span className="perfil-badge-placeholder">
+                  Sin insignias destacadas aún
+                </span>
+              )}
+            </div>
+          </div>
           <img
             src={
               user.foto_perfil?.[0]?.url
