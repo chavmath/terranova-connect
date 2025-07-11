@@ -6,6 +6,9 @@ import logo from "../assets/logo_azul.png";
 import "../styles/dashboard.css";
 import { FaTasks, FaMedal, FaBullhorn } from "react-icons/fa";
 import { PacmanLoader } from "react-spinners";
+import slider1 from "../assets/colegio.jpg";
+import slider2 from "../assets/estudiantes.jpg";
+import slider3 from "../assets/juraBandera.jpg";
 
 const getCurrentUserId = () => {
   const token = Cookies.get("token");
@@ -27,12 +30,21 @@ const DashboardPage = () => {
   const [user, setUser] = useState(null);
   const [missions, setMissions] = useState(null);
   const [badges, setBadges] = useState(null);
-  const [posts, setPosts] = useState([]);
+  /* const [posts, setPosts] = useState([]); */
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const userId = getCurrentUserId();
   const token = Cookies.get("token");
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % 3);
+    }, 3000); // cambia cada 3 segundos
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (!token || !userId) {
@@ -43,10 +55,13 @@ const DashboardPage = () => {
     const fetchData = async () => {
       try {
         // 1) Datos del usuario
-        const resUser = await fetch(`https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-          credentials: "include",
-        });
+        const resUser = await fetch(
+          `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${userId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            credentials: "include",
+          }
+        );
         if (!resUser.ok) throw new Error("Error al cargar usuario");
         const userData = await resUser.json();
         setUser(userData);
@@ -74,7 +89,7 @@ const DashboardPage = () => {
         setBadges(badgesData);
 
         // 5) Publicaciones
-        const resPosts = await fetch(
+       /*  const resPosts = await fetch(
           "https://kong-0c858408d8us2s9oc.kongcloud.dev/mis-publicaciones",
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -82,11 +97,14 @@ const DashboardPage = () => {
         );
         if (!resPosts.ok) throw new Error("Error al cargar publicaciones");
         const postsData = await resPosts.json();
-        setPosts(postsData);
+        setPosts(postsData); */
 
-        const resActivities = await fetch("https://kong-0c858408d8us2s9oc.kongcloud.dev/actividades", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const resActivities = await fetch(
+          "https://kong-0c858408d8us2s9oc.kongcloud.dev/actividades",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         if (!resActivities.ok) throw new Error("Error al cargar actividades");
         const activitiesData = await resActivities.json();
 
@@ -120,7 +138,7 @@ const DashboardPage = () => {
 
   const { reclamadas = 0, insigniasTotales = 0 } = badges || {};
 
-  const publicacionesCompartidas = posts.length;
+ /*  const publicacionesCompartidas = posts.length; */
 
   const now = new Date();
   const hour = now.getHours();
@@ -152,62 +170,85 @@ const DashboardPage = () => {
           <p className="dashboard-subtitle">{formattedDate}</p>
         </div>
 
-        {/* Bienvenida */}
-        <div className="welcome-box">
-          <img src={avatarUrl} alt="Avatar" className="welcome-avatar" />
-          <div>
-            <h2 className="welcome-text">
-              {greeting},{" "}
-              <strong>
-                {user.nombre} {user.apellido}
-              </strong>
-            </h2>
-            <p className="role-text">
-              Rol asignado: <strong>{user.rol.toUpperCase()}</strong>
-            </p>
-          </div>
-        </div>
+        <div className="dashboard-body">
+          {/* Columna izquierda */}
+          <div className="dashboard-column-left">
+            <div className="welcome-box">
+              <img src={avatarUrl} alt="Avatar" className="welcome-avatar" />
+              <div>
+                <h2 className="welcome-text">
+                  {greeting},{" "}
+                  <strong>
+                    {user.nombre} {user.apellido}
+                  </strong>
+                </h2>
+                <p className="role-text">
+                  Rol asignado: <strong>{user.rol.toUpperCase()}</strong>
+                </p>
+              </div>
+            </div>
 
-        {/* Estadísticas */}
-        <div className="card-container">
-          <div className="dashboard-card">
-            <FaTasks className="icon" />
-            <h3>Misiones Inscritas</h3>
-            <p>
-              {misionesCompletadas} completadas de{" "}
-              {misionesCompletadas + misionesPendientes}
-            </p>
-          </div>
-          <div className="dashboard-card">
-            <FaMedal className="icon" />
-            <h3>Insignias</h3>
-            <p>
-              {reclamadas} reclamadas de {insigniasTotales}
-            </p>
-          </div>
-          <div className="dashboard-card">
-            <FaBullhorn className="icon" />
-            <h3>Publicaciones</h3>
-            <p>{publicacionesCompartidas} publicadas</p>
-          </div>
-        </div>
+            <div className="card-row-inline">
+              <div className="dashboard-card">
+                <FaTasks className="icon" />
+                <h3>Misiones Inscritas</h3>
+                <p>
+                  {misionesCompletadas} completadas de{" "}
+                  {misionesCompletadas + misionesPendientes}
+                </p>
+              </div>
+              <div className="dashboard-card">
+                <FaMedal className="icon" />
+                <h3>Insignias</h3>
+                <p>
+                  {reclamadas} reclamadas de {insigniasTotales}
+                </p>
+              </div>
+            </div>
 
-        {/* Actividades próximas */}
-        <div className="dashboard-grid">
-          <div className="dashboard-section">
-            <h3 className="section-title">Actividades próximas</h3>
-            <ul className="recent-list">
-              {activities.length > 0 ? (
-                activities.map((activity, i) => (
-                  <li key={i}>
-                    <strong>{activity.titulo}</strong>: {activity.descripcion} -{" "}
-                    {formatDate(activity.fechaInicio)}
-                  </li>
-                ))
-              ) : (
-                <li>No hay actividades próximas</li>
-              )}
-            </ul>
+            <div className="dashboard-section actividades-box">
+              <h3 className="section-title">Actividades próximas</h3>
+              <ul className="recent-list">
+                {activities.length > 0 ? (
+                  activities.map((activity, i) => (
+                    <li key={i}>
+                      <strong>{activity.titulo}</strong>: {activity.descripcion}{" "}
+                      - {formatDate(activity.fechaInicio)}
+                    </li>
+                  ))
+                ) : (
+                  <li>No hay actividades próximas</li>
+                )}
+              </ul>
+            </div>
+          </div>
+
+          {/* Columna derecha con el slider */}
+          <div className="dashboard-column-right">
+            <div className="carousel-container">
+              <div
+                className="carousel-track"
+                style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+              >
+                {[slider1, slider2, slider3].map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    className="carousel-image"
+                    alt={`slide-${index}`}
+                  />
+                ))}
+              </div>
+              <div className="carousel-dots">
+                {[0, 1, 2].map((index) => (
+                  <span
+                    key={index}
+                    className={`dot ${currentIndex === index ? "active" : ""}`}
+                    onClick={() => setCurrentIndex(index)}
+                  ></span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </main>
