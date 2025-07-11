@@ -418,6 +418,7 @@ const PerfilPage = () => {
             },
           });
         }
+      // eslint-disable-next-line no-unused-vars
       } catch (err) {
         Swal.fire({
           title: "Error",
