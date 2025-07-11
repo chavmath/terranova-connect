@@ -8,7 +8,7 @@ import { FaTasks, FaMedal, FaBullhorn } from "react-icons/fa";
 import { PacmanLoader } from "react-spinners";
 import slider1 from "../assets/colegio.jpg";
 import slider2 from "../assets/estudiantes.jpg";
-import slider3 from "../assets/juraBandera.jpg";
+import slider3 from "../assets/juraBandera1.jpg";
 
 const getCurrentUserId = () => {
   const token = Cookies.get("token");
