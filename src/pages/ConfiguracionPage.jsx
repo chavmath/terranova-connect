@@ -743,7 +743,7 @@ const ConfiguracionPage = () => {
       formData.append("puntosrequeridos", puntosrequeridos);
 
       if (nuevaImagen) {
-        formData.append("insignia", nuevaImagen);
+        formData.append("imagen", nuevaImagen);
       }
 
       const res = await fetch(
