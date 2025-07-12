@@ -5,6 +5,18 @@ import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import { FiEdit } from "react-icons/fi";
 
+const getUserRole = () => {
+  const token = Cookies.get("token");
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(
+      atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))
+    );
+    return payload.rol || null;
+  } catch {
+    return null;
+  }
+};
 const PerfilPage = () => {
   const [publicaciones, setPublicaciones] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -26,6 +38,7 @@ const PerfilPage = () => {
   const [insigniasDestacadas, setInsigniasDestacadas] = useState([]);
   const [showSelectInsignias, setShowSelectInsignias] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const userRole = getUserRole();
 
   // 📥 Cargar publicaciones + perfil
   // 1. Define la función FUERA del useEffect, pero DENTRO del componente
@@ -418,7 +431,7 @@ const PerfilPage = () => {
             },
           });
         }
-      // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars
       } catch (err) {
         Swal.fire({
           title: "Error",
@@ -511,18 +524,20 @@ const PerfilPage = () => {
         <div className="perfil-ig-header">
           {/* Insignias al lado izquierdo */}
           <div className="perfil-badges-section">
-            <div className="perfil-badges-header">
-              <span className="perfil-badges-title">
-                Mis insignias destacadas
-              </span>
-              <button
-                className="perfil-badges-edit-btn perfil-badges-edit-icon"
-                onClick={() => setShowSelectInsignias(true)}
-                title="Editar insignias destacadas"
-              >
-                <FiEdit size={20} color="#213a91" />
-              </button>
-            </div>
+            {userRole !== "profesor" && (
+              <div className="perfil-badges-header">
+                <span className="perfil-badges-title">
+                  Mis insignias destacadas
+                </span>
+                <button
+                  className="perfil-badges-edit-btn perfil-badges-edit-icon"
+                  onClick={() => setShowSelectInsignias(true)}
+                  title="Editar insignias destacadas"
+                >
+                  <FiEdit size={20} color="#213a91" />
+                </button>
+              </div>
+            )}
             <div className="perfil-badges-aside">
               {insigniasDestacadas.length > 0 ? (
                 insignias
@@ -697,7 +712,10 @@ const PerfilPage = () => {
 
       {/* MODAL */}
       {selectedPost && (
-        <div className="modal-overlay-perfil" onClick={() => setSelectedPost(null)}>
+        <div
+          className="modal-overlay-perfil"
+          onClick={() => setSelectedPost(null)}
+        >
           <div className="modal-instagram" onClick={(e) => e.stopPropagation()}>
             <div className="modal-left">
               <img

@@ -1743,6 +1743,7 @@ const ConfiguracionPage = () => {
                         setModalData({ ...modalData, correo: e.target.value })
                       }
                       placeholder="Correo"
+                      disabled
                     />
                     <label>Rol</label>
                     <select
@@ -1751,6 +1752,7 @@ const ConfiguracionPage = () => {
                         setModalData({ ...modalData, rol: e.target.value })
                       }
                       className="modal-select"
+                      disabled
                     >
                       <option value="">Seleccionar rol</option>
                       <option value="profesor">Profesor</option>

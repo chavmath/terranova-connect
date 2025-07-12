@@ -1,7 +1,7 @@
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import Cookies from "js-cookie";
-import Swal from "sweetalert2"; // 👈 importa SweetAlert2
+import Swal from "sweetalert2";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import ParticiparPage from "./pages/ParticiparPage";
@@ -21,6 +21,7 @@ import EstadisticasAdminPage from "./pages/EstadisticasAdminPage";
 import InsigniasPage from "./pages/InsigniasPage";
 import FeedParents from "./pages/FeedParents";
 import RutaPadre from "./components/RutaPadre";
+import RutaProfesor from "./components/RutaProfesor";
 
 function App() {
   const navigate = useNavigate();
@@ -83,6 +84,7 @@ function App() {
       <Route path="/estadisticas-admin" element={<RutaAdmin> <EstadisticasAdminPage /></RutaAdmin>} />
       <Route path="/insignias" element={<RutaProtegida> <InsigniasPage /></RutaProtegida>} />
       <Route path="/publicacionesp" element={<RutaPadre> <FeedParents /></RutaPadre>} />
+      <Route path="/estadisticasp" element={<RutaProfesor> <EstadisticasAdminPage /></RutaProfesor>} />
     </Routes>
   );
 }

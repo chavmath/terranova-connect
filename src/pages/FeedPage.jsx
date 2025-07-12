@@ -8,16 +8,19 @@ import { PacmanLoader } from "react-spinners";
 
 const getCurrentUserId = () => {
   const token = Cookies.get("token");
-  if (!token) return null;
+  if (!token) {
+    console.log("Token no encontrado");
+    return null;
+  }
+
   try {
-    const payloadBase64 = token.split(".")[1];
-    const jsonPayload = atob(
-      payloadBase64.replace(/-/g, "+").replace(/_/g, "/")
-    );
-    const { id } = JSON.parse(jsonPayload);
-    return id;
-  } catch (err) {
-    console.error("Error decodificando token:", err);
+    const payload = token.split(".")[1];
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = JSON.parse(atob(base64));
+    const userId = decoded.id_usuario || decoded.id;
+    return userId || null;
+  } catch (error) {
+    console.error("Error al decodificar el token:", error);
     return null;
   }
 };
@@ -35,8 +38,8 @@ const FeedPage = () => {
   const [loading, setLoading] = useState(false);
   const [cantidadMostrar, setCantidadMostrar] = useState(5);
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
-  // Fetch todas las publicaciones solo una vez (sin paginación backend)
   useEffect(() => {
     const fetchPublicaciones = async () => {
       setLoading(true);
@@ -44,7 +47,7 @@ const FeedPage = () => {
 
       try {
         const res = await fetch(
-          `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones`, // sin page ni size
+          `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones`,
           {
             method: "GET",
             headers: {
@@ -89,6 +92,7 @@ const FeedPage = () => {
         );
 
         setPublicaciones(publicacionesConAutor);
+        // eslint-disable-next-line no-unused-vars
       } catch (error) {
         Swal.fire(
           "Error",
@@ -103,12 +107,42 @@ const FeedPage = () => {
     fetchPublicaciones();
   }, []);
 
-  // Función para mostrar más publicaciones (de 5 en 5)
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = Cookies.get("token");
+      const userId = getCurrentUserId();
+
+      if (!userId || !token) return;
+
+      try {
+        const res = await fetch(
+          `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${userId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            credentials: "include",
+          }
+        );
+
+        if (!res.ok) throw new Error("Error al obtener datos del usuario");
+
+        const data = await res.json();
+        setUser(data);
+      } catch (err) {
+        console.error("Error al obtener datos del usuario:", err);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+  if (user) {
+    // eslint-disable-next-line no-unused-vars
+    const { nombre, apellido, correo, rol: userRol, foto_perfil } = user;
+  }
+
   const mostrarMas = () => {
     setCantidadMostrar((prev) => prev + 5);
   };
 
-  // Like toggle (igual que antes)
   const toggleLike = async (id_publicacion) => {
     const updated = publicaciones.map((pub) =>
       pub.id_publicacion === id_publicacion
@@ -153,7 +187,6 @@ const FeedPage = () => {
     }
   };
 
-  // Crear publicación (igual que antes)
   const handlePublicar = async () => {
     if (!nuevaDescripcion || !archivos?.length) {
       Swal.fire("Error", "Todos los campos son obligatorios", "error");
@@ -209,6 +242,8 @@ const FeedPage = () => {
           const nuevaPublicacion = {
             ...data,
             autor,
+            cantidadLikes: 0,
+            meGusta: false,
           };
 
           setPublicaciones([nuevaPublicacion, ...publicaciones]);
@@ -247,7 +282,6 @@ const FeedPage = () => {
     setPreviewActivo(null);
   };
 
-  // Cargar comentarios (igual)
   const cargarComentarios = async (id_publicacion) => {
     const token = Cookies.get("token");
     try {
@@ -463,7 +497,8 @@ const FeedPage = () => {
               {comentarios[pub.id_publicacion]?.map((c) => (
                 <div key={c.id_comentario} className="feed-comentario">
                   <strong>
-                    @{c.autor?.nombre || "usuario"} {c.autor?.apellido || "usuario"}
+                    @{c.autor?.nombre || "usuario"}{" "}
+                    {c.autor?.apellido || "usuario"}
                   </strong>{" "}
                   {c.texto}
                 </div>
@@ -514,11 +549,12 @@ const FeedPage = () => {
           </div>
         )}
 
-        {publicaciones.length > 0 && cantidadMostrar >= publicaciones.length && (
-          <p style={{ textAlign: "center", margin: "1rem" }}>
-            No hay más publicaciones
-          </p>
-        )}
+        {publicaciones.length > 0 &&
+          cantidadMostrar >= publicaciones.length && (
+            <p style={{ textAlign: "center", margin: "1rem" }}>
+              No hay más publicaciones
+            </p>
+          )}
 
         <button className="feed-fab" onClick={() => setMostrarModal(true)}>
           ➕ <span className="texto-publicar">Publicar</span>
@@ -532,23 +568,17 @@ const FeedPage = () => {
             <div className="modal-header">
               <img
                 src={
-                  JSON.parse(localStorage.getItem("usuario"))?.foto_perfil?.[0]
-                    ?.url || "https://via.placeholder.com/150"
+                  user?.foto_perfil?.[0]?.url ||
+                  "https://cdn-icons-png.flaticon.com/512/149/149071.png"
                 }
                 alt="avatar"
                 className="modal-avatar"
               />
               <div className="modal-user-info">
                 <p className="modal-user">
-                  @
-                  {JSON.parse(localStorage.getItem("usuario"))?.nombre ||
-                    "Usuario"}{" "}
-                  {JSON.parse(localStorage.getItem("usuario"))?.apellido ||
-                    "Usuario"}
+                  @{user?.nombre || "Usuario"} {user?.apellido || ""}
                 </p>
-                <p className="modal-rol">
-                  {JSON.parse(localStorage.getItem("usuario"))?.rol || ""}
-                </p>
+                <p className="modal-rol">{user?.rol || ""}</p>
               </div>
             </div>
 

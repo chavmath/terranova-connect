@@ -120,7 +120,7 @@ const LoginPage = () => {
           if (rol === "administrador") {
             window.location.href = "/configuracion";
           } else if (rol === "representante") {
-            window.location.href = "/publicacionesp";
+            window.location.href = "/dashboard";
           } else {
             window.location.href = "/dashboard";
           }

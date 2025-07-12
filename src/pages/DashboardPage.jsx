@@ -25,6 +25,19 @@ const getCurrentUserId = () => {
   }
 };
 
+const getUserRole = () => {
+  const token = Cookies.get("token");
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(
+      atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))
+    );
+    return payload.rol || null;
+  } catch {
+    return null;
+  }
+};
+
 const DashboardPage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -36,6 +49,7 @@ const DashboardPage = () => {
 
   const userId = getCurrentUserId();
   const token = Cookies.get("token");
+  const userRole = getUserRole();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -89,7 +103,7 @@ const DashboardPage = () => {
         setBadges(badgesData);
 
         // 5) Publicaciones
-       /*  const resPosts = await fetch(
+        /*  const resPosts = await fetch(
           "https://kong-0c858408d8us2s9oc.kongcloud.dev/mis-publicaciones",
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -138,7 +152,7 @@ const DashboardPage = () => {
 
   const { reclamadas = 0, insigniasTotales = 0 } = badges || {};
 
- /*  const publicacionesCompartidas = posts.length; */
+  /*  const publicacionesCompartidas = posts.length; */
 
   const now = new Date();
   const hour = now.getHours();
@@ -188,23 +202,25 @@ const DashboardPage = () => {
               </div>
             </div>
 
-            <div className="card-row-inline">
-              <div className="dashboard-card">
-                <FaTasks className="icon" />
-                <h3>Misiones Inscritas</h3>
-                <p>
-                  {misionesCompletadas} completadas de{" "}
-                  {misionesCompletadas + misionesPendientes}
-                </p>
+            {userRole !== "representante" && userRole !== "profesor" && (
+              <div className="card-row-inline">
+                <div className="dashboard-card">
+                  <FaTasks className="icon" />
+                  <h3>Misiones Inscritas</h3>
+                  <p>
+                    {misionesCompletadas} completadas de{" "}
+                    {misionesCompletadas + misionesPendientes}
+                  </p>
+                </div>
+                <div className="dashboard-card">
+                  <FaMedal className="icon" />
+                  <h3>Insignias</h3>
+                  <p>
+                    {reclamadas} reclamadas de {insigniasTotales}
+                  </p>
+                </div>
               </div>
-              <div className="dashboard-card">
-                <FaMedal className="icon" />
-                <h3>Insignias</h3>
-                <p>
-                  {reclamadas} reclamadas de {insigniasTotales}
-                </p>
-              </div>
-            </div>
+            )}
 
             <div className="dashboard-section actividades-box">
               <h3 className="section-title">Actividades próximas</h3>

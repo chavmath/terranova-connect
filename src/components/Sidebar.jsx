@@ -142,18 +142,17 @@ const Sidebar = () => {
     profesor: [
       { label: "Inicio", path: "/dashboard", icon: <FaHome /> },
       { label: "Publicaciones", path: "/publicaciones", icon: <FaBullhorn /> },
-      { label: "Calendario", path: "/calendario", icon: <FaCalendarAlt /> },
+      { label: "Mi perfil", path: "/perfil", icon: <FaUser /> },
+      { label: "Calendario", path: "/calendario", icon: <FaCalendarAlt /> },      
+      { label: "Estadísticas", path: "/estadisticasp", icon: <FaChartBar /> },
     ],
     representante: [
+      { label: "Inicio", path: "/dashboard", icon: <FaHome /> },
       { label: "Publicaciones", path: "/publicacionesp", icon: <FaBullhorn /> },
       { label: "Calendario", path: "/calendario", icon: <FaCalendarAlt /> },
     ],
     administrador: [
-      {
-        label: "Estadísticas",
-        path: "/estadisticas-admin",
-        icon: <FaChartBar />,
-      },
+      { label: "Estadísticas", path: "/estadisticas-admin", icon: <FaChartBar /> },
       { label: "Evidencias", path: "/evidencias", icon: <FaFolder /> },
       { label: "Configuración", path: "/configuracion", icon: <FaCog /> },
     ],

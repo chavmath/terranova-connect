@@ -14,10 +14,11 @@ const RutaProtegida = ({ children }) => {
     return <Navigate to="/configuracion" replace />;
   }
   if (rol === "representante") {
-    // Permitir representantes solo en /publicacionesp y /calendario
     if (
       location.pathname !== "/publicacionesp" &&
-      location.pathname !== "/calendario"
+      location.pathname !== "/calendario" &&
+      location.pathname !== "/perfil/:userId" &&
+      location.pathname !== "/dashboard"
     ) {
       return <Navigate to="/publicacionesp" replace />;
     }

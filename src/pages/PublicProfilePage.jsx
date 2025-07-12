@@ -18,7 +18,7 @@ const PublicProfilePage = () => {
   const [nuevoComentario, setNuevoComentario] = useState("");
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
-  const [seguidos, setSeguidos] = useState([]); // Nuevo estado para seguidos
+  const [seguidos, setSeguidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [insigniasDestacadas, setInsigniasDestacadas] = useState([]);
   const [insignias, setInsignias] = useState([]);
@@ -29,7 +29,6 @@ const PublicProfilePage = () => {
       return;
     }
 
-    // 1) Carga datos del usuario
     const fetchUser = async () => {
       try {
         const res = await fetch(
@@ -46,7 +45,6 @@ const PublicProfilePage = () => {
         const u = await res.json();
         setUser(u);
 
-        // 2) Obtener seguidores y seguidos usando /seguimientos/:idPerfil
         const resSeguimiento = await fetch(
           `https://kong-0c858408d8us2s9oc.kongcloud.dev/seguimientos/${userId}`,
           {
@@ -65,10 +63,8 @@ const PublicProfilePage = () => {
         setFollowersCount(seguidores.length);
         setSeguidos(seguidos);
 
-        // Obtener el ID del usuario autenticado desde el token
         const currentUserId = getUserIdFromToken();
 
-        // Validar si el usuario autenticado sigue al perfil
         const yaSigue = seguidores.some(
           (seg) => seg.id_usuario === currentUserId
         );
@@ -84,7 +80,7 @@ const PublicProfilePage = () => {
     const getUserIdFromToken = () => {
       try {
         const tokenData = JSON.parse(atob(token.split(".")[1]));
-        return tokenData.id || tokenData.id_usuario; // Asegúrate de cuál usas en tu payload
+        return tokenData.id || tokenData.id_usuario;
       } catch (err) {
         console.error("Error al decodificar token:", err);
         return null;
@@ -97,7 +93,7 @@ const PublicProfilePage = () => {
           `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/usuario/${userId}`,
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Agregar el token para el autor también
+              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
             credentials: "include",
@@ -143,9 +139,8 @@ const PublicProfilePage = () => {
         if (!res.ok) throw new Error("No se pudieron obtener las insignias");
 
         const data = await res.json();
-        setInsignias(data); // Aquí actualizas el estado con todas las insignias reclamadas
+        setInsignias(data);
 
-        // Opcional: Si deseas destacar las 3 primeras por ejemplo
         const idsDestacadas = data.slice(0, 3).map((ins) => ins._id);
         setInsigniasDestacadas(idsDestacadas);
       } catch (err) {
@@ -166,13 +161,11 @@ const PublicProfilePage = () => {
       </div>
     );
 
-  // Abre el modal y carga comentarios
   const openPost = (post) => {
     setSelectedPost(post);
     fetchComentarios(post.id);
   };
 
-  // Trae y enriquece los comentarios de una publicación
   const fetchComentarios = async (postId) => {
     try {
       const res = await fetch(
@@ -240,17 +233,14 @@ const PublicProfilePage = () => {
           isFollowing ? "Error al dejar de seguir" : "Error al seguir"
         );
 
-      // Solo actualiza seguidores del perfil público
       setIsFollowing((prev) => !prev);
       setFollowersCount((prev) => prev + (isFollowing ? -1 : 1));
 
-      // NO modificar setSeguidos aquí, eso es del perfil visto, no del usuario logueado
     } catch (err) {
       console.warn(err);
     }
   };
 
-  // Like
   const handleLike = async () => {
     if (!selectedPost || selectedPost.liked) return;
     try {
@@ -281,17 +271,15 @@ const PublicProfilePage = () => {
     }
   };
 
-  // Enviar comentario y recargar lista
   const enviarComentario = async (e) => {
     e.preventDefault();
     const texto = nuevoComentario.trim();
     if (!texto || !selectedPost) return;
 
     const token = Cookies.get("token");
-    const postId = selectedPost.id; // Asegúrate de que aquí coincida con tu mapping
+    const postId = selectedPost.id;
 
     try {
-      // 1) POST para crear comentario
       const res = await fetch(
         `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${postId}/comentarios`,
         {
@@ -303,14 +291,13 @@ const PublicProfilePage = () => {
           credentials: "include",
           body: JSON.stringify({
             texto,
-            publicacionId: postId, // ← de nuevo en el body
+            publicacionId: postId,
           }),
         }
       );
 
       const data = await res.json();
       if (!res.ok) {
-        // muestra el error que venga del servidor
         console.error("Error al crear comentario:", data);
         Swal.fire(
           "Error",
@@ -320,10 +307,8 @@ const PublicProfilePage = () => {
         return;
       }
 
-      // 2) si todo OK, limpio el input
       setNuevoComentario("");
 
-      // 3) recargo los comentarios
       const resComentarios = await fetch(
         `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${postId}/comentarios`,
         {
@@ -341,7 +326,6 @@ const PublicProfilePage = () => {
 
       const dataComentarios = await resComentarios.json();
 
-      // 4) enriquezco cada comentario con su autor
       const autorCache = new Map();
       const enriquecidos = await Promise.all(
         dataComentarios.map(async (comentario) => {
@@ -363,7 +347,6 @@ const PublicProfilePage = () => {
         })
       );
 
-      // 5) actualizo el estado
       setComentarios((prev) => ({
         ...prev,
         [postId]: enriquecidos,
@@ -374,7 +357,6 @@ const PublicProfilePage = () => {
     }
   };
 
-  // Util para “hace X minutos/días…”
   const tiempoTranscurrido = (fecha) => {
     const diffMs = Date.now() - new Date(fecha).getTime();
     const mins = Math.floor(diffMs / 60000);
@@ -503,7 +485,6 @@ const PublicProfilePage = () => {
                 />
               </div>
               <div className="modal-right">
-                {/* Header del post */}
                 <div className="ig-header">
                   <img
                     src={
@@ -528,7 +509,6 @@ const PublicProfilePage = () => {
                 </div>
                 <hr />
 
-                {/* Descripción */}
                 <div className="ig-post-description">
                   <img
                     src={
@@ -551,7 +531,6 @@ const PublicProfilePage = () => {
                   </div>
                 </div>
 
-                {/* Comentarios */}
                 <div className="modal-comentarios">
                   {(comentarios[selectedPost.id] || []).length === 0 ? (
                     <p className="comentario-placeholder">
@@ -584,7 +563,6 @@ const PublicProfilePage = () => {
                   )}
                 </div>
 
-                {/* Likes y formulario de comentario */}
                 <div className="ig-bottom-section">
                   <div className="ig-actions">
                     <button
