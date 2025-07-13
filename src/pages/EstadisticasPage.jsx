@@ -15,6 +15,7 @@ import {
 } from "chart.js";
 import "../styles/estadisticas.css";
 import Cookies from "js-cookie";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 ChartJS.register(
   CategoryScale,
@@ -25,7 +26,8 @@ ChartJS.register(
   Legend,
   ArcElement,
   PointElement,
-  LineElement
+  LineElement,
+  ChartDataLabels
 );
 
 const EstadisticasPage = () => {
@@ -37,6 +39,13 @@ const EstadisticasPage = () => {
   const [misionesEstadisticas, setMisionesEstadisticas] = useState(null);
   const [puntosAcumulados, setPuntosAcumulados] = useState(null);
   const [ranking, setRanking] = useState([]);
+  const [notaEngagement, setNotaEngagement] = useState(null);
+  const [recomendacionesEngagement, setRecomendacionesEngagement] = useState(
+    []
+  );
+  const [notaAtencion, setNotaAtencion] = useState(null);
+  const [recomendacionesAtencion, setRecomendacionesAtencion] = useState([]);
+
   const token = Cookies.get("token");
 
   useEffect(() => {
@@ -44,6 +53,8 @@ const EstadisticasPage = () => {
     obtenerUsuarios();
     obtenerMisiones();
     obtenerPublicaciones();
+    obtenerEstadisticasNotas();
+    obtenerAtencionConcentracion();
   }, []);
 
   const obtenerEstadisticas = async () => {
@@ -64,9 +75,12 @@ const EstadisticasPage = () => {
         "https://kong-0c858408d8us2s9oc.kongcloud.dev/puntos-acumulados-estadisticas",
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      const rankingRes = await fetch("https://kong-0c858408d8us2s9oc.kongcloud.dev/ranking", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const rankingRes = await fetch(
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/ranking",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       const insigniasData = await insigniasRes.json();
       const canjesData = await canjesRes.json();
@@ -86,13 +100,16 @@ const EstadisticasPage = () => {
 
   const obtenerUsuarios = async () => {
     try {
-      const res = await fetch("https://kong-0c858408d8us2s9oc.kongcloud.dev/usuarios", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const res = await fetch(
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/usuarios",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
       const data = await res.json();
       setUsuarios(data);
     } catch (error) {
@@ -102,13 +119,16 @@ const EstadisticasPage = () => {
 
   const obtenerMisiones = async () => {
     try {
-      const res = await fetch("https://kong-0c858408d8us2s9oc.kongcloud.dev/misiones", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const res = await fetch(
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/misiones",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
       const data = await res.json();
       setMisiones(data.misiones);
     } catch (error) {
@@ -118,17 +138,59 @@ const EstadisticasPage = () => {
 
   const obtenerPublicaciones = async () => {
     try {
-      const res = await fetch("https://kong-0c858408d8us2s9oc.kongcloud.dev/mis-publicaciones", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const res = await fetch(
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/mis-publicaciones",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
       const data = await res.json();
       setPublicaciones(data);
     } catch (error) {
       console.error("Error al obtener publicaciones:", error);
+    }
+  };
+  const obtenerEstadisticasNotas = async () => {
+    try {
+      const res = await fetch(
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/estadisticas-notas",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
+      setNotaEngagement(data.notaEngagement);
+      setRecomendacionesEngagement(data.recomendaciones);
+    } catch (error) {
+      console.error("Error al obtener nota de engagement:", error);
+    }
+  };
+
+  const obtenerAtencionConcentracion = async () => {
+    try {
+      const res = await fetch(
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/atencion-concentracion",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
+      setNotaAtencion(data.notaAtencionConcentracion);
+      setRecomendacionesAtencion(data.recomendaciones);
+    } catch (error) {
+      console.error("Error al obtener atención y concentración:", error);
     }
   };
 
@@ -213,6 +275,71 @@ const EstadisticasPage = () => {
     ],
   };
 
+  const donutOptions = {
+    responsive: true,
+    plugins: {
+      datalabels: {
+        color: "#ffffff",
+        font: {
+          weight: "bold",
+          size: 14,
+        },
+        formatter: (value, context) => {
+          const total = context.chart.data.datasets[0].data.reduce(
+            (a, b) => a + b,
+            0
+          );
+          const percentage = ((value / total) * 100).toFixed(1);
+          return `${percentage}%`;
+        },
+      },
+      legend: {
+        position: "bottom",
+        labels: {
+          color: "#031f7b",
+          font: { size: 14 },
+        },
+      },
+    },
+  };
+
+  const barOptions = {
+    responsive: true,
+    plugins: {
+      datalabels: {
+        anchor: "center",
+        align: "center",
+        color: "#031f7b",
+        font: {
+          weight: "bold",
+          size: 12,
+        },
+        formatter: Math.round,
+      },
+      legend: {
+        labels: {
+          color: "#031f7b",
+          font: { size: 13 },
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          color: "#444",
+          font: { size: 12 },
+        },
+      },
+      x: {
+        ticks: {
+          color: "#444",
+          font: { size: 12 },
+        },
+      },
+    },
+  };
+
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       <Sidebar active="Estadísticas" />
@@ -229,34 +356,31 @@ const EstadisticasPage = () => {
           {/* Gráfico de Dona - Insignias Reclamadas */}
           <div className="estadisticas-chart">
             <h3>Porcentaje de Insignias Reclamadas</h3>
-            <Doughnut
-              data={donutDataInsignias}
-              options={{ responsive: true }}
-            />
+            <Doughnut data={donutDataInsignias} options={donutOptions} />
           </div>
 
           {/* Gráfico de Dona - Canjes Realizados */}
           <div className="estadisticas-chart">
             <h3>Porcentaje de Canjes Realizados</h3>
-            <Doughnut data={donutDataCanjes} options={{ responsive: true }} />
+            <Doughnut data={donutDataCanjes} options={donutOptions} />
           </div>
 
           {/* Gráfico de barras apiladas - Misiones Completadas vs Pendientes */}
           <div className="estadisticas-chart">
             <h3>Misiones Completadas vs Pendientes</h3>
-            <Bar data={barDataMisiones} options={{ responsive: true }} />
+            <Bar data={barDataMisiones} options={barOptions} />
           </div>
 
           {/* Gráfico de barras - Puntos Acumulados */}
           <div className="estadisticas-chart">
             <h3>Puntos Acumulados</h3>
-            <Bar data={barDataPuntos} options={{ responsive: true }} />
+            <Bar data={barDataPuntos} options={barOptions} />
           </div>
 
           {/* Gráfico de barras - Ranking de Usuarios */}
           <div className="estadisticas-chart">
             <h3>Ranking de Usuarios</h3>
-            <Bar data={barDataRanking} options={{ responsive: true }} />
+            <Bar data={barDataRanking} options={barOptions} />
           </div>
 
           {/* Publicación con Más Likes */}
@@ -281,6 +405,51 @@ const EstadisticasPage = () => {
             <p className="contador-likes">
               {`Likes: ${publicacionConMasLikes.likes.length}`}
             </p>
+          </div>
+          {/* Tarjeta: Nota de Engagement */}
+          <div className="estadisticas-card">
+            <h3>Nota General en la Plataforma</h3>
+            <p
+              style={{
+                fontSize: "2.5rem",
+                color: "#27ae60",
+                fontWeight: "bold",
+                marginBottom: "1rem",
+                textAlign: "center",
+              }}
+            >
+              {notaEngagement ?? "Cargando..."}
+            </p>
+            <ul style={{ paddingLeft: "1rem", color: "#333" }}>
+              {recomendacionesEngagement.map((rec, i) => (
+                <li key={i} style={{ marginBottom: "0.5rem" }}>
+                  {rec}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Tarjeta: Atención y Concentración */}
+          <div className="estadisticas-card">
+            <h3>Atención y Concentración</h3>
+            <p
+              style={{
+                fontSize: "2.5rem",
+                color: "#f39c12",
+                fontWeight: "bold",
+                marginBottom: "1rem",
+                textAlign: "center",
+              }}
+            >
+              {notaAtencion ?? "Cargando..."}
+            </p>
+            <ul style={{ paddingLeft: "1rem", color: "#333" }}>
+              {recomendacionesAtencion.map((rec, i) => (
+                <li key={i} style={{ marginBottom: "0.5rem" }}>
+                  {rec}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
