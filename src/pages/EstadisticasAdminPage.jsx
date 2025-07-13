@@ -363,7 +363,6 @@ const EstadisticasPage = () => {
           </p>
         </div>
         <div className="estadisticas-admin-description">
-          {/* Gráfico de barras - Ranking de Usuarios por Puntos Acumulados */}
           <div className="estadisticas-admin-chart">
             <h3>Ranking de Usuarios por Puntos Acumulados</h3>
             <div className="chart-scrollable">
@@ -375,7 +374,6 @@ const EstadisticasPage = () => {
             </div>
           </div>
 
-          {/* Gráfico de barras - Ranking de Usuarios por Ingresos */}
           <div className="estadisticas-admin-card estadisticas-admin-card-ranking">
             <h3>Usuarios con Más Ingresos</h3>
             <button
@@ -413,7 +411,6 @@ const EstadisticasPage = () => {
             </ol>
           </div>
 
-          {/* Gráfico de barras - Ranking de Recompensas Más Reclamadas */}
           <div className="estadisticas-admin-chart">
             <h3>Ranking de Recompensas Más Reclamadas</h3>
             <div className="chart-scrollable">
@@ -428,7 +425,6 @@ const EstadisticasPage = () => {
             </div>
           </div>
 
-          {/* Ranking de Usuarios con Más Canjeos */}
           <div className="estadisticas-admin-card estadisticas-admin-card-ranking">
             <h3>Ranking de Usuarios con Más Canjeos</h3>
 
@@ -458,7 +454,6 @@ const EstadisticasPage = () => {
             </ol>
           </div>
 
-          {/* Publicación con Más Likes */}
           <div className="estadisticas-admin-card estadisticas-admin-card-publicacion">
             <h3>Publicación con Más Likes</h3>
             {publicacionConMasLikes && (

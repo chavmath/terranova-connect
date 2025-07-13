@@ -89,7 +89,6 @@ const RewardsPage = () => {
         });
         const dataCanjes = await resCanjes.json();
 
-        // Filtra solo los canjes del usuario actual (por nombre completo)
         const nombreCompleto =
           `${dataUsuario.nombre} ${dataUsuario.apellido}`.toLowerCase();
         const canjesDelUsuario = dataCanjes.filter(
@@ -98,7 +97,6 @@ const RewardsPage = () => {
             nombreCompleto
         );
 
-        // Formatea para mostrar
         const recompensasFormateadas = canjesDelUsuario.map((c) => ({
           id: c.idCanje,
           nombre: c.recompensa,
@@ -163,7 +161,7 @@ const RewardsPage = () => {
           puntos: prev.puntos - recompensaSeleccionada.puntosRequeridos,
         }));
 
-        setRecompensaReclamada(recompensaSeleccionada); // guardamos para mostrar en overlay
+        setRecompensaReclamada(recompensaSeleccionada);
         setMostrarOverlayFelicidades(true);
         lanzarConfeti();
 
@@ -178,7 +176,7 @@ const RewardsPage = () => {
       console.error("Error al reclamar:", err);
       alert("No se pudo reclamar la recompensa.");
     } finally {
-      setLoadingReclamar(false); // <- desactiva spinner
+      setLoadingReclamar(false);
     }
   };
 

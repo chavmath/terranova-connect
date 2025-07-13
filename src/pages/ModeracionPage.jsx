@@ -1,4 +1,3 @@
-// src/pages/ModeracionPage.jsx
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
@@ -30,7 +29,6 @@ const ModeracionPage = () => {
       const publicacionesRaw = await res.json();
       if (!res.ok) throw new Error();
 
-      // Obtener datos del autor
       const autorCache = new Map();
       const publicacionesConAutor = await Promise.all(
         publicacionesRaw.map(async (pub) => {

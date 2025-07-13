@@ -35,7 +35,6 @@ const RegisterPage = () => {
     "icloud.com",
   ];
 
-  // Función simple para calcular distancia de Levenshtein
   function distanciaLevenshtein(a, b) {
     const matriz = Array(b.length + 1)
       .fill(null)

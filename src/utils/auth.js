@@ -10,7 +10,6 @@ export function isTokenValid(token) {
     const payload = JSON.parse(
       atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))
     );
-    // exp viene en segundos
     return payload.exp * 1000 > Date.now();
   } catch {
     return false;

@@ -52,18 +52,14 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    // Asegurarse de que el token y userId estén disponibles
     if (!token || !userId) {
-      // Si no estamos en la ruta raíz, redirigir solo si el usuario no está autenticado
       if (location.pathname !== "/") {
         navigate("/");
       }
       return;
     }
 
-    // Si el user no está seteado, hacemos la petición
     if (!user) {
-      // Si es administrador, obtener los datos a través del endpoint /usuario
       if (rol === "administrador") {
         (async () => {
           try {
@@ -76,20 +72,18 @@ const Sidebar = () => {
             );
             if (!res.ok) throw new Error();
             const data = await res.json();
-            setUser(data); // Establecer los datos del administrador
+            setUser(data);
           } catch (error) {
             console.error(
               "Error al obtener los datos del administrador:",
               error
             );
-            // Si hay error en la consulta, redirigir a "/"
             if (location.pathname !== "/") {
               navigate("/");
             }
           }
         })();
       } else {
-        // Si no es administrador, obtener los datos del usuario normal
         (async () => {
           try {
             const res = await fetch(
@@ -104,7 +98,6 @@ const Sidebar = () => {
             setUser(data);
           } catch (error) {
             console.error("Error al obtener los datos del usuario:", error);
-            // Si hay error en la consulta, redirigir a "/"
             if (location.pathname !== "/") {
               navigate("/");
             }
@@ -190,7 +183,6 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Botón hamburger visible solo en mobile */}
       <button
         className="hamburger-btn"
         onClick={toggleMenu}
@@ -199,7 +191,6 @@ const Sidebar = () => {
         <FaBars />
       </button>
 
-      {/* Overlay para cerrar menú */}
       {isOpen && <div className="sidebar-overlay" onClick={closeMenu} />}
 
       <aside className={`sidebar ${isOpen ? "sidebar--open" : ""}`}>
@@ -224,7 +215,7 @@ const Sidebar = () => {
                 <Link
                   to={path}
                   className={`sidebar__item ${isActive(path) ? "active" : ""}`}
-                  onClick={closeMenu} // cerrar menú al navegar
+                  onClick={closeMenu}
                 >
                   <span className="sidebar__icon">{icon}</span>
                   <span>{label}</span>

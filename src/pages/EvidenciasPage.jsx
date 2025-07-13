@@ -228,7 +228,6 @@ const EvidenciasPage = () => {
           </div>
         </div>
 
-        {/* Modal para vista previa de la evidencia */}
         {vistaPrevia && (
           <div className="modal-overlay" onClick={handleCerrarVistaPrevia}>
             <div

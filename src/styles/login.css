@@ -199,7 +199,6 @@ a {
   background-color: #031f7b;
   color: white;
 }
-/* Modal styles */
 .modal-login-overlay {
   position: fixed;
   top: 0;
@@ -330,7 +329,6 @@ button[type="button"]:hover {
   background-color: #d35400;
 } */
 
-/* Para pantallas pequeñas */
 @media (max-width: 768px) {
   .login-wrapper {
     flex-direction: column;

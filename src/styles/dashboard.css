@@ -169,10 +169,10 @@
 
 .loading-container {
   display: flex;
-  justify-content: center; /* Centra horizontalmente */
-  align-items: center; /* Centra verticalmente */
-  height: 100vh; /* Asegura que ocupe toda la altura de la pantalla */
-  width: 100vw; /* Asegura que ocupe toda la anchura de la pantalla */
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
   position: absolute;
   top: 0;
   left: 0;
@@ -295,8 +295,6 @@
   max-width: auto;
 }
 
-/* Responsive */
-/* Media query para pantallas pequeñas */
 @media (max-width: 900px) {
   .dashboard-body {
     flex-direction: column;
@@ -309,7 +307,6 @@
     max-width: 100%;
   }
 
-  /* Reordenar: primero welcome, luego slider */
   .dashboard-column-left {
     order: 1;
   }

@@ -37,7 +37,7 @@ const CalendarPage = () => {
           );
 
           return {
-            fecha: fechaInicioLocal, // para el calendario
+            fecha: fechaInicioLocal,
             fechaFin: fechaFinLocal,
             titulo: actividad.titulo,
             subtitulo: actividad.descripcion,

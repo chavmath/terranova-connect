@@ -62,7 +62,7 @@
   border-radius: 8px;
   font-size: 14px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  resize: none; /* 👈 esto desactiva el redimensionamiento */
+  resize: none;
 }
 
 .participar-form input:focus,

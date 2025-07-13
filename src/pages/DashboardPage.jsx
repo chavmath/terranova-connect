@@ -55,7 +55,7 @@ const DashboardPage = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % 3);
-    }, 3000); // cambia cada 3 segundos
+    }, 3000);
 
     return () => clearInterval(interval);
   }, []);
@@ -68,7 +68,6 @@ const DashboardPage = () => {
 
     const fetchData = async () => {
       try {
-        // 1) Datos del usuario
         const resUser = await fetch(
           `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${userId}`,
           {
@@ -80,7 +79,6 @@ const DashboardPage = () => {
         const userData = await resUser.json();
         setUser(userData);
 
-        // 3) Estadísticas de misiones
         const resMissions = await fetch(
           "https://kong-0c858408d8us2s9oc.kongcloud.dev/misiones-estadisticas",
           {
@@ -91,7 +89,6 @@ const DashboardPage = () => {
         const missionsData = await resMissions.json();
         setMissions(missionsData);
 
-        // 4) Estadísticas de insignias
         const resBadges = await fetch(
           "https://kong-0c858408d8us2s9oc.kongcloud.dev/insignias-reclamadas-estadisticas",
           {
@@ -177,7 +174,6 @@ const DashboardPage = () => {
       <Sidebar active="Inicio" />
 
       <main className="dashboard-main">
-        {/* Header */}
         <div className="dashboard-header">
           <img src={logo} alt="Terranova Logo" className="dashboard-logo" />
           <h1 className="dashboard-title">Terranova Connect</h1>
@@ -185,7 +181,6 @@ const DashboardPage = () => {
         </div>
 
         <div className="dashboard-body">
-          {/* Columna izquierda */}
           <div className="dashboard-column-left">
             <div className="welcome-box">
               <img src={avatarUrl} alt="Avatar" className="welcome-avatar" />
@@ -239,7 +234,6 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Columna derecha con el slider */}
           <div className="dashboard-column-right">
             <div className="carousel-container">
               <div

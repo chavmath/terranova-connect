@@ -31,7 +31,6 @@
   flex-direction: column;
 }
 
-/* Cuando está abierto */
 .sidebar--open {
   transform: translateX(0);
 }

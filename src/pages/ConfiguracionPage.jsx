@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import Sidebar from "../components/Sidebar";
 import "../styles/configuracion.css";
 import Cookies from "js-cookie";
-import { FiChevronDown, FiChevronUp } from "react-icons/fi"; // Iconos de flecha
+import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import Modal from "react-modal";
 
 const ConfiguracionPage = () => {
@@ -52,7 +52,6 @@ const ConfiguracionPage = () => {
   });
 
   const [showCreateMisionModal, setShowCreateMisionModal] = useState(false);
-  // Para manejar la visibilidad de las secciones
   const [mostrarUsuarios, setMostrarUsuarios] = useState(false);
   const [mostrarActividades, setMostrarActividades] = useState(false);
   const [mostrarMisiones, setMostrarMisiones] = useState(false);
@@ -62,12 +61,12 @@ const ConfiguracionPage = () => {
   const [searchActividades, setSearchActividades] = useState("");
   const [searchMisiones, setSearchMisiones] = useState("");
   const [searchRecompensas, setSearchRecompensas] = useState("");
-  const [modalTipo, setModalTipo] = useState(null); // 'usuario' | 'actividad' | 'mision'
+  const [modalTipo, setModalTipo] = useState(null);
   const [modalData, setModalData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1); // Página actual
-  const [itemsPerPage] = useState(5); // Número de elementos por página
-  const [totalItems, setTotalItems] = useState(0); // Total de elementos
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+  const [totalItems, setTotalItems] = useState(0);
   const [filteredUsuarios, setFilteredUsuarios] = useState([]);
   const [filteredActividades, setFilteredActividades] = useState([]);
   const [filteredMisiones, setFilteredMisiones] = useState([]);
@@ -91,7 +90,7 @@ const ConfiguracionPage = () => {
   const currentItems = filteredUsuarios.slice(
     indexOfFirstItem,
     indexOfLastItem
-  ); // Paginamos sobre los usuarios filtrados
+  );
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -100,7 +99,7 @@ const ConfiguracionPage = () => {
   const currentItemsActividad = filteredActividades.slice(
     indexOfFirstItemActividad,
     indexOfLastItemActividad
-  ); // Filtramos y paginamos las actividades
+  );
   const paginateActividad = (pageNumber) => setCurrentPageActividad(pageNumber);
 
   const indexOfLastItemMision = currentPageMision * itemsPerPage;
@@ -108,7 +107,7 @@ const ConfiguracionPage = () => {
   const currentItemsMision = filteredMisiones.slice(
     indexOfFirstItemMision,
     indexOfLastItemMision
-  ); // Filtramos y paginamos las misiones
+  );
   const paginateMision = (pageNumber) => setCurrentPageMision(pageNumber);
 
   useEffect(() => {
@@ -121,29 +120,28 @@ const ConfiguracionPage = () => {
   }, []);
 
   useEffect(() => {
-    // Filtrar los usuarios por nombre
     const filtered = usuarios.filter((usuario) =>
       usuario.nombre.toLowerCase().includes(searchUsuarios.toLowerCase())
     );
-    setFilteredUsuarios(filtered); // Establecemos los usuarios filtrados
-    setTotalItems(filtered.length); // Actualizamos el total de elementos filtrados
-  }, [searchUsuarios, usuarios]); // Re-filtrar cuando cambian los usuarios o el filtro
+    setFilteredUsuarios(filtered);
+    setTotalItems(filtered.length);
+  }, [searchUsuarios, usuarios]);
 
   useEffect(() => {
     const filtered = actividades.filter((actividad) =>
       actividad.titulo.toLowerCase().includes(searchActividades.toLowerCase())
     );
-    setFilteredActividades(filtered); // Establecemos las actividades filtradas
-    setTotalItemsActividad(filtered.length); // Total de actividades filtradas
-  }, [searchActividades, actividades]); // Re-filtrar cuando cambian las actividades o el filtro
+    setFilteredActividades(filtered);
+    setTotalItemsActividad(filtered.length);
+  }, [searchActividades, actividades]);
 
   useEffect(() => {
     const filtered = misiones.filter((mision) =>
       mision.titulo.toLowerCase().includes(searchMisiones.toLowerCase())
     );
-    setFilteredMisiones(filtered); // Establecemos las misiones filtradas
-    setTotalItemsMision(filtered.length); // Total de misiones filtradas
-  }, [searchMisiones, misiones]); // Re-filtrar cuando cambian las misiones o el filtro
+    setFilteredMisiones(filtered);
+    setTotalItemsMision(filtered.length);
+  }, [searchMisiones, misiones]);
 
   useEffect(() => {
     const filtradas = recompensas.filter((r) =>
@@ -183,7 +181,7 @@ const ConfiguracionPage = () => {
   const validarFechas = (fechaInicio, fechaFin) => {
     if (!fechaInicio || !fechaFin) {
       setFechaError("");
-      return true; // No validamos si alguna fecha está vacía todavía
+      return true;
     }
     if (new Date(fechaFin) < new Date(fechaInicio)) {
       setFechaError(
@@ -461,7 +459,7 @@ const ConfiguracionPage = () => {
   };
 
   const handleEliminarInsignia = async (id_insignia) => {
-    console.log("Eliminando insignia con id_insignia:", id_insignia); // ✅
+    console.log("Eliminando insignia con id_insignia:", id_insignia);
     const confirmacion = await Swal.fire({
       title: "¿Eliminar insignia?",
       text: "Esta acción no se puede deshacer",
@@ -529,7 +527,7 @@ const ConfiguracionPage = () => {
           correo: "",
           fecha_nacimiento: "",
         });
-        obtenerUsuarios(); // Re-fetch de usuarios
+        obtenerUsuarios();
       } else {
         Swal.fire(
           "Error",
@@ -548,7 +546,6 @@ const ConfiguracionPage = () => {
   const handleCrearActividad = async () => {
     const { titulo, descripcion, fechaInicio, fechaFin } = nuevaActividad;
 
-    // Validación simple antes de enviar
     if (!titulo || !descripcion || !fechaInicio || !fechaFin) {
       Swal.fire("Error", "Todos los campos deben ser completos.", "error");
       return;
@@ -574,14 +571,14 @@ const ConfiguracionPage = () => {
 
       if (res.ok) {
         Swal.fire("Actividad creada", data.message, "success");
-        setShowCreateModal(false); // Cerrar el modal
+        setShowCreateModal(false);
         setNuevaActividad({
           titulo: "",
           descripcion: "",
           fechaInicio: "",
           fechaFin: "",
-        }); // Limpiar el formulario
-        obtenerActividades(); // Actualizar la lista de actividades
+        }); 
+        obtenerActividades();
       } else {
         Swal.fire(
           "Error",
@@ -600,13 +597,12 @@ const ConfiguracionPage = () => {
   const handleCrearMision = async () => {
     const { titulo, descripcion, puntos, fechaInicio, fechaFin } = nuevaMision;
 
-    // Validación simple antes de enviar
     if (!titulo || !descripcion || !puntos || !fechaInicio || !fechaFin) {
       Swal.fire("Error", "Todos los campos deben ser completos.", "error");
       return;
     }
 
-    setLoading(true); // Mostrar el spinner
+    setLoading(true);
 
     try {
       const res = await fetch(
@@ -632,15 +628,15 @@ const ConfiguracionPage = () => {
 
       if (res.ok) {
         Swal.fire("Misión creada", data.message, "success");
-        setShowCreateMisionModal(false); // Cerrar el modal
+        setShowCreateMisionModal(false);
         setNuevaMision({
           titulo: "",
           descripcion: "",
           puntos: "",
           fechaInicio: "",
           fechaFin: "",
-        }); // Limpiar el formulario
-        obtenerMisiones(); // Actualizar la lista de misiones
+        });
+        obtenerMisiones();
       } else {
         Swal.fire(
           "Error",
@@ -652,7 +648,7 @@ const ConfiguracionPage = () => {
       console.error(error);
       Swal.fire("Error", "Error al crear la misión", "error");
     } finally {
-      setLoading(false); // Desactivar el spinner
+      setLoading(false);
     }
   };
 
@@ -683,7 +679,7 @@ const ConfiguracionPage = () => {
       formData.append("cantidadDisponible", cantidadDisponible || 0);
 
       if (imagen) {
-        formData.append("imagen", imagen); // asegurarte que el backend espera "imagen"
+        formData.append("imagen", imagen);
       }
 
       const res = await fetch(
@@ -818,9 +814,8 @@ const ConfiguracionPage = () => {
 
   const formatFecha = (fecha) => {
     const date = new Date(fecha);
-    // Ajuste para evitar la zona horaria
     const dia = String(date.getUTCDate()).padStart(2, "0");
-    const mes = String(date.getUTCMonth() + 1).padStart(2, "0"); // `getMonth()` es basado en 0, así que sumamos 1
+    const mes = String(date.getUTCMonth() + 1).padStart(2, "0");
     const año = date.getUTCFullYear();
     return `${dia}/${mes}/${año}`;
   };
@@ -840,13 +835,12 @@ const ConfiguracionPage = () => {
       id_usuario,
       nuevaFoto,
       // eslint-disable-next-line no-unused-vars
-      foto_perfil,         // <-- extraído para no incluirlo en datos
+      foto_perfil,
       // eslint-disable-next-line no-unused-vars
-      sesionesIniciadas,   // <-- idem
-      ...datos             // datos sólo tendrá campos planos: nombre, apellido, correo, rol
+      sesionesIniciadas,
+      ...datos
     } = modalData;
 
-    // 2) Validación mínima
     if (!datos.nombre || !datos.apellido || !datos.correo || !datos.rol) {
       Swal.fire("Error", "Todos los campos deben estar completos", "error");
       return;
@@ -855,27 +849,22 @@ const ConfiguracionPage = () => {
     setLoading(true);
 
     try {
-      // 3) Preparamos FormData
       const form = new FormData();
 
-      // Si hay foto nueva, la incluimos bajo la clave 'foto_perfil'
       if (nuevaFoto) {
         form.append("foto_perfil", nuevaFoto);
       }
 
-      // 4) Adjuntamos los campos planos (texto, numbers, fechas…)
       Object.entries(datos).forEach(([key, value]) => {
         form.append(key, value);
       });
 
-      // 5) Disparamos el PUT
       const res = await fetch(
         `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${id_usuario}`,
         {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
-            // NO establezcas Content-Type: multipart/form-data lo hace el navegador
           },
           body: form,
           credentials: "include",
@@ -883,7 +872,6 @@ const ConfiguracionPage = () => {
       );
       const data = await res.json();
 
-      // 6) Resultado
       if (res.ok) {
         Swal.fire("Actualizado", "Usuario actualizado correctamente", "success");
         cerrarModal();
@@ -977,7 +965,7 @@ const ConfiguracionPage = () => {
       descripcion,
       puntosRequeridos,
       cantidadDisponible,
-      nuevaImagen, // imagen seleccionada desde el input
+      nuevaImagen,
     } = modalData;
 
     if (!nombre || !descripcion || !puntosRequeridos) {
@@ -999,7 +987,7 @@ const ConfiguracionPage = () => {
       formData.append("activa", true);
 
       if (nuevaImagen) {
-        formData.append("imagen", nuevaImagen); // asegúrate que tu backend use esta misma clave
+        formData.append("imagen", nuevaImagen);
       }
 
       const res = await fetch(
@@ -1170,7 +1158,6 @@ const ConfiguracionPage = () => {
                   </table>
                 </div>
                 <div className="pagination">
-                  {/* Botón de "Anterior" */}
                   <button
                     onClick={() => currentPage > 1 && paginate(currentPage - 1)}
                     disabled={currentPage === 1}
@@ -1178,7 +1165,6 @@ const ConfiguracionPage = () => {
                     Anterior
                   </button>
 
-                  {/* Números de página */}
                   {[...Array(Math.ceil(totalItems / itemsPerPage))].map(
                     (_, index) => (
                       <button
@@ -1191,7 +1177,6 @@ const ConfiguracionPage = () => {
                     )
                   )}
 
-                  {/* Botón de "Siguiente" */}
                   <button
                     onClick={() =>
                       currentPage < Math.ceil(totalItems / itemsPerPage) &&
@@ -1664,16 +1649,14 @@ const ConfiguracionPage = () => {
           <div className="modal">
             <h3>Editar {modalTipo}</h3>
 
-            {/* Si está cargando, mostrar el spinner */}
             {loading ? (
               <div className="loading-container">
-                <div className="spinner"></div> {/* Aquí está el spinner */}
+                <div className="spinner"></div>
               </div>
             ) : (
               <>
                 {modalTipo === "usuario" && (
                   <>
-                    {/* Vista previa de la foto actual */}
                     {modalData.foto_perfil?.[0]?.url && (
                       <div
                         style={{ textAlign: "center", marginBottom: "1rem" }}
@@ -1692,7 +1675,6 @@ const ConfiguracionPage = () => {
                       </div>
                     )}
 
-                    {/* Condición: Solo mostrar el campo de cambiar foto si el rol no es "administrador" */}
                     {/* {modalData.rol !== "administrador" && (
                       <>
                         <label
@@ -1955,7 +1937,6 @@ const ConfiguracionPage = () => {
                       }
                     />
 
-                    {/* Mostrar imagen actual */}
                     {modalData.imagenUrl && (
                       <div
                         style={{ textAlign: "center", marginBottom: "1rem" }}
@@ -2045,7 +2026,6 @@ const ConfiguracionPage = () => {
                             placeholder="Puntos requeridos"
                           />
 
-                          {/* Mostrar imágenes actuales */}
                           {modalData.imagenes &&
                             modalData.imagenes.length > 0 && (
                               <div
@@ -2109,7 +2089,6 @@ const ConfiguracionPage = () => {
           <div className="modal">
             <h3>Crear Usuario Administrador</h3>
 
-            {/* Si está cargando, mostrar el spinner */}
             {loading ? (
               <div className="loading-container">
                 <div className="spinner"></div>
@@ -2182,7 +2161,6 @@ const ConfiguracionPage = () => {
           <div className="modal">
             <h3>Crear Nueva Actividad</h3>
 
-            {/* Si está cargando, mostrar el spinner */}
             {loading ? (
               <div className="loading-container">
                 <div className="spinner"></div>
@@ -2271,7 +2249,6 @@ const ConfiguracionPage = () => {
           <div className="modal">
             <h3>Crear Nueva Misión</h3>
 
-            {/* Si está cargando, mostrar el spinner */}
             {loading ? (
               <div className="loading-container">
                 <div className="spinner"></div>
@@ -2451,7 +2428,6 @@ const ConfiguracionPage = () => {
           <div className="modal">
             <h3>Crear Nueva Insignia</h3>
 
-            {/* Si está cargando, mostrar el spinner */}
             {loading ? (
               <div className="loading-container">
                 <div className="spinner"></div>

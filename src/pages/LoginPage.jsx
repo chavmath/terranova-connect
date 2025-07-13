@@ -357,7 +357,6 @@ const LoginPage = () => {
         <img src={logo} alt="logo" className="logo" />
         <h1>COLEGIO TERRANOVA</h1>
 
-        {/* Login */}
         {!mostrarCodigo && !mostrarAdminForm && !mostrarRecuperacion && (
           <form onSubmit={handleLogin}>
             <input
@@ -401,7 +400,6 @@ const LoginPage = () => {
           </form>
         )}
 
-        {/* Código 2FA */}
         {mostrarCodigo && !mostrarAdminForm && (
           <form onSubmit={handleCodigoSubmit}>
             <input
@@ -422,7 +420,6 @@ const LoginPage = () => {
           </form>
         )}
 
-        {/* Recuperar Contraseña */}
         {mostrarRecuperacion && (
           <form onSubmit={handleRecuperarContrasenia}>
             <input
@@ -443,7 +440,6 @@ const LoginPage = () => {
           </form>
         )}
 
-        {/* Admin Login */}
         {mostrarAdminForm && (
           <form onSubmit={handleAdminLogin}>
             <input
@@ -472,7 +468,6 @@ const LoginPage = () => {
           </form>
         )}
 
-        {/* Modal para cambiar contraseña */}
         {mostrarModal && (
           <div className="modal-login-overlay">
             <div className="modal-login">
@@ -514,7 +509,6 @@ const LoginPage = () => {
           </div>
         )}
 
-        {/* Modal para recuperar código de administrador */}
         {mostrarModalAdmin && (
           <div className="modal-login-overlay">
             <div className="modal-login">

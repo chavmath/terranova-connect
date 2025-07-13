@@ -376,7 +376,6 @@ const PublicProfilePage = () => {
     <div style={{ display: "flex", height: "100vh" }}>
       <Sidebar active={null} />
       <main className="perfil-main">
-        {/* Header */}
         <div className="perfil-ig-header">
           <div className="perfil-badges-section">
             <div className="perfil-badges-header">
@@ -449,7 +448,6 @@ const PublicProfilePage = () => {
           </div>
         </div>
 
-        {/* Galería */}
         <div className="perfil-galeria">
           {publicaciones.length === 0 ? (
             <p className="perfil-no-publicaciones">
@@ -468,7 +466,6 @@ const PublicProfilePage = () => {
           )}
         </div>
 
-        {/* Modal de publicación */}
         {selectedPost && (
           <div className="modal-overlay" onClick={() => setSelectedPost(null)}>
             <div

@@ -194,13 +194,11 @@ const EstadisticasPage = () => {
     }
   };
 
-  // Publicación con más likes
   const publicacionConMasLikes = publicaciones.reduce(
     (prev, current) => (prev.likes > current.likes ? prev : current),
     { likes: 0 }
   );
 
-  // Gráfico de Dona - Porcentaje de Insignias Reclamadas
   const donutDataInsignias = {
     labels: ["Reclamadas", "No Reclamadas"],
     datasets: [
@@ -216,7 +214,6 @@ const EstadisticasPage = () => {
     ],
   };
 
-  // Gráfico de Dona - Porcentaje de Canjes Realizados
   const donutDataCanjes = {
     labels: ["Realizados", "Disponibles"],
     datasets: [
@@ -232,7 +229,6 @@ const EstadisticasPage = () => {
     ],
   };
 
-  // Gráfico de barras apiladas - Misiones Completadas vs Pendientes
   const barDataMisiones = {
     labels: ["Misiones"],
     datasets: [
@@ -249,7 +245,6 @@ const EstadisticasPage = () => {
     ],
   };
 
-  // Gráfico de barras - Puntos Acumulados
   const barDataPuntos = {
     labels: ["Puntos Acumulados"],
     datasets: [
@@ -261,7 +256,6 @@ const EstadisticasPage = () => {
     ],
   };
 
-  // Gráfico de barras - Ranking de Usuarios
   const barDataRanking = {
     labels: ranking.map((user) => `${user.nombre} ${user.apellido}`),
     datasets: [
@@ -353,37 +347,31 @@ const EstadisticasPage = () => {
         </div>
 
         <div className="estadisticas-description">
-          {/* Gráfico de Dona - Insignias Reclamadas */}
           <div className="estadisticas-chart">
             <h3>Porcentaje de Insignias Reclamadas</h3>
             <Doughnut data={donutDataInsignias} options={donutOptions} />
           </div>
 
-          {/* Gráfico de Dona - Canjes Realizados */}
           <div className="estadisticas-chart">
             <h3>Porcentaje de Canjes Realizados</h3>
             <Doughnut data={donutDataCanjes} options={donutOptions} />
           </div>
 
-          {/* Gráfico de barras apiladas - Misiones Completadas vs Pendientes */}
           <div className="estadisticas-chart">
             <h3>Misiones Completadas vs Pendientes</h3>
             <Bar data={barDataMisiones} options={barOptions} />
           </div>
 
-          {/* Gráfico de barras - Puntos Acumulados */}
           <div className="estadisticas-chart">
             <h3>Puntos Acumulados</h3>
             <Bar data={barDataPuntos} options={barOptions} />
           </div>
 
-          {/* Gráfico de barras - Ranking de Usuarios */}
           <div className="estadisticas-chart">
             <h3>Ranking de Usuarios</h3>
             <Bar data={barDataRanking} options={barOptions} />
           </div>
 
-          {/* Publicación con Más Likes */}
           <div className="estadisticas-card">
             <h3>Publicación con Más Likes</h3>
 
@@ -406,7 +394,6 @@ const EstadisticasPage = () => {
               {`Likes: ${publicacionConMasLikes.likes.length}`}
             </p>
           </div>
-          {/* Tarjeta: Nota de Engagement */}
           <div className="estadisticas-card">
             <h3>Nota General en la Plataforma</h3>
             <p
@@ -429,7 +416,6 @@ const EstadisticasPage = () => {
             </ul>
           </div>
 
-          {/* Tarjeta: Atención y Concentración */}
           <div className="estadisticas-card">
             <h3>Atención y Concentración</h3>
             <p

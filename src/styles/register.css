@@ -5,9 +5,8 @@
   font-family: Arial, sans-serif;
 }
 
-/* FORMULARIO (lado izquierdo) */
 .register-form {
-  width: 35%; /* antes era 55% */
+  width: 35%;
   max-width: 700px;
   margin: auto;
   padding: 3rem 0;
@@ -16,11 +15,10 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  align-items: center; /* 💡 Esto centra horizontalmente los hijos */
+  align-items: center;
   justify-content: center;
 }
 
-/* TÍTULO */
 .register-title {
   text-align: center;
   color: #031f7b;
@@ -34,7 +32,6 @@
   max-width: 400px;
 }
 
-/* CAMPOS */
 .register-form label {
   width: 100%;
   max-width: 400px;
@@ -125,9 +122,8 @@
   background-color: #002a61;
 }
 
-/* PANEL DECORATIVO (lado derecho) */
 .register-side-panel {
-  width: 35%; /* antes usaba flex: 1 */
+  width: 35%;
   min-width: 300px;
   display: flex;
   align-items: center;
@@ -185,7 +181,6 @@
     flex-direction: column;
   }
 }
-/* ...tus estilos actuales... */
 
 @media (max-width: 900px) {
   .register-container {

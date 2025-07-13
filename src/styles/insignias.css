@@ -1,6 +1,3 @@
-/* ---------------------------------- */
-/* Estilos generales que ya tenías */
-/* ---------------------------------- */
 .insignias-main {
   flex: 1;
   background-color: #f9f9f9;
@@ -288,10 +285,6 @@
   z-index: 9999;
 }
 
-/* ---------------------------------- */
-/* Agregados nuevos: Overlay Felicidades */
-/* ---------------------------------- */
-
 .overlay-felicidades {
   position: fixed;
   top: 0;
@@ -365,7 +358,6 @@
   }
 }
 
-/* Animaciones */
 @keyframes fadeIn {
   from {
     opacity: 0;

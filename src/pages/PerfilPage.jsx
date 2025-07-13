@@ -40,8 +40,6 @@ const PerfilPage = () => {
   const [showOptions, setShowOptions] = useState(false);
   const userRole = getUserRole();
 
-  // 📥 Cargar publicaciones + perfil
-  // 1. Define la función FUERA del useEffect, pero DENTRO del componente
   const cargarDatos = async () => {
     try {
       const token = Cookies.get("token");
@@ -125,7 +123,6 @@ const PerfilPage = () => {
     try {
       const payload = token.split(".")[1];
       const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-      // Base64 decoding
       const decoded = JSON.parse(atob(base64));
       const userId = decoded.id_usuario || decoded.id;
       return userId || null;
@@ -176,7 +173,7 @@ const PerfilPage = () => {
           confirmButtonText: "Ok",
         }).then(() => {
           setShowEditModal(false);
-          cargarDatos(); // <<--- Recarga los datos del perfil
+          cargarDatos();
         });
       } else {
         Swal.fire("Error", data.message || "No se pudo actualizar", "error");
@@ -198,7 +195,7 @@ const PerfilPage = () => {
           `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${selectedPost.id_publicacion}/comentarios`,
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
             credentials: "include",
@@ -212,7 +209,6 @@ const PerfilPage = () => {
           return;
         }
 
-        // Obtener autores (evita duplicar llamadas)
         const autorCache = new Map();
 
         const enriquecidos = await Promise.all(
@@ -224,7 +220,7 @@ const PerfilPage = () => {
                 `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${comentario.autorId}`,
                 {
                   headers: {
-                    Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+                    Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                   },
                   credentials: "include",
@@ -265,21 +261,18 @@ const PerfilPage = () => {
       cantidadLikes: selectedPost.cantidadLikes + (yaLeDiLike ? -1 : 1),
     };
 
-    // Actualiza el modal
     setSelectedPost(nuevoEstado);
 
-    // Actualiza la lista general
     const publicacionesActualizadas = publicaciones.map((pub) =>
       pub.id_publicacion === selectedPost.id_publicacion ? nuevoEstado : pub
     );
     setPublicaciones(publicacionesActualizadas);
     const token = Cookies.get("token");
-    // Llamada al backend
     fetch(
       `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${selectedPost.id_publicacion}/like`,
       {
         headers: {
-          Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         method: "POST",
@@ -301,7 +294,7 @@ const PerfilPage = () => {
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
           credentials: "include",
@@ -316,12 +309,11 @@ const PerfilPage = () => {
       if (res.ok) {
         setNuevoComentario("");
 
-        // Vuelve a cargar todos los comentarios incluyendo autor
         const resComentarios = await fetch(
           `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${selectedPost.id_publicacion}/comentarios`,
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
             credentials: "include",
@@ -329,7 +321,6 @@ const PerfilPage = () => {
         );
         const dataComentarios = await resComentarios.json();
         if (resComentarios.ok) {
-          // Enriquecer con autor
           const autorCache = new Map();
           const enriquecidos = await Promise.all(
             dataComentarios.map(async (comentario) => {
@@ -340,7 +331,7 @@ const PerfilPage = () => {
                   `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${comentario.autorId}`,
                   {
                     headers: {
-                      Authorization: `Bearer ${token}`, // Agregar el token a la cabecera
+                      Authorization: `Bearer ${token}`,
                       "Content-Type": "application/json",
                     },
                     credentials: "include",
@@ -498,7 +489,6 @@ const PerfilPage = () => {
   }, []);
 
   useEffect(() => {
-    // Si el usuario ya tiene destacadas guardadas en localStorage, úsalas:
     const guardadas = localStorage.getItem("insigniasDestacadas");
     if (guardadas) {
       try {
@@ -520,9 +510,7 @@ const PerfilPage = () => {
       <Sidebar active="Mi perfil" />
 
       <main className="perfil-main">
-        {/* PERFIL */}
         <div className="perfil-ig-header">
-          {/* Insignias al lado izquierdo */}
           <div className="perfil-badges-section">
             {userRole !== "profesor" && (
               <div className="perfil-badges-header">
@@ -566,12 +554,10 @@ const PerfilPage = () => {
             </div>
           </div>
 
-          {/* Foto de perfil al centro */}
           <div className="perfil-ig-avatar-box">
             <img src={user?.foto_perfil} alt="" className="perfil-ig-avatar" />
           </div>
 
-          {/* Datos del usuario a la derecha */}
           <div className="perfil-ig-info">
             <h2 className="perfil-ig-nombre">
               @{user?.nombre} {user?.apellido}
@@ -685,7 +671,6 @@ const PerfilPage = () => {
           </div>
         )}
 
-        {/* GALERÍA */}
         <div className="perfil-galeria">
           {publicaciones.length === 0 ? (
             <p className="perfil-no-publicaciones">
@@ -710,7 +695,6 @@ const PerfilPage = () => {
         </div>
       </main>
 
-      {/* MODAL */}
       {selectedPost && (
         <div
           className="modal-overlay-perfil"
@@ -728,7 +712,6 @@ const PerfilPage = () => {
             </div>
 
             <div className="modal-right">
-              {/* Header usuario */}
               <div className="ig-header">
                 <img
                   src={user?.foto_perfil}
@@ -773,7 +756,6 @@ const PerfilPage = () => {
 
               <hr />
 
-              {/* Descripción */}
               <div className="ig-post-description">
                 <img
                   src={user?.foto_perfil}
@@ -796,7 +778,6 @@ const PerfilPage = () => {
                 </div>
               </div>
 
-              {/* Comentarios */}
               <div className="modal-comentarios">
                 {comentarios[selectedPost.id_publicacion]?.length === 0 ? (
                   <p className="comentario-placeholder">
@@ -832,7 +813,6 @@ const PerfilPage = () => {
                 )}
               </div>
 
-              {/* Acciones */}
               <div className="ig-bottom-section">
                 <div className="ig-actions">
                   <div>

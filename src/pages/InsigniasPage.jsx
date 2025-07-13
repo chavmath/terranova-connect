@@ -34,12 +34,10 @@ const InsigniasPage = () => {
 
   const userId = getCurrentUserId();
 
-  // Function to reload all necessary data
   const fetchData = async () => {
     try {
       const token = Cookies.get("token");
 
-      // Fetch insignias disponibles
       const resInsignias = await fetch("https://kong-0c858408d8us2s9oc.kongcloud.dev/insignias", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -52,7 +50,6 @@ const InsigniasPage = () => {
         setInsignias(dataInsignias);
       }
 
-      // Fetch insignias reclamadas
       const resInsigniasReclamadas = await fetch(
         "https://kong-0c858408d8us2s9oc.kongcloud.dev/reclamadas",
         {
@@ -68,7 +65,6 @@ const InsigniasPage = () => {
         setInsigniasReclamadas(dataInsigniasReclamadas);
       }
 
-      // Fetch user data
       const resUsuario = await fetch(
         `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${userId}`,
         {
@@ -152,7 +148,7 @@ const InsigniasPage = () => {
           puntos: prev.puntos - insigniaSeleccionada.puntosrequeridos,
         }));
 
-        setInsigniaReclamada(insigniaSeleccionada); // guardamos para mostrar en overlay
+        setInsigniaReclamada(insigniaSeleccionada);
         setMostrarOverlayFelicidades(true);
         lanzarConfeti();
 
@@ -160,7 +156,6 @@ const InsigniasPage = () => {
         setMostrarAnimacion(true);
         setTimeout(() => setMostrarAnimacion(false), 2500);
 
-        // Refrescar los datos para actualizar las insignias disponibles y reclamadas
         fetchData();
       } else {
         const err = await res.json();
@@ -170,11 +165,10 @@ const InsigniasPage = () => {
       console.error("Error al reclamar:", err);
       alert("No se pudo reclamar la insignia.");
     } finally {
-      setIsLoadingReclamo(false); // <--- FIN carga
+      setIsLoadingReclamo(false);
     }
   };
 
-  // Filtrar insignias disponibles que no han sido reclamadas
   const insigniasDisponibles = insignias.filter(
     (insignia) =>
       !insigniasReclamadas.some(

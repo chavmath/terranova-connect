@@ -77,10 +77,8 @@
 }
 
 .chart-scrollable {
-  height: 260px; /* o el valor que mejor te funcione visualmente */
+  height: 260px;
   overflow-y: auto;
-  /* Si quieres que la barra de scroll solo aparezca cuando sea necesario: */
-  /* overflow-y: auto; */
   padding-bottom: 8px;
 }
 
@@ -115,7 +113,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between; /* separa autor y likes */
+  justify-content: space-between;
   gap: 16px;
   margin-top: 0.2rem;
 }
@@ -229,7 +227,7 @@
 }
 
 .ranking-usuario-item.top {
-  background: #ffd70033; /* dorado claro */
+  background: #ffd70033;
   font-weight: bold;
 }
 

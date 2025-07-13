@@ -561,7 +561,6 @@ const FeedPage = () => {
         </button>
       </main>
 
-      {/* MODAL */}
       {mostrarModal && (
         <div className="modal-overlay" onClick={cerrarModalPublicacion}>
           <div className="modal-publicar" onClick={(e) => e.stopPropagation()}>
