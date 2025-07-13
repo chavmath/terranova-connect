@@ -154,6 +154,7 @@ const Sidebar = () => {
     administrador: [
       { label: "Estadísticas", path: "/estadisticas-admin", icon: <FaChartBar /> },
       { label: "Evidencias", path: "/evidencias", icon: <FaFolder /> },
+      { label: "Publicaciones", path: "/moderacion", icon: <FaBullhorn /> },
       { label: "Configuración", path: "/configuracion", icon: <FaCog /> },
     ],
   };

@@ -582,6 +582,13 @@
   background-color: #e67e22;
 }
 
+.eliminar-section {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 1rem 1rem 0;
+  min-height: 48px;
+}
+
 @media (max-width: 768px) {
   .feed-fab {
     padding: 10px;
