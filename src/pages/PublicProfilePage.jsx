@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Cookies from "js-cookie";
 import "../styles/perfil.css";
 import Swal from "sweetalert2";
-import { PacmanLoader } from "react-spinners";
+import { PacmanLoader, ClipLoader } from "react-spinners";
 
 const PublicProfilePage = () => {
   const { userId } = useParams();
@@ -22,6 +22,25 @@ const PublicProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [insigniasDestacadas, setInsigniasDestacadas] = useState([]);
   const [insignias, setInsignias] = useState([]);
+  const [menuComentarioAbiertoId, setMenuComentarioAbiertoId] = useState(null);
+  const [comentarioEliminandoId, setComentarioEliminandoId] = useState(null);
+  const [comentarioCargando, setComentarioCargando] = useState(false);
+  const menuComentarioRef = useRef(null);
+
+  useEffect(() => {
+    if (menuComentarioAbiertoId === null) return;
+
+    function handleClickOutside(event) {
+      if (
+        menuComentarioRef.current &&
+        !menuComentarioRef.current.contains(event.target)
+      ) {
+        setMenuComentarioAbiertoId(null);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuComentarioAbiertoId]);
 
   useEffect(() => {
     if (!userId) {
@@ -235,7 +254,6 @@ const PublicProfilePage = () => {
 
       setIsFollowing((prev) => !prev);
       setFollowersCount((prev) => prev + (isFollowing ? -1 : 1));
-
     } catch (err) {
       console.warn(err);
     }
@@ -276,6 +294,7 @@ const PublicProfilePage = () => {
     const texto = nuevoComentario.trim();
     if (!texto || !selectedPost) return;
 
+    setComentarioCargando(true);
     const token = Cookies.get("token");
     const postId = selectedPost.id;
 
@@ -354,6 +373,8 @@ const PublicProfilePage = () => {
     } catch (err) {
       console.error("Error al enviar comentario:", err);
       Swal.fire("Error", "Hubo un problema al enviar el comentario", "error");
+    } finally {
+      setComentarioCargando(false);
     }
   };
 
@@ -372,6 +393,47 @@ const PublicProfilePage = () => {
 
   if (!user) return;
 
+  const getCurrentUserId = () => {
+    try {
+      const tokenData = JSON.parse(atob(token.split(".")[1]));
+      return tokenData.id || tokenData.id_usuario;
+    // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      return null;
+    }
+  };
+  const currentUserId = getCurrentUserId();
+
+  const eliminarComentario = async (postId, comentarioId) => {
+    setComentarioEliminandoId(comentarioId);
+    try {
+      const res = await fetch(
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/comentarios/${comentarioId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
+        }
+      );
+      if (res.ok) {
+        setComentarios((prev) => ({
+          ...prev,
+          [postId]: prev[postId].filter(
+            (c) => c.id_comentario !== comentarioId
+          ),
+        }));
+      } else {
+        Swal.fire("Error", "No se pudo eliminar el comentario", "error");
+      }
+    // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      Swal.fire("Error", "Error de red al eliminar comentario", "error");
+    } finally {
+      setComentarioEliminandoId(null);
+      setMenuComentarioAbiertoId(null);
+    }
+  };
+
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       <Sidebar active={null} />
@@ -379,9 +441,7 @@ const PublicProfilePage = () => {
         <div className="perfil-ig-header">
           <div className="perfil-badges-section">
             <div className="perfil-badges-header">
-              <span className="perfil-badges-title">
-                Insignias Destacadas
-              </span>
+              <span className="perfil-badges-title">Insignias Destacadas</span>
             </div>
             <div className="perfil-badges-aside">
               {insigniasDestacadas.length > 0 ? (
@@ -536,25 +596,107 @@ const PublicProfilePage = () => {
                   ) : (
                     comentarios[selectedPost.id].map((c) => (
                       <div
-                        className="comentario-item"
                         key={c.id_comentario || c.id}
+                        className={`feed-comentario ${
+                          comentarioEliminandoId === c.id_comentario
+                            ? "comentario-fade-out"
+                            : ""
+                        }`}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          width: "100%",
+                          fontSize: "14px",
+                          marginBottom: "6px",
+                        }}
                       >
+                        {/* Avatar */}
                         <img
                           src={
                             c.autor?.foto_perfil?.[0]?.url ||
+                            c.autor?.foto_perfil ||
                             "https://via.placeholder.com/40"
                           }
                           alt="avatar"
+                          style={{
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                            marginRight: "8px",
+                          }}
                         />
-                        <div className="comentario-info">
-                          <strong>
-                            @{c.autor?.nombre} {c.autor?.apellido}{" "}
-                            <span>{c.texto}</span>
-                          </strong>
-                          <span className="comentario-fecha">
-                            {tiempoTranscurrido(c.fecha)}
+                        <div style={{ flex: 1 }}>
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <strong style={{ marginRight: "4px" }}>
+                              @{c.autor?.nombre || "usuario"}{" "}
+                              {c.autor?.apellido || "usuario"}
+                            </strong>
+                            <span
+                              style={{
+                                color: "#999",
+                                fontSize: 12,
+                                marginLeft: 5,
+                              }}
+                            >
+                              {tiempoTranscurrido(c.fecha)}
+                            </span>
+                          </div>
+                          <span style={{ wordBreak: "break-word" }}>
+                            {c.texto}
                           </span>
                         </div>
+                        {c.autorId === currentUserId && (
+                          <div
+                            className="comentario-menu-container"
+                            style={{ marginLeft: "auto", position: "relative" }}
+                          >
+                            <button
+                              onClick={() =>
+                                setMenuComentarioAbiertoId((prev) =>
+                                  prev === c.id_comentario
+                                    ? null
+                                    : c.id_comentario
+                                )
+                              }
+                              style={{
+                                background: "none",
+                                border: "none",
+                                fontSize: "18px",
+                                cursor: "pointer",
+                                color: "#666",
+                                marginLeft: 4,
+                              }}
+                              title="Opciones"
+                            >
+                              ⋮
+                            </button>
+                            {menuComentarioAbiertoId === c.id_comentario && (
+                              <div
+                                className="comentario-menu"
+                                ref={menuComentarioRef}
+                              >
+                                <button
+                                  onClick={() => {
+                                    eliminarComentario(
+                                      selectedPost.id,
+                                      c.id_comentario
+                                    );
+                                  }}
+                                  disabled={
+                                    comentarioEliminandoId === c.id_comentario
+                                  }
+                                >
+                                  {comentarioEliminandoId === c.id_comentario
+                                    ? "Eliminando..."
+                                    : "Eliminar"}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))
                   )}
@@ -601,8 +743,23 @@ const PublicProfilePage = () => {
                       value={nuevoComentario}
                       onChange={(e) => setNuevoComentario(e.target.value)}
                     />
-                    <button type="submit" disabled={!nuevoComentario.trim()}>
-                      Publicar
+                    <button
+                      type="submit"
+                      disabled={!nuevoComentario.trim() || comentarioCargando}
+                    >
+                      {comentarioCargando ? (
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
+                          <ClipLoader size={12} color="#0095f6" /> Publicando...
+                        </span>
+                      ) : (
+                        "Publicar"
+                      )}
                     </button>
                   </form>
                 </div>

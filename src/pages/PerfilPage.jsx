@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Sidebar from "../components/Sidebar";
 import "../styles/perfil.css";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import { FiEdit } from "react-icons/fi";
+import { ClipLoader } from "react-spinners";
 
 const getUserRole = () => {
   const token = Cookies.get("token");
@@ -14,6 +15,25 @@ const getUserRole = () => {
     );
     return payload.rol || null;
   } catch {
+    return null;
+  }
+};
+
+const getCurrentUserId = () => {
+  const token = Cookies.get("token");
+  if (!token) {
+    console.log("Token no encontrado");
+    return null;
+  }
+
+  try {
+    const payload = token.split(".")[1];
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = JSON.parse(atob(base64));
+    const userId = decoded.id_usuario || decoded.id;
+    return userId || null;
+  } catch (error) {
+    console.error("Error al decodificar el token:", error);
     return null;
   }
 };
@@ -39,6 +59,28 @@ const PerfilPage = () => {
   const [showSelectInsignias, setShowSelectInsignias] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const userRole = getUserRole();
+  const [comentarioCargando, setComentarioCargando] = useState(false);
+  const [menuComentarioAbiertoId, setMenuComentarioAbiertoId] = useState(null);
+  const [comentarioEliminandoId, setComentarioEliminandoId] = useState(null);
+  const currentUserId = getCurrentUserId();
+  const menuComentarioRef = useRef(null);
+  useEffect(() => {
+    if (menuComentarioAbiertoId === null) return;
+
+    function handleClickOutside(event) {
+      if (
+        menuComentarioRef.current &&
+        !menuComentarioRef.current.contains(event.target)
+      ) {
+        setMenuComentarioAbiertoId(null);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuComentarioAbiertoId]);
 
   const cargarDatos = async () => {
     try {
@@ -112,25 +154,6 @@ const PerfilPage = () => {
       });
     }
   }, [user]);
-
-  const getCurrentUserId = () => {
-    const token = Cookies.get("token");
-    if (!token) {
-      console.log("Token no encontrado");
-      return null;
-    }
-
-    try {
-      const payload = token.split(".")[1];
-      const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-      const decoded = JSON.parse(atob(base64));
-      const userId = decoded.id_usuario || decoded.id;
-      return userId || null;
-    } catch (error) {
-      console.error("Error al decodificar el token:", error);
-      return null;
-    }
-  };
 
   const handleEditarUsuario = async (e) => {
     e.preventDefault();
@@ -250,6 +273,38 @@ const PerfilPage = () => {
 
     cargarComentarios();
   }, [selectedPost]);
+  const eliminarComentario = async (idPublicacion, idComentario) => {
+    setComentarioEliminandoId(idComentario);
+    const token = Cookies.get("token");
+    try {
+      const res = await fetch(
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/comentarios/${idComentario}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      if (res.ok) {
+        setComentarios((prev) => ({
+          ...prev,
+          [idPublicacion]: prev[idPublicacion].filter(
+            (c) => c.id_comentario !== idComentario
+          ),
+        }));
+      } else {
+        Swal.fire("Error", "No se pudo eliminar el comentario", "error");
+      }
+    // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      Swal.fire("Error", "Error de red al eliminar comentario", "error");
+    } finally {
+      setComentarioEliminandoId(null);
+    }
+  };
 
   const handleLike = () => {
     if (!selectedPost) return;
@@ -288,6 +343,7 @@ const PerfilPage = () => {
     const texto = nuevoComentario.trim();
     if (!texto || !selectedPost) return;
     const token = Cookies.get("token");
+    setComentarioCargando(true);
     try {
       const res = await fetch(
         `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${selectedPost.id_publicacion}/comentarios`,
@@ -366,6 +422,8 @@ const PerfilPage = () => {
     } catch (err) {
       console.error("Error al enviar comentario:", err);
       Swal.fire("Error", "Hubo un problema al enviar el comentario", "error");
+    } finally {
+      setComentarioCargando(false);
     }
   };
 
@@ -784,32 +842,111 @@ const PerfilPage = () => {
                     Sé el primero en comentar
                   </p>
                 ) : (
-                  comentarios[selectedPost.id_publicacion]?.map(
-                    (comentario) => (
-                      <div
-                        className="comentario-item"
-                        key={comentario.id_comentario}
-                      >
-                        <img
-                          src={
-                            comentario.autor?.foto_perfil?.[0]?.url ||
-                            "https://via.placeholder.com/40"
-                          }
-                          alt="avatar"
-                        />
-                        <div className="comentario-info">
-                          <strong>
-                            @{comentario.autor?.nombre || "Usuario"}{" "}
-                            {comentario.autor?.apellido || "Usuario"}{" "}
-                            <span>{comentario.texto}</span>
+                  comentarios[selectedPost.id_publicacion]?.map((c) => (
+                    <div
+                      key={c.id_comentario}
+                      className={`feed-comentario ${
+                        comentarioEliminandoId === c.id_comentario
+                          ? "comentario-fade-out"
+                          : ""
+                      }`}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        width: "100%",
+                        fontSize: "14px",
+                        marginBottom: "6px",
+                      }}
+                    >
+                      {/* Avatar */}
+                      <img
+                        src={
+                          c.autor?.foto_perfil?.[0]?.url ||
+                          c.autor?.foto_perfil ||
+                          "https://via.placeholder.com/40"
+                        }
+                        alt="avatar"
+                        style={{
+                          width: "32px",
+                          height: "32px",
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                          marginRight: "8px",
+                        }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <strong style={{ marginRight: "4px" }}>
+                            @{c.autor?.nombre || "usuario"}{" "}
+                            {c.autor?.apellido || "usuario"}
                           </strong>
-                          <span className="comentario-fecha">
-                            {tiempoTranscurrido(comentario.fecha)}
+                          <span
+                            style={{
+                              color: "#999",
+                              fontSize: 12,
+                              marginLeft: 5,
+                            }}
+                          >
+                            {tiempoTranscurrido(c.fecha)}
                           </span>
                         </div>
+                        <span style={{ wordBreak: "break-word" }}>
+                          {c.texto}
+                        </span>
                       </div>
-                    )
-                  )
+                      {c.autorId === currentUserId && (
+                        <div
+                          className="comentario-menu-container"
+                          style={{ marginLeft: "auto", position: "relative" }}
+                          ref={menuComentarioRef}
+                        >
+                          <button
+                            onClick={() =>
+                              setMenuComentarioAbiertoId((prev) =>
+                                prev === c.id_comentario
+                                  ? null
+                                  : c.id_comentario
+                              )
+                            }
+                            style={{
+                              background: "none",
+                              border: "none",
+                              fontSize: "18px",
+                              cursor: "pointer",
+                              color: "#666",
+                              marginLeft: 4,
+                            }}
+                            title="Opciones"
+                          >
+                            ⋮
+                          </button>
+                          {menuComentarioAbiertoId === c.id_comentario && (
+                            <div
+                              className="comentario-menu"
+                              ref={menuComentarioRef}
+                            >
+                              <button
+                                onClick={() => {
+                                  eliminarComentario(
+                                    selectedPost.id_publicacion,
+                                    c.id_comentario
+                                  );
+                                  setMenuComentarioAbiertoId(null);
+                                }}
+                                disabled={
+                                  comentarioEliminandoId === c.id_comentario
+                                }
+                              >
+                                {comentarioEliminandoId === c.id_comentario
+                                  ? "Eliminando..."
+                                  : "Eliminar"}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))
                 )}
               </div>
 
@@ -878,8 +1015,23 @@ const PerfilPage = () => {
                     value={nuevoComentario}
                     onChange={(e) => setNuevoComentario(e.target.value)}
                   />
-                  <button type="submit" disabled={!nuevoComentario.trim()}>
-                    Publicar
+                  <button
+                    type="submit"
+                    disabled={!nuevoComentario.trim() || comentarioCargando}
+                  >
+                    {comentarioCargando ? (
+                      <span
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <ClipLoader size={12} color="#0095f6" /> Publicando...
+                      </span>
+                    ) : (
+                      "Publicar"
+                    )}
                   </button>
                 </form>
               </div>

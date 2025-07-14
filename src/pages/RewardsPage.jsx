@@ -80,13 +80,16 @@ const RewardsPage = () => {
             "https://cdn-icons-png.flaticon.com/512/149/149071.png",
         });
 
-        const resCanjes = await fetch("https://kong-0c858408d8us2s9oc.kongcloud.dev/canjes", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
+        const resCanjes = await fetch(
+          "https://kong-0c858408d8us2s9oc.kongcloud.dev/canjes",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
         const dataCanjes = await resCanjes.json();
 
         const nombreCompleto =
@@ -141,19 +144,19 @@ const RewardsPage = () => {
     setLoadingReclamar(true);
 
     try {
-      console.log("Recompensa reclamada:", {
-        id_recompensa: recompensaSeleccionada.id_recompensa,
-      });
-      const res = await fetch("https://kong-0c858408d8us2s9oc.kongcloud.dev/cajerRecompensa", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id_recompensa: recompensaSeleccionada.id_recompensa,
-        }),
-      });
+      const res = await fetch(
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/cajerRecompensa",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id_recompensa: recompensaSeleccionada.id_recompensa,
+          }),
+        }
+      );
 
       if (res.ok) {
         setUser((prev) => ({
@@ -205,30 +208,31 @@ const RewardsPage = () => {
           <h3 className="rewards-subtitle">Canjea tus puntos</h3>
           <div className="canje-grid">
             {recompensas
-              .filter((r) => {
-                return !recompensasReclamadas.some(
-                  (rr) => (rr.nombre ?? '').toLowerCase() === (r.nombre ?? '').toLowerCase()
-                );
-              })
+              .filter(
+                (r) =>
+                  r.cantidadDisponible > 0 &&
+                  !recompensasReclamadas.some(
+                    (rr) =>
+                      (rr.nombre ?? "").toLowerCase() ===
+                      (r.nombre ?? "").toLowerCase()
+                  )
+              )
 
               .map((r) => {
                 const puedeReclamar = user.puntos >= r.puntosRequeridos;
                 return (
                   <div
                     key={r.id_recompensa}
-                    className={`canje-card ${!puedeReclamar ? "canje-disabled" : ""
-                      }`}
+                    className={`canje-card ${
+                      !puedeReclamar ? "canje-disabled" : ""
+                    }`}
                   >
                     <div className="canje-icon">
                       <img
-                      src={
-                        r.imagenUrl ||
-                        "🎁"
-                      }
-                      alt="🎁"
-                      style={{ width: "100px", height: "100px" }}
-                    />
-
+                        src={r.imagenUrl || "🎁"}
+                        alt="🎁"
+                        style={{ width: "100px", height: "100px" }}
+                      />
                     </div>
                     <h4 className="canje-nombre">{r.nombre}</h4>
                     <p className="canje-puntos">{r.puntosRequeridos} puntos</p>

@@ -84,10 +84,13 @@
 }
 
 .feed-actions {
-  padding: 0.8rem 1.2rem;
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1rem;
+  font-family: Arial, sans-serif;
+  width: 100%;
 }
 
 .like-button-inline {
@@ -377,16 +380,6 @@
   color: white;
 }
 
-.feed-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.5rem;
-  padding: 1rem;
-  font-family: Arial, sans-serif;
-  width: 100%;
-}
-
 .feed-action-icons {
   display: flex;
   align-items: center;
@@ -476,6 +469,14 @@
 
 .feed-comentario {
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.feed-comentario strong {
+  margin-right: 6px;
 }
 
 .ig-comment-form {
@@ -577,9 +578,24 @@
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s ease;
-}	
+}
 .mostrar-mas-btn:hover {
   background-color: #e67e22;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+.comentario-fade-out {
+  animation: fadeOut 0.3s ease forwards;
 }
 
 .eliminar-section {
@@ -589,12 +605,45 @@
   min-height: 48px;
 }
 
+.comentario-menu-container {
+  position: relative;
+  margin-left: auto;
+}
+
+.comentario-menu {
+  position: absolute;
+  top: 10px;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  min-width: 120px;
+}
+
+.comentario-menu button {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #e74c3c;
+}
+
+.comentario-menu button:hover {
+  background-color: #f8f8f8;
+}
+
 @media (max-width: 768px) {
   .feed-fab {
     padding: 10px;
     font-size: 20px;
   }
-  
+
   .texto-publicar {
     display: none;
   }

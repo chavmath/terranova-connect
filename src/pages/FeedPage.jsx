@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Sidebar from "../components/Sidebar";
 import "../styles/feed.css";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import Cookies from "js-cookie";
-import { PacmanLoader } from "react-spinners";
+import { PacmanLoader, ClipLoader } from "react-spinners";
 
 const getCurrentUserId = () => {
   const token = Cookies.get("token");
@@ -39,6 +39,27 @@ const FeedPage = () => {
   const [cantidadMostrar, setCantidadMostrar] = useState(5);
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [cargandoComentariosId, setCargandoComentariosId] = useState(null);
+  const [comentariosCargandoId, setComentariosCargandoId] = useState(null);
+  const [comentarioEliminandoId, setComentarioEliminandoId] = useState(null);
+  const [menuComentarioAbiertoId, setMenuComentarioAbiertoId] = useState(null);
+
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuComentarioAbiertoId(null);
+      }
+    }
+
+    if (menuComentarioAbiertoId !== null) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuComentarioAbiertoId]);
 
   useEffect(() => {
     const fetchPublicaciones = async () => {
@@ -284,6 +305,8 @@ const FeedPage = () => {
 
   const cargarComentarios = async (id_publicacion) => {
     const token = Cookies.get("token");
+    setCargandoComentariosId(id_publicacion);
+
     try {
       const res = await fetch(
         `https://kong-0c858408d8us2s9oc.kongcloud.dev/publicaciones/${id_publicacion}/comentarios`,
@@ -348,6 +371,8 @@ const FeedPage = () => {
     } catch (err) {
       console.error("Error al cargar comentarios:", err);
       Swal.fire("Error", "Fallo la conexión con el servidor", "error");
+    } finally {
+      setCargandoComentariosId(null);
     }
   };
 
@@ -355,6 +380,8 @@ const FeedPage = () => {
     e.preventDefault();
     const texto = nuevoComentario[id_publicacion];
     if (!texto?.trim()) return;
+
+    setComentariosCargandoId(id_publicacion);
 
     try {
       const token = Cookies.get("token");
@@ -372,11 +399,37 @@ const FeedPage = () => {
       );
 
       const data = await res.json();
+
       if (res.ok) {
+        let autor = null;
+        try {
+          const resAutor = await fetch(
+            `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${data.autorId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+            }
+          );
+          if (resAutor.ok) autor = await resAutor.json();
+        } catch (err) {
+          console.warn("No se pudo cargar autor del nuevo comentario", err);
+        }
+
+        const comentarioConAutor = {
+          ...data,
+          autor: autor || null,
+        };
+
         setNuevoComentario((prev) => ({ ...prev, [id_publicacion]: "" }));
         setComentarios((prev) => ({
           ...prev,
-          [id_publicacion]: [data, ...(prev[id_publicacion] || [])],
+          [id_publicacion]: [
+            comentarioConAutor,
+            ...(prev[id_publicacion] || []),
+          ],
         }));
       } else {
         Swal.fire(
@@ -388,6 +441,54 @@ const FeedPage = () => {
     } catch (err) {
       console.error("Error al enviar comentario:", err);
       Swal.fire("Error", "Hubo un problema con el servidor", "error");
+    } finally {
+      setComentariosCargandoId(null);
+    }
+  };
+
+  const eliminarComentario = async (id_publicacion, id_comentario) => {
+    const confirmar = await Swal.fire({
+      title: "¿Eliminar comentario?",
+      text: "Esta acción no se puede deshacer",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!confirmar.isConfirmed) return;
+
+    const token = Cookies.get("token");
+    setComentarioEliminandoId(id_comentario);
+
+    try {
+      const res = await fetch(
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/comentarios/${id_comentario}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      if (!res.ok) throw new Error();
+
+      setTimeout(() => {
+        setComentarios((prev) => ({
+          ...prev,
+          [id_publicacion]: prev[id_publicacion].filter(
+            (c) => c.id_comentario !== id_comentario
+          ),
+        }));
+        setComentarioEliminandoId(null);
+      }, 300);
+    } catch (err) {
+      console.error("Error al eliminar comentario:", err);
+      Swal.fire("Error", "No se pudo eliminar el comentario", "error");
+      setComentarioEliminandoId(null);
     }
   };
 
@@ -489,20 +590,106 @@ const FeedPage = () => {
 
               <button
                 className="feed-ver-comentarios"
-                onClick={() => cargarComentarios(pub.id_publicacion)}
+                onClick={() => {
+                  if (comentarios[pub.id_publicacion]) {
+                    setComentarios((prev) => {
+                      const nuevo = { ...prev };
+                      delete nuevo[pub.id_publicacion];
+                      return nuevo;
+                    });
+                  } else {
+                    cargarComentarios(pub.id_publicacion);
+                  }
+                }}
+                disabled={cargandoComentariosId === pub.id_publicacion}
               >
-                Ver los comentarios
+                {cargandoComentariosId === pub.id_publicacion
+                  ? "Cargando..."
+                  : comentarios[pub.id_publicacion]
+                  ? "Ocultar comentarios"
+                  : "Ver los comentarios"}
               </button>
 
-              {comentarios[pub.id_publicacion]?.map((c) => (
-                <div key={c.id_comentario} className="feed-comentario">
-                  <strong>
-                    @{c.autor?.nombre || "usuario"}{" "}
-                    {c.autor?.apellido || "usuario"}
-                  </strong>{" "}
-                  {c.texto}
-                </div>
-              ))}
+              {comentarios[pub.id_publicacion] &&
+                (comentarios[pub.id_publicacion].length === 0 ? (
+                  <div
+                    style={{
+                      color: "#999",
+                      fontStyle: "italic",
+                      fontSize: "13px",
+                      margin: "6px 0",
+                    }}
+                  >
+                    No hay comentarios todavía. ¡Sé el primero en comentar!
+                  </div>
+                ) : (
+                  comentarios[pub.id_publicacion].map((c) => (
+                    <div
+                      key={c.id_comentario}
+                      className={`feed-comentario ${
+                        comentarioEliminandoId === c.id_comentario
+                          ? "comentario-fade-out"
+                          : ""
+                      }`}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        width: "100%",
+                        fontSize: "14px",
+                        marginBottom: "6px",
+                      }}
+                    >
+                      <span style={{ wordBreak: "break-word" }}>
+                        <strong style={{ marginRight: "4px" }}>
+                          @{c.autor?.nombre || "usuario"}{" "}
+                          {c.autor?.apellido || "usuario"}
+                        </strong>
+                        {c.texto}
+                      </span>
+                      {c.autorId === currentUserId && (
+                        <div
+                          className="comentario-menu-container"
+                          style={{ marginLeft: "auto", position: "relative" }}
+                        >
+                          <button
+                            onClick={() =>
+                              setMenuComentarioAbiertoId((prev) =>
+                                prev === c.id_comentario
+                                  ? null
+                                  : c.id_comentario
+                              )
+                            }
+                            style={{
+                              background: "none",
+                              border: "none",
+                              fontSize: "18px",
+                              cursor: "pointer",
+                              color: "#666",
+                            }}
+                            title="Opciones"
+                          >
+                            ⋮
+                          </button>
+                          {menuComentarioAbiertoId === c.id_comentario && (
+                            <div className="comentario-menu" ref={menuRef}>
+                              <button
+                                onClick={() => {
+                                  eliminarComentario(
+                                    pub.id_publicacion,
+                                    c.id_comentario
+                                  );
+                                  setMenuComentarioAbiertoId(null);
+                                }}
+                              >
+                                Eliminar
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ))}
 
               <div className="feed-comentario-input-container">
                 <form
@@ -522,9 +709,24 @@ const FeedPage = () => {
                   />
                   <button
                     type="submit"
-                    disabled={!nuevoComentario[pub.id_publicacion]?.trim()}
+                    disabled={
+                      !nuevoComentario[pub.id_publicacion]?.trim() ||
+                      comentariosCargandoId === pub.id_publicacion
+                    }
                   >
-                    Publicar
+                    {comentariosCargandoId === pub.id_publicacion ? (
+                      <span
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <ClipLoader size={12} color="#0095f6" /> Publicando...
+                      </span>
+                    ) : (
+                      "Publicar"
+                    )}
                   </button>
                 </form>
               </div>
