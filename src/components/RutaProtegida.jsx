@@ -17,10 +17,19 @@ const RutaProtegida = ({ children }) => {
     if (
       location.pathname !== "/publicacionesp" &&
       location.pathname !== "/calendario" &&
-      location.pathname !== "/perfil/:userId" &&
       location.pathname !== "/dashboard"
     ) {
       return <Navigate to="/publicacionesp" replace />;
+    }
+  }
+  if (rol === "profesor") {
+    if (
+      location.pathname !== "/publicaciones" &&
+      location.pathname !== "/calendario" &&
+      !location.pathname.startsWith("/perfil") &&
+      location.pathname !== "/dashboard"
+    ) {
+      return <Navigate to="/dashboard" replace />;
     }
   }
 
