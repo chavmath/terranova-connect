@@ -907,3 +907,72 @@
   pointer-events: none;
   transition: opacity 0.4s;
 }
+
+.comentario-editar-form {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeIn 0.2s;
+}
+
+.comentario-editar-input {
+  flex: 1;
+  font-size: 14px;
+  padding: 7px 12px;
+  border: 1.5px solid #e3e6eb;
+  border-radius: 20px;
+  outline: none;
+  transition: border 0.2s;
+  background: #fafbfc;
+}
+
+.comentario-editar-input:focus {
+  border: 1.5px solid #031f7b;
+  background: #fff;
+}
+
+.comentario-editar-btn {
+  border: none;
+  background: #031f7b;
+  color: #fff;
+  border-radius: 14px;
+  font-weight: bold;
+  font-size: 13px;
+  padding: 7px 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.comentario-editar-btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.comentario-editar-cancel {
+  border: none;
+  background: #f4f6f8;
+  color: #888;
+  border-radius: 14px;
+  font-weight: bold;
+  font-size: 13px;
+  padding: 7px 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.comentario-editar-cancel:hover {
+  background: #f9d6ce;
+  color: #e74c3c;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

@@ -59,11 +59,15 @@ const PerfilPage = () => {
   const [showSelectInsignias, setShowSelectInsignias] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const userRole = getUserRole();
+  // eslint-disable-next-line no-unused-vars
   const [comentarioCargando, setComentarioCargando] = useState(false);
   const [menuComentarioAbiertoId, setMenuComentarioAbiertoId] = useState(null);
   const [comentarioEliminandoId, setComentarioEliminandoId] = useState(null);
   const currentUserId = getCurrentUserId();
   const menuComentarioRef = useRef(null);
+  const [comentarioEditandoId, setComentarioEditandoId] = useState(null);
+  const [comentarioEditandoLoading, setComentarioEditandoLoading] = useState(false);
+
   useEffect(() => {
     if (menuComentarioAbiertoId === null) return;
 
@@ -298,11 +302,47 @@ const PerfilPage = () => {
       } else {
         Swal.fire("Error", "No se pudo eliminar el comentario", "error");
       }
-    // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line no-unused-vars
     } catch (err) {
       Swal.fire("Error", "Error de red al eliminar comentario", "error");
     } finally {
       setComentarioEliminandoId(null);
+    }
+  };
+
+  const editarComentario = async (
+    id_publicacion,
+    id_comentario,
+    nuevoTexto
+  ) => {
+    setComentarioEditandoLoading(true);
+    const token = Cookies.get("token");
+    try {
+      const res = await fetch(
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/comentarios/${id_comentario}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ texto: nuevoTexto }),
+        }
+      );
+      if (!res.ok) throw new Error();
+      setComentarios((prev) => ({
+        ...prev,
+        [id_publicacion]: prev[id_publicacion].map((c) =>
+          c.id_comentario === id_comentario ? { ...c, texto: nuevoTexto } : c
+        ),
+      }));
+      setComentarioEditandoId(null);
+      setNuevoComentario((prev) => ({ ...prev, [id_publicacion]: "" }));
+    } catch {
+      Swal.fire("Error", "No se pudo editar el comentario", "error");
+    } finally {
+      setComentarioEditandoLoading(false);
     }
   };
 
@@ -858,7 +898,6 @@ const PerfilPage = () => {
                         marginBottom: "6px",
                       }}
                     >
-                      {/* Avatar */}
                       <img
                         src={
                           c.autor?.foto_perfil?.[0]?.url ||
@@ -925,6 +964,19 @@ const PerfilPage = () => {
                               className="comentario-menu"
                               ref={menuComentarioRef}
                             >
+                              <button
+                                onClick={() => {
+                                  // Modo edición: lleva el texto al input principal
+                                  setComentarioEditandoId(c.id_comentario);
+                                  setNuevoComentario((prev) => ({
+                                    ...prev,
+                                    [selectedPost.id_publicacion]: c.texto,
+                                  }));
+                                  setMenuComentarioAbiertoId(null);
+                                }}
+                              >
+                                Editar
+                              </button>
                               <button
                                 onClick={() => {
                                   eliminarComentario(
@@ -1007,31 +1059,69 @@ const PerfilPage = () => {
                   )}
                 </div>
 
-                <form className="ig-comment-form" onSubmit={enviarComentario}>
-                  <button className="ig-action-icon">💬</button>
+                <form
+                  className="ig-comment-form"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (comentarioEditandoId) {
+                      editarComentario(
+                        selectedPost.id_publicacion,
+                        comentarioEditandoId,
+                        nuevoComentario[selectedPost.id_publicacion]
+                      );
+                    } else {
+                      enviarComentario(e, selectedPost.id_publicacion);
+                    }
+                  }}
+                >
                   <input
                     type="text"
                     placeholder="Agrega un comentario..."
-                    value={nuevoComentario}
-                    onChange={(e) => setNuevoComentario(e.target.value)}
+                    value={nuevoComentario[selectedPost.id_publicacion] || ""}
+                    onChange={(e) =>
+                      setNuevoComentario((prev) => ({
+                        ...prev,
+                        [selectedPost.id_publicacion]: e.target.value,
+                      }))
+                    }
+                    disabled={comentarioEditandoLoading}
                   />
+                  {comentarioEditandoId && (
+                    <button
+                      type="button"
+                      title="Cancelar edición"
+                      style={{
+                        background: "none",
+                        border: "none",
+                        fontSize: "18px",
+                        marginRight: "6px",
+                        cursor: "pointer",
+                        color: "#e74c3c",
+                      }}
+                      onClick={() => {
+                        setComentarioEditandoId(null);
+                        setNuevoComentario((prev) => ({
+                          ...prev,
+                          [selectedPost.id_publicacion]: "",
+                        }));
+                      }}
+                      disabled={comentarioEditandoLoading}
+                    >
+                      ❌
+                    </button>
+                  )}
                   <button
                     type="submit"
-                    disabled={!nuevoComentario.trim() || comentarioCargando}
+                    disabled={
+                      comentarioEditandoLoading ||
+                      !nuevoComentario[selectedPost.id_publicacion]?.trim()
+                    }
                   >
-                    {comentarioCargando ? (
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                        }}
-                      >
-                        <ClipLoader size={12} color="#0095f6" /> Publicando...
-                      </span>
-                    ) : (
-                      "Publicar"
-                    )}
+                    {comentarioEditandoId
+                      ? comentarioEditandoLoading
+                        ? "Guardando..."
+                        : "Guardar"
+                      : "Publicar"}
                   </button>
                 </form>
               </div>

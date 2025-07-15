@@ -43,6 +43,9 @@ const FeedPage = () => {
   const [comentariosCargandoId, setComentariosCargandoId] = useState(null);
   const [comentarioEliminandoId, setComentarioEliminandoId] = useState(null);
   const [menuComentarioAbiertoId, setMenuComentarioAbiertoId] = useState(null);
+  const [comentarioEditandoId, setComentarioEditandoId] = useState({});
+  const [comentarioEditandoLoading, setComentarioEditandoLoading] =
+    useState(false);
 
   const menuRef = useRef(null);
 
@@ -492,6 +495,45 @@ const FeedPage = () => {
     }
   };
 
+  const editarComentario = async (
+    id_publicacion,
+    id_comentario,
+    nuevoTexto
+  ) => {
+    setComentarioEditandoLoading(true);
+    const token = Cookies.get("token");
+    try {
+      const res = await fetch(
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/comentarios/${id_comentario}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ texto: nuevoTexto }),
+        }
+      );
+      if (!res.ok) throw new Error();
+      setComentarios((prev) => ({
+        ...prev,
+        [id_publicacion]: prev[id_publicacion].map((c) =>
+          c.id_comentario === id_comentario ? { ...c, texto: nuevoTexto } : c
+        ),
+      }));
+      setComentarioEditandoId((prev) => ({
+        ...prev,
+        [id_publicacion]: null,
+      }));
+      setNuevoComentario((prev) => ({ ...prev, [id_publicacion]: "" }));
+    } catch {
+      Swal.fire("Error", "No se pudo editar el comentario", "error");
+    } finally {
+      setComentarioEditandoLoading(false);
+    }
+  };
+
   const eliminarPreview = (index) => {
     const nuevasPreviews = [...previews];
     nuevasPreviews.splice(index, 1);
@@ -674,6 +716,21 @@ const FeedPage = () => {
                             <div className="comentario-menu" ref={menuRef}>
                               <button
                                 onClick={() => {
+                                  setComentarioEditandoId((prev) => ({
+                                    ...prev,
+                                    [pub.id_publicacion]: c.id_comentario,
+                                  }));
+                                  setNuevoComentario((prev) => ({
+                                    ...prev,
+                                    [pub.id_publicacion]: c.texto,
+                                  }));
+                                  setMenuComentarioAbiertoId(null);
+                                }}
+                              >
+                                Editar
+                              </button>
+                              <button
+                                onClick={() => {
                                   eliminarComentario(
                                     pub.id_publicacion,
                                     c.id_comentario
@@ -694,7 +751,18 @@ const FeedPage = () => {
               <div className="feed-comentario-input-container">
                 <form
                   className="ig-comment-form"
-                  onSubmit={(e) => enviarComentario(e, pub.id_publicacion)}
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (comentarioEditandoId[pub.id_publicacion]) {
+                      editarComentario(
+                        pub.id_publicacion,
+                        comentarioEditandoId[pub.id_publicacion],
+                        nuevoComentario[pub.id_publicacion]
+                      );
+                    } else {
+                      enviarComentario(e, pub.id_publicacion);
+                    }
+                  }}
                 >
                   <input
                     type="text"
@@ -706,15 +774,58 @@ const FeedPage = () => {
                         [pub.id_publicacion]: e.target.value,
                       }))
                     }
+                    disabled={comentarioEditandoLoading}
                   />
+                  {comentarioEditandoId[pub.id_publicacion] && (
+                    <button
+                      type="button"
+                      title="Cancelar edición"
+                      style={{
+                        background: "none",
+                        border: "none",
+                        fontSize: "18px",
+                        marginRight: "6px",
+                        cursor: "pointer",
+                        color: "#e74c3c",
+                      }}
+                      onClick={() => {
+                        setComentarioEditandoId((prev) => ({
+                          ...prev,
+                          [pub.id_publicacion]: null,
+                        }));
+                        setNuevoComentario((prev) => ({
+                          ...prev,
+                          [pub.id_publicacion]: "",
+                        }));
+                      }}
+                      disabled={comentarioEditandoLoading}
+                    >
+                      ❌
+                    </button>
+                  )}
                   <button
                     type="submit"
                     disabled={
+                      comentarioEditandoLoading ||
                       !nuevoComentario[pub.id_publicacion]?.trim() ||
                       comentariosCargandoId === pub.id_publicacion
                     }
                   >
-                    {comentariosCargandoId === pub.id_publicacion ? (
+                    {comentarioEditandoId[pub.id_publicacion] ? (
+                      comentarioEditandoLoading ? (
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
+                          <ClipLoader size={12} color="#0095f6" /> Guardando...
+                        </span>
+                      ) : (
+                        "Guardar"
+                      )
+                    ) : comentariosCargandoId === pub.id_publicacion ? (
                       <span
                         style={{
                           display: "flex",
