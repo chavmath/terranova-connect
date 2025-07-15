@@ -63,6 +63,7 @@ const ConfiguracionPage = () => {
   const [searchRecompensas, setSearchRecompensas] = useState("");
   const [modalTipo, setModalTipo] = useState(null);
   const [modalData, setModalData] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
@@ -116,7 +117,7 @@ const ConfiguracionPage = () => {
     obtenerMisiones();
     obtenerRecompensas();
     obtenerInsignias();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -177,6 +178,8 @@ const ConfiguracionPage = () => {
   );
 
   const paginateInsignias = (pageNumber) => setCurrentPageInsignia(pageNumber);
+
+  const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 
   const validarFechas = (fechaInicio, fechaFin) => {
     if (!fechaInicio || !fechaFin) {
@@ -304,6 +307,14 @@ const ConfiguracionPage = () => {
 
     if (!confirmacion.isConfirmed) return;
 
+    Swal.fire({
+      title: "Eliminando...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
     try {
       const res = await fetch(
         `https://kong-0c858408d8us2s9oc.kongcloud.dev/usuario/${id_usuario}`,
@@ -315,6 +326,7 @@ const ConfiguracionPage = () => {
           credentials: "include",
         }
       );
+      Swal.close();
 
       if (res.ok) {
         Swal.fire("Eliminado", "Usuario eliminado con éxito", "success");
@@ -330,8 +342,8 @@ const ConfiguracionPage = () => {
         );
       }
     } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "No se pudo eliminar el usuario", "error");
+      Swal.close();
+      Swal.fire("Error", "No se pudo eliminar el usuario", error);
     }
   };
 
@@ -349,6 +361,14 @@ const ConfiguracionPage = () => {
 
     if (!confirmacion.isConfirmed) return;
 
+    Swal.fire({
+      title: "Eliminando...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
     try {
       const res = await fetch(
         `https://kong-0c858408d8us2s9oc.kongcloud.dev/actividad/${id}`,
@@ -360,6 +380,7 @@ const ConfiguracionPage = () => {
           credentials: "include",
         }
       );
+      Swal.close();
 
       if (res.ok) {
         Swal.fire("Eliminada", "Actividad eliminada con éxito", "success");
@@ -375,8 +396,8 @@ const ConfiguracionPage = () => {
         );
       }
     } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "No se pudo eliminar la actividad", "error");
+      Swal.close();
+      Swal.fire("Error", "No se pudo eliminar la actividad", error);
     }
   };
 
@@ -394,6 +415,14 @@ const ConfiguracionPage = () => {
 
     if (!confirmacion.isConfirmed) return;
 
+    Swal.fire({
+      title: "Eliminando...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
     try {
       const res = await fetch(
         `https://kong-0c858408d8us2s9oc.kongcloud.dev/mision/${id_mision}`,
@@ -405,6 +434,7 @@ const ConfiguracionPage = () => {
           credentials: "include",
         }
       );
+      Swal.close();
 
       if (res.ok) {
         Swal.fire("Eliminada", "Misión eliminada con éxito", "success");
@@ -420,8 +450,8 @@ const ConfiguracionPage = () => {
         );
       }
     } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "No se pudo eliminar la misión", "error");
+      Swal.close();
+      Swal.fire("Error", "No se pudo eliminar la misión", error);
     }
   };
 
@@ -437,6 +467,14 @@ const ConfiguracionPage = () => {
 
     if (!confirmacion.isConfirmed) return;
 
+    Swal.fire({
+      title: "Eliminando...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
     try {
       const res = await fetch(
         `https://kong-0c858408d8us2s9oc.kongcloud.dev/recompensa/${id}`,
@@ -446,6 +484,7 @@ const ConfiguracionPage = () => {
           credentials: "include",
         }
       );
+      Swal.close();
       if (res.ok) {
         Swal.fire("Eliminada", "Recompensa eliminada con éxito", "success");
         obtenerRecompensas();
@@ -454,6 +493,7 @@ const ConfiguracionPage = () => {
         Swal.fire("Error", data.message || "No se pudo eliminar", "error");
       }
     } catch (err) {
+      Swal.close();
       Swal.fire("Error", "Error del servidor", err);
     }
   };
@@ -471,6 +511,14 @@ const ConfiguracionPage = () => {
 
     if (!confirmacion.isConfirmed) return;
 
+    Swal.fire({
+      title: "Eliminando...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
     try {
       const res = await fetch(
         `https://kong-0c858408d8us2s9oc.kongcloud.dev/insignia/${id_insignia}`,
@@ -480,6 +528,7 @@ const ConfiguracionPage = () => {
           credentials: "include",
         }
       );
+      Swal.close();
       if (res.ok) {
         Swal.fire("Eliminada", "Insignia eliminada con éxito", "success");
         obtenerInsignias();
@@ -488,6 +537,7 @@ const ConfiguracionPage = () => {
         Swal.fire("Error", data.message || "No se pudo eliminar", "error");
       }
     } catch (err) {
+      Swal.close();
       Swal.fire("Error", "Error del servidor", err);
     }
   };
@@ -496,11 +546,26 @@ const ConfiguracionPage = () => {
     const { nombre, apellido, correo, fecha_nacimiento } = nuevaCuentaAdmin;
 
     if (!nombre || !apellido || !correo || !fecha_nacimiento) {
+      setShowCreateAdminModal(false);
       Swal.fire("Error", "Todos los campos son obligatorios", "error");
       return;
     }
 
-    setLoading(true);
+    if (!esMayorDe16(fecha_nacimiento)) {
+      setShowCreateAdminModal(false);
+      Swal.fire("Error", "El usuario debe ser mayor a 16 años", "error");
+      return;
+    }
+
+    setShowCreateAdminModal(false);
+
+    Swal.fire({
+      title: "Creando usuario...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
 
     try {
       const res = await fetch(
@@ -511,35 +576,28 @@ const ConfiguracionPage = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ nombre, apellido, correo, fecha_nacimiento }),
+          body: JSON.stringify(nuevaCuentaAdmin),
           credentials: "include",
         }
       );
-
       const data = await res.json();
+      Swal.close();
 
       if (res.ok) {
-        Swal.fire("Éxito", data.message, "success");
-        setShowCreateAdminModal(false);
+        Swal.fire("Éxito", "Usuario creado correctamente", "success");
+        obtenerUsuarios();
         setNuevaCuentaAdmin({
           nombre: "",
           apellido: "",
           correo: "",
           fecha_nacimiento: "",
         });
-        obtenerUsuarios();
       } else {
-        Swal.fire(
-          "Error",
-          data.message || "No se pudo crear el administrador",
-          "error"
-        );
+        Swal.fire("Error", data.message || "No se pudo crear", "error");
       }
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "Error al crear el administrador", "error");
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      Swal.close();
+      Swal.fire("Error", "No se pudo crear", err);
     }
   };
 
@@ -547,11 +605,30 @@ const ConfiguracionPage = () => {
     const { titulo, descripcion, fechaInicio, fechaFin } = nuevaActividad;
 
     if (!titulo || !descripcion || !fechaInicio || !fechaFin) {
-      Swal.fire("Error", "Todos los campos deben ser completos.", "error");
+      setShowCreateModal(false);
+      Swal.fire("Error", "Todos los campos son obligatorios", "error");
       return;
     }
 
-    setLoading(true);
+    if (new Date(fechaInicio) > new Date(fechaFin)) {
+      setShowCreateModal(false);
+      Swal.fire(
+        "Error",
+        "La fecha de inicio no puede ser mayor a la de fin",
+        "error"
+      );
+      return;
+    }
+
+    setShowCreateModal(false);
+
+    Swal.fire({
+      title: "Creando actividad...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
 
     try {
       const res = await fetch(
@@ -562,47 +639,58 @@ const ConfiguracionPage = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ titulo, descripcion, fechaInicio, fechaFin }),
+          body: JSON.stringify(nuevaActividad),
           credentials: "include",
         }
       );
-
       const data = await res.json();
+      Swal.close();
 
       if (res.ok) {
-        Swal.fire("Actividad creada", data.message, "success");
-        setShowCreateModal(false);
+        Swal.fire("Éxito", "Actividad creada correctamente", "success");
+        obtenerActividades();
         setNuevaActividad({
           titulo: "",
           descripcion: "",
           fechaInicio: "",
           fechaFin: "",
-        }); 
-        obtenerActividades();
+        });
       } else {
-        Swal.fire(
-          "Error",
-          data.message || "No se pudo crear la actividad",
-          "error"
-        );
+        Swal.fire("Error", data.message || "No se pudo crear", "error");
       }
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "Error al crear la actividad", "error");
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      Swal.close();
+      Swal.fire("Error", "No se pudo crear", err);
     }
   };
 
   const handleCrearMision = async () => {
     const { titulo, descripcion, puntos, fechaInicio, fechaFin } = nuevaMision;
 
-    if (!titulo || !descripcion || !puntos || !fechaInicio || !fechaFin) {
-      Swal.fire("Error", "Todos los campos deben ser completos.", "error");
+    if (!titulo || !descripcion || puntos === "" || !fechaInicio || !fechaFin) {
+      setShowCreateMisionModal(false);
+      Swal.fire("Error", "Todos los campos son obligatorios", "error");
+      return;
+    }
+    if (new Date(fechaInicio) > new Date(fechaFin)) {
+      setShowCreateMisionModal(false);
+      Swal.fire(
+        "Error",
+        "La fecha de inicio no puede ser mayor a la de fin",
+        "error"
+      );
       return;
     }
 
-    setLoading(true);
+    setShowCreateMisionModal(false);
+
+    Swal.fire({
+      title: "Creando misión...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
 
     try {
       const res = await fetch(
@@ -613,22 +701,16 @@ const ConfiguracionPage = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            titulo,
-            descripcion,
-            puntos,
-            fechaInicio,
-            fechaFin,
-          }),
+          body: JSON.stringify(nuevaMision),
           credentials: "include",
         }
       );
-
       const data = await res.json();
+      Swal.close();
 
       if (res.ok) {
-        Swal.fire("Misión creada", data.message, "success");
-        setShowCreateMisionModal(false);
+        Swal.fire("Éxito", "Misión creada correctamente", "success");
+        obtenerMisiones();
         setNuevaMision({
           titulo: "",
           descripcion: "",
@@ -636,19 +718,12 @@ const ConfiguracionPage = () => {
           fechaInicio: "",
           fechaFin: "",
         });
-        obtenerMisiones();
       } else {
-        Swal.fire(
-          "Error",
-          data.message || "No se pudo crear la misión",
-          "error"
-        );
+        Swal.fire("Error", data.message || "No se pudo crear", "error");
       }
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "Error al crear la misión", "error");
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      Swal.close();
+      Swal.fire("Error", "No se pudo crear", err);
     }
   };
 
@@ -661,43 +736,54 @@ const ConfiguracionPage = () => {
       imagen,
     } = nuevaRecompensa;
 
-    if (!nombre || !descripcion || !puntosRequeridos) {
-      Swal.fire(
-        "Error",
-        "Todos los campos requeridos deben estar completos.",
-        "error"
-      );
+    if (
+      !nombre ||
+      !descripcion ||
+      puntosRequeridos === "" ||
+      cantidadDisponible === ""
+    ) {
+      setShowCreateRecompensaModal(false);
+      Swal.fire("Error", "Todos los campos son obligatorios", "error");
       return;
     }
 
-    setLoading(true);
+    setShowCreateRecompensaModal(false);
+
+    Swal.fire({
+      title: "Creando recompensa...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
     try {
       const formData = new FormData();
       formData.append("nombre", nombre);
       formData.append("descripcion", descripcion);
       formData.append("puntosRequeridos", puntosRequeridos);
-      formData.append("cantidadDisponible", cantidadDisponible || 0);
-
-      if (imagen) {
-        formData.append("imagen", imagen);
-      }
+      formData.append("cantidadDisponible", cantidadDisponible);
+      if (imagen) formData.append("imagen", imagen);
 
       const res = await fetch(
         "https://kong-0c858408d8us2s9oc.kongcloud.dev/recompensa",
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
           body: formData,
           credentials: "include",
         }
       );
-
       const data = await res.json();
+      Swal.close();
+
       if (res.ok) {
-        Swal.fire("Éxito", data.message, "success");
-        setShowCreateRecompensaModal(false);
+        Swal.fire(
+          "Éxito",
+          data.message || "Recompensa creada correctamente",
+          "success"
+        );
+        obtenerRecompensas();
         setNuevaRecompensa({
           nombre: "",
           descripcion: "",
@@ -705,19 +791,12 @@ const ConfiguracionPage = () => {
           cantidadDisponible: "",
           imagen: null,
         });
-        obtenerRecompensas();
       } else {
-        Swal.fire(
-          "Error",
-          data.message || "No se pudo crear la recompensa",
-          "error"
-        );
+        Swal.fire("Error", data.message || "No se pudo crear", "error");
       }
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "No se pudo crear la recompensa", "error");
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      Swal.close();
+      Swal.fire("Error", "No se pudo crear", err);
     }
   };
 
@@ -725,58 +804,60 @@ const ConfiguracionPage = () => {
     const { nombre, descripcion, puntosrequeridos, nuevaImagen } =
       nuevaInsignia;
 
-    if (!nombre || !descripcion || !puntosrequeridos) {
+    if (!nombre || !descripcion || puntosrequeridos === "") {
+      setShowCreateInsigniaModal(false);
       Swal.fire("Error", "Todos los campos son obligatorios", "error");
       return;
     }
 
-    setLoading(true);
+    setShowCreateInsigniaModal(false);
+
+    Swal.fire({
+      title: "Creando insignia...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
 
     try {
       const formData = new FormData();
       formData.append("nombre", nombre);
       formData.append("descripcion", descripcion);
       formData.append("puntosrequeridos", puntosrequeridos);
-
-      if (nuevaImagen) {
-        formData.append("imagen", nuevaImagen);
-      }
+      if (nuevaImagen) formData.append("insignia", nuevaImagen);
 
       const res = await fetch(
         "https://kong-0c858408d8us2s9oc.kongcloud.dev/insignia",
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
           body: formData,
           credentials: "include",
         }
       );
-
       const data = await res.json();
+      Swal.close();
+
       if (res.ok) {
-        Swal.fire("Éxito", data.message, "success");
-        setShowCreateInsigniaModal(false);
+        Swal.fire(
+          "Éxito",
+          data.message || "Insignia creada correctamente",
+          "success"
+        );
+        obtenerInsignias();
         setNuevaInsignia({
           nombre: "",
           descripcion: "",
           puntosrequeridos: "",
           nuevaImagen: null,
         });
-        obtenerInsignias();
       } else {
-        Swal.fire(
-          "Error",
-          data.message || "No se pudo crear la insignia",
-          "error"
-        );
+        Swal.fire("Error", data.message || "No se pudo crear", "error");
       }
     } catch (err) {
-      Swal.fire("Error", "Hubo un error al crear la insignia", "error");
-      console.error(err);
-    } finally {
-      setLoading(false);
+      Swal.close();
+      Swal.fire("Error", "No se pudo crear", err);
     }
   };
 
@@ -820,6 +901,21 @@ const ConfiguracionPage = () => {
     return `${dia}/${mes}/${año}`;
   };
 
+  function esMayorDe16(fecha_nacimiento) {
+    const nacimiento = new Date(fecha_nacimiento);
+    const hoy = new Date();
+    const edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mes = hoy.getMonth() - nacimiento.getMonth();
+    if (
+      edad > 16 ||
+      (edad === 16 &&
+        (mes > 0 || (mes === 0 && hoy.getDate() >= nacimiento.getDate())))
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   const abrirModalEdicion = (tipo, data) => {
     setModalTipo(tipo);
     setModalData(data);
@@ -831,30 +927,29 @@ const ConfiguracionPage = () => {
   };
 
   const handleEditarUsuario = async () => {
-    const {
-      id_usuario,
-      nuevaFoto,
-      // eslint-disable-next-line no-unused-vars
-      foto_perfil,
-      // eslint-disable-next-line no-unused-vars
-      sesionesIniciadas,
-      ...datos
-    } = modalData;
+    // eslint-disable-next-line no-unused-vars
+    const { id_usuario, nuevaFoto, foto_perfil, sesionesIniciadas, ...datos } =
+      modalData;
 
     if (!datos.nombre || !datos.apellido || !datos.correo || !datos.rol) {
       Swal.fire("Error", "Todos los campos deben estar completos", "error");
       return;
     }
+    cerrarModal();
 
-    setLoading(true);
+    Swal.fire({
+      title: "Guardando cambios...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
 
     try {
       const form = new FormData();
-
       if (nuevaFoto) {
         form.append("foto_perfil", nuevaFoto);
       }
-
       Object.entries(datos).forEach(([key, value]) => {
         form.append(key, value);
       });
@@ -871,24 +966,26 @@ const ConfiguracionPage = () => {
         }
       );
       const data = await res.json();
+      Swal.close();
 
       if (res.ok) {
-        Swal.fire("Actualizado", "Usuario actualizado correctamente", "success");
-        cerrarModal();
+        Swal.fire(
+          "Actualizado",
+          "Usuario actualizado correctamente",
+          "success"
+        );
         obtenerUsuarios();
       } else {
         Swal.fire("Error", data.message || "No se pudo actualizar", "error");
       }
     } catch (err) {
+      Swal.close();
       Swal.fire("Error", err.message, "error");
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleEditarActividad = async () => {
     const { id_actividad, fechaInicio, fechaFin, ...datos } = modalData;
-    setLoading(true);
 
     if (new Date(fechaInicio) > new Date(fechaFin)) {
       Swal.fire(
@@ -898,35 +995,49 @@ const ConfiguracionPage = () => {
       );
       return;
     }
+    cerrarModal();
 
-    const res = await fetch(
-      `https://kong-0c858408d8us2s9oc.kongcloud.dev/actividad/${id_actividad}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ ...datos, fechaInicio, fechaFin }),
-        credentials: "include",
-      }
-    );
+    Swal.fire({
+      title: "Guardando cambios...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
 
-    if (res.ok) {
-      Swal.fire(
-        "Actualizada",
-        "Actividad actualizada correctamente",
-        "success"
+    try {
+      const res = await fetch(
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/actividad/${id_actividad}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ ...datos, fechaInicio, fechaFin }),
+          credentials: "include",
+        }
       );
-      cerrarModal();
-      obtenerActividades();
+      Swal.close();
+
+      if (res.ok) {
+        Swal.fire(
+          "Actualizada",
+          "Actividad actualizada correctamente",
+          "success"
+        );
+        obtenerActividades();
+      } else {
+        Swal.fire("Error", "No se pudo actualizar la actividad", "error");
+      }
+    } catch (err) {
+      Swal.close();
+      Swal.fire("Error", "Error de red al actualizar la actividad", err);
     }
-    setLoading(false);
   };
 
   const handleEditarMision = async () => {
     const { id_mision, fechaInicio, fechaFin, ...datos } = modalData;
-    setLoading(true);
 
     if (new Date(fechaInicio) > new Date(fechaFin)) {
       Swal.fire(
@@ -936,26 +1047,41 @@ const ConfiguracionPage = () => {
       );
       return;
     }
+    cerrarModal();
 
-    const res = await fetch(
-      `https://kong-0c858408d8us2s9oc.kongcloud.dev/mision/${id_mision}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ ...datos, fechaInicio, fechaFin }),
-        credentials: "include",
+    Swal.fire({
+      title: "Guardando cambios...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      const res = await fetch(
+        `https://kong-0c858408d8us2s9oc.kongcloud.dev/mision/${id_mision}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ ...datos, fechaInicio, fechaFin }),
+          credentials: "include",
+        }
+      );
+      Swal.close();
+
+      if (res.ok) {
+        Swal.fire("Actualizada", "Misión actualizada correctamente", "success");
+        obtenerMisiones();
+      } else {
+        Swal.fire("Error", "No se pudo actualizar la misión", "error");
       }
-    );
-
-    if (res.ok) {
-      Swal.fire("Actualizada", "Misión actualizada correctamente", "success");
-      cerrarModal();
-      obtenerMisiones();
+    } catch (err) {
+      Swal.close();
+      Swal.fire("Error", "Error de red al actualizar la misión", err);
     }
-    setLoading(false);
   };
 
   const handleEditarRecompensa = async () => {
@@ -976,8 +1102,16 @@ const ConfiguracionPage = () => {
       );
       return;
     }
+    cerrarModal();
 
-    setLoading(true);
+    Swal.fire({
+      title: "Guardando cambios...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
     try {
       const formData = new FormData();
       formData.append("nombre", nombre);
@@ -1001,12 +1135,12 @@ const ConfiguracionPage = () => {
           credentials: "include",
         }
       );
-
       const data = await res.json();
+      Swal.close();
+
       if (res.ok) {
         Swal.fire("Éxito", data.message, "success");
         obtenerRecompensas();
-        cerrarModal();
       } else {
         Swal.fire(
           "Error",
@@ -1015,22 +1149,28 @@ const ConfiguracionPage = () => {
         );
       }
     } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "No se pudo editar la recompensa", "error");
-    } finally {
-      setLoading(false);
+      Swal.close();
+      Swal.fire("Error", "No se pudo editar la recompensa", error);
     }
   };
 
   const handleEditarInsignia = async () => {
-    const { id_insignia, nombre, descripcion, puntosrequeridos } = modalData;
+    const { id_insignia, nombre, descripcion, puntosrequeridos, nuevaFoto } =
+      modalData;
 
     if (!nombre || !descripcion || !puntosrequeridos) {
       Swal.fire("Error", "Todos los campos son obligatorios", "error");
       return;
     }
+    cerrarModal();
 
-    setLoading(true);
+    Swal.fire({
+      title: "Guardando cambios...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
 
     try {
       const formData = new FormData();
@@ -1038,8 +1178,8 @@ const ConfiguracionPage = () => {
       formData.append("descripcion", descripcion);
       formData.append("puntosrequeridos", puntosrequeridos);
 
-      if (modalData.nuevaFoto) {
-        formData.append("insignia", modalData.nuevaFoto);
+      if (nuevaFoto) {
+        formData.append("insignia", nuevaFoto);
       }
 
       const res = await fetch(
@@ -1053,12 +1193,12 @@ const ConfiguracionPage = () => {
           credentials: "include",
         }
       );
-
       const data = await res.json();
+      Swal.close();
+
       if (res.ok) {
         Swal.fire("Éxito", data.message, "success");
         obtenerInsignias();
-        cerrarModal();
       } else {
         Swal.fire(
           "Error",
@@ -1067,10 +1207,8 @@ const ConfiguracionPage = () => {
         );
       }
     } catch (err) {
-      Swal.fire("Error", "Hubo un error al editar la insignia", "error");
-      console.error(err);
-    } finally {
-      setLoading(false);
+      Swal.close();
+      Swal.fire("Error", "Hubo un error al editar la insignia", err);
     }
   };
 
@@ -1294,7 +1432,7 @@ const ConfiguracionPage = () => {
                   <button
                     onClick={() =>
                       currentPageActividad <
-                      Math.ceil(totalItemsActividad / itemsPerPage) &&
+                        Math.ceil(totalItemsActividad / itemsPerPage) &&
                       paginateActividad(currentPageActividad + 1)
                     }
                     disabled={
@@ -1410,7 +1548,7 @@ const ConfiguracionPage = () => {
                   <button
                     onClick={() =>
                       currentPageMision <
-                      Math.ceil(totalItemsMision / itemsPerPage) &&
+                        Math.ceil(totalItemsMision / itemsPerPage) &&
                       paginateMision(currentPageMision + 1)
                     }
                     disabled={
@@ -1522,7 +1660,7 @@ const ConfiguracionPage = () => {
                   <button
                     onClick={() =>
                       currentPageRecompensa <
-                      Math.ceil(totalItemsRecompensa / itemsPerPage) &&
+                        Math.ceil(totalItemsRecompensa / itemsPerPage) &&
                       paginateRecompensas(currentPageRecompensa + 1)
                     }
                     disabled={
@@ -1702,21 +1840,36 @@ const ConfiguracionPage = () => {
 
                     <label>Nombre</label>
                     <input
+                      type="text"
                       value={modalData.nombre}
-                      onChange={(e) =>
-                        setModalData({ ...modalData, nombre: e.target.value })
-                      }
+                      onChange={(e) => {
+                        const valor = e.target.value;
+                        if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(valor)) {
+                          setModalData({ ...modalData, nombre: valor });
+                        }
+                      }}
                       placeholder="Nombre"
                     />
+                    {modalData.nombre && !soloLetras.test(modalData.nombre) && (
+                      <p style={{ color: "red" }}>Solo letras y espacios</p>
+                    )}
 
                     <label>Apellido</label>
                     <input
+                      type="text"
                       value={modalData.apellido}
-                      onChange={(e) =>
-                        setModalData({ ...modalData, apellido: e.target.value })
-                      }
+                      onChange={(e) => {
+                        const valor = e.target.value;
+                        if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(valor)) {
+                          setModalData({ ...modalData, apellido: valor });
+                        }
+                      }}
                       placeholder="Apellido"
                     />
+                    {modalData.apellido &&
+                      !soloLetras.test(modalData.apellido) && (
+                        <p style={{ color: "red" }}>Solo letras y espacios</p>
+                      )}
 
                     <label>Correo</label>
                     <input
@@ -1838,13 +1991,26 @@ const ConfiguracionPage = () => {
                     <label>Puntos</label>
                     <input
                       type="number"
+                      min={0}
+                      step={1}
                       value={modalData.puntos}
-                      onChange={(e) =>
-                        setModalData({
-                          ...modalData,
-                          puntos: Number(e.target.value),
-                        })
-                      }
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (/^\d*$/.test(value)) {
+                          setModalData({
+                            ...modalData,
+                            puntos: value === "" ? "" : Number(value),
+                          });
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (
+                          ["e", "E", "+", "-", "."].includes(e.key) ||
+                          (e.key.length === 1 && !/[0-9]/.test(e.key))
+                        ) {
+                          e.preventDefault();
+                        }
+                      }}
                       placeholder="Puntos"
                     />
                     <label>Fecha de Inicio:</label>
@@ -1915,25 +2081,52 @@ const ConfiguracionPage = () => {
                     <label>Puntos requeridos</label>
                     <input
                       type="number"
+                      min={0}
+                      step={1}
                       value={modalData.puntosRequeridos}
-                      onChange={(e) =>
-                        setModalData({
-                          ...modalData,
-                          puntosRequeridos: Number(e.target.value),
-                        })
-                      }
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (/^\d*$/.test(value)) {
+                          setModalData({
+                            ...modalData,
+                            puntosRequeridos: value === "" ? "" : Number(value),
+                          });
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (
+                          ["e", "E", "+", "-", "."].includes(e.key) ||
+                          (e.key.length === 1 && !/[0-9]/.test(e.key))
+                        ) {
+                          e.preventDefault();
+                        }
+                      }}
                     />
 
                     <label>Cantidad disponible</label>
                     <input
                       type="number"
+                      min={0}
+                      step={1}
                       value={modalData.cantidadDisponible}
-                      onChange={(e) =>
-                        setModalData({
-                          ...modalData,
-                          cantidadDisponible: Number(e.target.value),
-                        })
-                      }
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (/^\d*$/.test(value)) {
+                          setModalData({
+                            ...modalData,
+                            cantidadDisponible:
+                              value === "" ? "" : Number(value),
+                          });
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (
+                          ["e", "E", "+", "-", "."].includes(e.key) ||
+                          (e.key.length === 1 && !/[0-9]/.test(e.key))
+                        ) {
+                          e.preventDefault();
+                        }
+                      }}
                     />
 
                     {modalData.imagenUrl && (
@@ -2015,13 +2208,27 @@ const ConfiguracionPage = () => {
                           <label>Puntos Requeridos</label>
                           <input
                             type="number"
+                            min={0}
+                            step={1}
                             value={modalData.puntosrequeridos}
-                            onChange={(e) =>
-                              setModalData({
-                                ...modalData,
-                                puntosrequeridos: Number(e.target.value),
-                              })
-                            }
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (/^\d*$/.test(value)) {
+                                setModalData({
+                                  ...modalData,
+                                  puntosrequeridos:
+                                    value === "" ? "" : Number(value),
+                                });
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (
+                                ["e", "E", "+", "-", "."].includes(e.key) ||
+                                (e.key.length === 1 && !/[0-9]/.test(e.key))
+                              ) {
+                                e.preventDefault();
+                              }
+                            }}
                             placeholder="Puntos requeridos"
                           />
 
@@ -2096,27 +2303,43 @@ const ConfiguracionPage = () => {
               <>
                 <label>Nombre</label>
                 <input
+                  type="text"
                   value={nuevaCuentaAdmin.nombre}
-                  onChange={(e) =>
-                    setNuevaCuentaAdmin({
-                      ...nuevaCuentaAdmin,
-                      nombre: e.target.value,
-                    })
-                  }
+                  onChange={(e) => {
+                    const valor = e.target.value;
+                    if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(valor)) {
+                      setNuevaCuentaAdmin({
+                        ...nuevaCuentaAdmin,
+                        nombre: valor,
+                      });
+                    }
+                  }}
                   placeholder="Nombre"
                 />
+                {nuevaCuentaAdmin.nombre &&
+                  !soloLetras.test(nuevaCuentaAdmin.nombre) && (
+                    <p style={{ color: "red" }}>Solo letras y espacios</p>
+                  )}
 
                 <label>Apellido</label>
                 <input
+                  type="text"
                   value={nuevaCuentaAdmin.apellido}
-                  onChange={(e) =>
-                    setNuevaCuentaAdmin({
-                      ...nuevaCuentaAdmin,
-                      apellido: e.target.value,
-                    })
-                  }
+                  onChange={(e) => {
+                    const valor = e.target.value;
+                    if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(valor)) {
+                      setNuevaCuentaAdmin({
+                        ...nuevaCuentaAdmin,
+                        apellido: valor,
+                      });
+                    }
+                  }}
                   placeholder="Apellido"
                 />
+                {nuevaCuentaAdmin.apellido &&
+                  !soloLetras.test(nuevaCuentaAdmin.apellido) && (
+                    <p style={{ color: "red" }}>Solo letras y espacios</p>
+                  )}
 
                 <label>Correo</label>
                 <input
@@ -2142,11 +2365,25 @@ const ConfiguracionPage = () => {
                     })
                   }
                 />
+                {nuevaCuentaAdmin.fecha_nacimiento &&
+                  !esMayorDe16(nuevaCuentaAdmin.fecha_nacimiento) && (
+                    <p style={{ color: "red" }}>Debe ser mayor a 16 años</p>
+                  )}
 
                 <button onClick={handleCrearUsuarioAdmin} disabled={loading}>
                   {loading ? "Creando..." : "Crear Administrador"}
                 </button>
-                <button onClick={() => setShowCreateAdminModal(false)}>
+                <button
+                  onClick={() => {
+                    setShowCreateAdminModal(false);
+                    setNuevaCuentaAdmin({
+                      nombre: "",
+                      apellido: "",
+                      correo: "",
+                      fecha_nacimiento: "",
+                    });
+                  }}
+                >
                   Cancelar
                 </button>
               </>
@@ -2235,7 +2472,18 @@ const ConfiguracionPage = () => {
                 >
                   {loading ? "Creando..." : "Crear Actividad"}
                 </button>
-                <button onClick={() => setShowCreateModal(false)}>
+                <button
+                  onClick={() => {
+                    setShowCreateModal(false);
+                    setNuevaActividad({
+                      titulo: "",
+                      descripcion: "",
+                      fechaInicio: "",
+                      fechaFin: "",
+                    });
+                    setFechaError("");
+                  }}
+                >
                   Cancelar
                 </button>
               </>
@@ -2278,13 +2526,26 @@ const ConfiguracionPage = () => {
                 <label>Puntos</label>
                 <input
                   type="number"
+                  min={0}
+                  step={1}
                   value={nuevaMision.puntos}
-                  onChange={(e) =>
-                    setNuevaMision({
-                      ...nuevaMision,
-                      puntos: Number(e.target.value),
-                    })
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value)) {
+                      setNuevaMision({
+                        ...nuevaMision,
+                        puntos: value === "" ? "" : Number(value),
+                      });
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (
+                      ["e", "E", "+", "-", "."].includes(e.key) ||
+                      (e.key.length === 1 && !/[0-9]/.test(e.key))
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
                   placeholder="Puntos"
                 />
 
@@ -2332,7 +2593,19 @@ const ConfiguracionPage = () => {
                 >
                   {loading ? "Creando..." : "Crear Misión"}
                 </button>
-                <button onClick={() => setShowCreateMisionModal(false)}>
+                <button
+                  onClick={() => {
+                    setShowCreateMisionModal(false);
+                    setNuevaMision({
+                      titulo: "",
+                      descripcion: "",
+                      puntos: "",
+                      fechaInicio: "",
+                      fechaFin: "",
+                    });
+                    setFechaError("");
+                  }}
+                >
                   Cancelar
                 </button>
               </>
@@ -2377,25 +2650,51 @@ const ConfiguracionPage = () => {
                 <label>Puntos requeridos</label>
                 <input
                   type="number"
+                  min={0}
+                  step={1}
                   value={nuevaRecompensa.puntosRequeridos}
-                  onChange={(e) =>
-                    setNuevaRecompensa({
-                      ...nuevaRecompensa,
-                      puntosRequeridos: Number(e.target.value),
-                    })
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value)) {
+                      setNuevaRecompensa({
+                        ...nuevaRecompensa,
+                        puntosRequeridos: value === "" ? "" : Number(value),
+                      });
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (
+                      ["e", "E", "+", "-", "."].includes(e.key) ||
+                      (e.key.length === 1 && !/[0-9]/.test(e.key))
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
                 />
 
                 <label>Cantidad disponible</label>
                 <input
                   type="number"
+                  min={0}
+                  step={1}
                   value={nuevaRecompensa.cantidadDisponible}
-                  onChange={(e) =>
-                    setNuevaRecompensa({
-                      ...nuevaRecompensa,
-                      cantidadDisponible: Number(e.target.value),
-                    })
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value)) {
+                      setNuevaRecompensa({
+                        ...nuevaRecompensa,
+                        cantidadDisponible: value === "" ? "" : Number(value),
+                      });
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (
+                      ["e", "E", "+", "-", "."].includes(e.key) ||
+                      (e.key.length === 1 && !/[0-9]/.test(e.key))
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
                 />
 
                 <label>Imagen</label>
@@ -2414,7 +2713,18 @@ const ConfiguracionPage = () => {
                 <button onClick={handleCrearRecompensa} disabled={loading}>
                   {loading ? "Creando..." : "Crear Recompensa"}
                 </button>
-                <button onClick={() => setShowCreateRecompensaModal(false)}>
+                <button
+                  onClick={() => {
+                    setShowCreateRecompensaModal(false);
+                    setNuevaRecompensa({
+                      nombre: "",
+                      descripcion: "",
+                      puntosRequeridos: "",
+                      cantidadDisponible: "",
+                      imagen: null,
+                    });
+                  }}
+                >
                   Cancelar
                 </button>
               </>
@@ -2460,13 +2770,26 @@ const ConfiguracionPage = () => {
                 <label>Puntos Requeridos</label>
                 <input
                   type="number"
+                  min={0}
+                  step={1}
                   value={nuevaInsignia.puntosrequeridos}
-                  onChange={(e) =>
-                    setNuevaInsignia({
-                      ...nuevaInsignia,
-                      puntosrequeridos: Number(e.target.value),
-                    })
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value)) {
+                      setNuevaInsignia({
+                        ...nuevaInsignia,
+                        puntosrequeridos: value === "" ? "" : Number(value),
+                      });
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (
+                      ["e", "E", "+", "-", "."].includes(e.key) ||
+                      (e.key.length === 1 && !/[0-9]/.test(e.key))
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
                   placeholder="Puntos requeridos"
                 />
 
@@ -2486,7 +2809,17 @@ const ConfiguracionPage = () => {
                 <button onClick={handleCrearInsignia} disabled={loading}>
                   {loading ? "Creando..." : "Crear Insignia"}
                 </button>
-                <button onClick={() => setShowCreateInsigniaModal(false)}>
+                <button
+                  onClick={() => {
+                    setShowCreateInsigniaModal(false);
+                    setNuevaInsignia({
+                      nombre: "",
+                      descripcion: "",
+                      puntosrequeridos: "",
+                      nuevaImagen: null,
+                    });
+                  }}
+                >
                   Cancelar
                 </button>
               </>
