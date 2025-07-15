@@ -453,7 +453,8 @@
   transform: scale(1.13);
 }
 
-.perfil-insignia-modal-overlay {
+.perfil-insignia-modal-overlay,
+.perfil-modal-overlay {
   position: fixed;
   z-index: 1000;
   inset: 0;

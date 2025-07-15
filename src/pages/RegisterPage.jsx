@@ -57,7 +57,7 @@ const RegisterPage = () => {
   }
 
   const fechaMaxima = new Date();
-  fechaMaxima.setFullYear(fechaMaxima.getFullYear() - 10);
+  fechaMaxima.setFullYear(fechaMaxima.getFullYear() - 8);
 
   const validarFormulario = () => {
     const errores = {};
@@ -80,7 +80,7 @@ const RegisterPage = () => {
       const fechaNac = new Date(formData.fechaNacimiento);
       if (fechaNac > fechaMaxima) {
         errores.fechaNacimiento =
-          "Debes tener al menos 10 años para registrarte";
+          "Debes tener al menos 8 años para registrarte";
       }
     }
 

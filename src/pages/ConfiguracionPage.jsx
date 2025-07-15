@@ -1725,7 +1725,6 @@ const ConfiguracionPage = () => {
                         setModalData({ ...modalData, correo: e.target.value })
                       }
                       placeholder="Correo"
-                      disabled
                     />
                     <label>Rol</label>
                     <select

@@ -828,7 +828,7 @@ const PerfilPage = () => {
                     {selectedPost.descripcion}
                   </p>
                   <span className="ig-date">
-                    Editado ·{" "}
+                    Publicado ·{" "}
                     {new Date(
                       selectedPost.fechaPublicacion
                     ).toLocaleDateString()}
@@ -1121,7 +1121,6 @@ const PerfilPage = () => {
                 placeholder="Correo"
                 required
                 type="email"
-                disabled
               />
               <button
                 className="perfil-edit-btn-save"
