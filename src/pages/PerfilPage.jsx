@@ -66,7 +66,9 @@ const PerfilPage = () => {
   const currentUserId = getCurrentUserId();
   const menuComentarioRef = useRef(null);
   const [comentarioEditandoId, setComentarioEditandoId] = useState(null);
-  const [comentarioEditandoLoading, setComentarioEditandoLoading] = useState(false);
+  const [comentarioEditandoLoading, setComentarioEditandoLoading] =
+    useState(false);
+  const [errorCorreo, setErrorCorreo] = useState("");
 
   useEffect(() => {
     if (menuComentarioAbiertoId === null) return;
@@ -85,6 +87,51 @@ const PerfilPage = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [menuComentarioAbiertoId]);
+
+  const dominiosComunes = [
+    "gmail.com",
+    "outlook.com",
+    "hotmail.com",
+    "yahoo.com",
+    "live.com",
+    "icloud.com",
+  ];
+
+  function distanciaLevenshtein(a, b) {
+    const matriz = Array(b.length + 1)
+      .fill(null)
+      .map(() => Array(a.length + 1).fill(null));
+    for (let i = 0; i <= a.length; i++) matriz[0][i] = i;
+    for (let j = 0; j <= b.length; j++) matriz[j][0] = j;
+    for (let j = 1; j <= b.length; j++) {
+      for (let i = 1; i <= a.length; i++) {
+        const indicador = a[i - 1] === b[j - 1] ? 0 : 1;
+        matriz[j][i] = Math.min(
+          matriz[j][i - 1] + 1,
+          matriz[j - 1][i] + 1,
+          matriz[j - 1][i - 1] + indicador
+        );
+      }
+    }
+    return matriz[b.length][a.length];
+  }
+
+  const validarCorreo = (correo) => {
+    if (!correo) return "Debes ingresar un correo electrónico";
+    const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!correoRegex.test(correo)) return "Formato de correo inválido";
+    const dominio = correo.split("@")[1]?.toLowerCase() || "";
+    const typoDetectado = dominiosComunes.find((dominioComun) => {
+      return (
+        distanciaLevenshtein(dominio, dominioComun) > 0 &&
+        distanciaLevenshtein(dominio, dominioComun) <= 2
+      );
+    });
+    if (typoDetectado) {
+      return `¿Querías decir "${typoDetectado}"? Revisa el dominio del correo.`;
+    }
+    return "";
+  };
 
   const cargarDatos = async () => {
     try {
@@ -380,7 +427,7 @@ const PerfilPage = () => {
 
   const enviarComentario = async (e) => {
     e.preventDefault();
-    const texto = nuevoComentario.trim();
+    const texto = (nuevoComentario[selectedPost.id_publicacion] ?? "").trim();
     if (!texto || !selectedPost) return;
     const token = Cookies.get("token");
     setComentarioCargando(true);
@@ -1114,14 +1161,34 @@ const PerfilPage = () => {
                     type="submit"
                     disabled={
                       comentarioEditandoLoading ||
+                      comentarioCargando ||
                       !nuevoComentario[selectedPost.id_publicacion]?.trim()
                     }
+                    style={{ minWidth: 90 }}
                   >
-                    {comentarioEditandoId
-                      ? comentarioEditandoLoading
-                        ? "Guardando..."
-                        : "Guardar"
-                      : "Publicar"}
+                    {comentarioEditandoId ? (
+                      comentarioEditandoLoading ? (
+                        <>
+                          <ClipLoader size={12} color="#0095f6" />
+                          <span style={{ marginLeft: 6 }}>Guardando...</span>
+                        </>
+                      ) : (
+                        "Guardar"
+                      )
+                    ) : comentarioCargando ? ( // <--- Aquí el cambio
+                      <span
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 5,
+                        }}
+                      >
+                        <ClipLoader size={12} color="#0095f6" />
+                        Publicando...
+                      </span>
+                    ) : (
+                      "Publicar"
+                    )}
                   </button>
                 </form>
               </div>
@@ -1205,17 +1272,27 @@ const PerfilPage = () => {
               <input
                 className="perfil-edit-input"
                 value={modalData.correo}
-                onChange={(e) =>
-                  setModalData({ ...modalData, correo: e.target.value })
-                }
+                onChange={(e) => {
+                  setModalData({ ...modalData, correo: e.target.value });
+                  setErrorCorreo(validarCorreo(e.target.value));
+                }}
                 placeholder="Correo"
                 required
                 type="email"
               />
+              {errorCorreo && (
+                <p
+                  className="error-text"
+                  style={{ color: "#e74c3c", margin: "3px 0" }}
+                >
+                  {errorCorreo}
+                </p>
+              )}
+
               <button
                 className="perfil-edit-btn-save"
                 type="submit"
-                disabled={loading}
+                disabled={loading || !!errorCorreo || !modalData.correo}
               >
                 {loading ? "Guardando..." : "Guardar cambios"}
               </button>

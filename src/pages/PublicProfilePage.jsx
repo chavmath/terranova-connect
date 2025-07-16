@@ -295,7 +295,7 @@ const PublicProfilePage = () => {
 
   const enviarComentario = async (e) => {
     e.preventDefault();
-    const texto = nuevoComentario.trim();
+    const texto = (nuevoComentario[selectedPost.id] ?? "").trim();
     if (!texto || !selectedPost) return;
 
     setComentarioCargando(true);
@@ -843,14 +843,34 @@ const PublicProfilePage = () => {
                       type="submit"
                       disabled={
                         comentarioEditandoLoading ||
+                        comentarioCargando ||
                         !nuevoComentario[selectedPost.id]?.trim()
                       }
+                      style={{ minWidth: 90 }}
                     >
-                      {comentarioEditandoId
-                        ? comentarioEditandoLoading
-                          ? "Guardando..."
-                          : "Guardar"
-                        : "Publicar"}
+                      {comentarioEditandoId ? (
+                        comentarioEditandoLoading ? (
+                          <>
+                            <ClipLoader size={12} color="#0095f6" />
+                            <span style={{ marginLeft: 6 }}>Guardando...</span>
+                          </>
+                        ) : (
+                          "Guardar"
+                        )
+                      ) : comentarioCargando ? (
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 5,
+                          }}
+                        >
+                          <ClipLoader size={12} color="#0095f6" />
+                          Publicando...
+                        </span>
+                      ) : (
+                        "Publicar"
+                      )}
                     </button>
                   </form>
                 </div>

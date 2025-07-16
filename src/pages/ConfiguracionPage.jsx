@@ -197,6 +197,59 @@ const ConfiguracionPage = () => {
     }
   };
 
+  // Puedes poner esto al inicio de tu componente:
+  const dominiosComunes = [
+    "gmail.com",
+    "outlook.com",
+    "hotmail.com",
+    "yahoo.com",
+    "live.com",
+    "icloud.com",
+  ];
+
+  function distanciaLevenshtein(a, b) {
+    const matriz = Array(b.length + 1)
+      .fill(null)
+      .map(() => Array(a.length + 1).fill(null));
+
+    for (let i = 0; i <= a.length; i++) matriz[0][i] = i;
+    for (let j = 0; j <= b.length; j++) matriz[j][0] = j;
+
+    for (let j = 1; j <= b.length; j++) {
+      for (let i = 1; i <= a.length; i++) {
+        const indicador = a[i - 1] === b[j - 1] ? 0 : 1;
+        matriz[j][i] = Math.min(
+          matriz[j][i - 1] + 1,
+          matriz[j - 1][i] + 1,
+          matriz[j - 1][i - 1] + indicador
+        );
+      }
+    }
+    return matriz[b.length][a.length];
+  }
+  const [errors, setErrors] = useState({});
+  const [editErrors, setEditErrors] = useState({});
+
+  const validarCorreo = (correo) => {
+    if (!correo) return "Debes ingresar un correo electrónico";
+    const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!correoRegex.test(correo)) return "Formato de correo inválido";
+    const dominio = correo.split("@")[1]?.toLowerCase();
+    if (!dominio) return "Formato de correo inválido";
+
+    const typoDetectado = dominiosComunes.find((dominioComun) => {
+      return (
+        distanciaLevenshtein(dominio, dominioComun) > 0 &&
+        distanciaLevenshtein(dominio, dominioComun) <= 2
+      );
+    });
+
+    if (typoDetectado) {
+      return `¿Querías decir "${typoDetectado}"? Revisa el dominio del correo.`;
+    }
+    return null;
+  };
+
   const token = Cookies.get("token");
 
   const obtenerUsuarios = async () => {
@@ -1873,12 +1926,25 @@ const ConfiguracionPage = () => {
 
                     <label>Correo</label>
                     <input
+                      type="email"
                       value={modalData.correo}
-                      onChange={(e) =>
-                        setModalData({ ...modalData, correo: e.target.value })
-                      }
-                      placeholder="Correo"
+                      onChange={(e) => {
+                        const valor = e.target.value;
+                        setModalData({ ...modalData, correo: valor });
+
+                        // Validación inmediata
+                        const errorCorreo = validarCorreo(valor);
+                        setEditErrors((prev) => ({
+                          ...prev,
+                          correo: errorCorreo,
+                        }));
+                      }}
+                      placeholder="Correo electrónico"
                     />
+                    {editErrors.correo && (
+                      <p className="error-text">{editErrors.correo}</p>
+                    )}
+
                     <label>Rol</label>
                     <select
                       value={modalData.rol}
@@ -1894,7 +1960,12 @@ const ConfiguracionPage = () => {
                       <option value="representante">Representante</option>
                     </select>
 
-                    <button onClick={handleEditarUsuario} disabled={loading}>
+                    <button
+                      onClick={handleEditarUsuario}
+                      disabled={
+                        !!editErrors.correo || !modalData.correo || loading
+                      }
+                    >
                       Guardar
                     </button>
                   </>
@@ -2345,14 +2416,17 @@ const ConfiguracionPage = () => {
                 <input
                   type="email"
                   value={nuevaCuentaAdmin.correo}
-                  onChange={(e) =>
-                    setNuevaCuentaAdmin({
-                      ...nuevaCuentaAdmin,
-                      correo: e.target.value,
-                    })
-                  }
-                  placeholder="Correo"
+                  onChange={(e) => {
+                    const valor = e.target.value;
+                    setNuevaCuentaAdmin({ ...nuevaCuentaAdmin, correo: valor });
+
+                    // Validación inmediata
+                    const errorCorreo = validarCorreo(valor);
+                    setErrors((prev) => ({ ...prev, correo: errorCorreo }));
+                  }}
+                  placeholder="Correo electrónico"
                 />
+                {errors.correo && <p className="error-text">{errors.correo}</p>}
 
                 <label>Fecha de Nacimiento</label>
                 <input
@@ -2370,7 +2444,12 @@ const ConfiguracionPage = () => {
                     <p style={{ color: "red" }}>Debe ser mayor a 16 años</p>
                   )}
 
-                <button onClick={handleCrearUsuarioAdmin} disabled={loading}>
+                <button
+                  onClick={handleCrearUsuarioAdmin}
+                  disabled={
+                    !!errors.correo || !nuevaCuentaAdmin.correo || loading
+                  }
+                >
                   {loading ? "Creando..." : "Crear Administrador"}
                 </button>
                 <button
