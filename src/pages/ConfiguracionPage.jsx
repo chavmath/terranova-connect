@@ -196,8 +196,8 @@ const ConfiguracionPage = () => {
       return true;
     }
   };
+  const hoy = new Date().toISOString().split("T")[0];
 
-  // Puedes poner esto al inicio de tu componente:
   const dominiosComunes = [
     "gmail.com",
     "outlook.com",
@@ -878,7 +878,7 @@ const ConfiguracionPage = () => {
       formData.append("nombre", nombre);
       formData.append("descripcion", descripcion);
       formData.append("puntosrequeridos", puntosrequeridos);
-      if (nuevaImagen) formData.append("insignia", nuevaImagen);
+      if (nuevaImagen) formData.append("imagen", nuevaImagen);
 
       const res = await fetch(
         "https://kong-0c858408d8us2s9oc.kongcloud.dev/insignia",
@@ -1208,7 +1208,7 @@ const ConfiguracionPage = () => {
   };
 
   const handleEditarInsignia = async () => {
-    const { id_insignia, nombre, descripcion, puntosrequeridos, nuevaFoto } =
+    const { id_insignia, nombre, descripcion, puntosrequeridos, nuevaImagen } =
       modalData;
 
     if (!nombre || !descripcion || !puntosrequeridos) {
@@ -1231,8 +1231,8 @@ const ConfiguracionPage = () => {
       formData.append("descripcion", descripcion);
       formData.append("puntosrequeridos", puntosrequeridos);
 
-      if (nuevaFoto) {
-        formData.append("insignia", nuevaFoto);
+      if (nuevaImagen) {
+        formData.append("imagen", nuevaImagen);
       }
 
       const res = await fetch(
@@ -1995,6 +1995,7 @@ const ConfiguracionPage = () => {
                     <label>Fecha de Inicio:</label>
                     <input
                       type="date"
+                      min={hoy}
                       value={modalData.fechaInicio?.split("T")[0]}
                       onChange={(e) => {
                         const nuevaFechaInicio = e.target.value;
@@ -2008,6 +2009,7 @@ const ConfiguracionPage = () => {
                     <label>Fecha de Fin:</label>
                     <input
                       type="date"
+                      min={hoy}
                       value={modalData.fechaFin?.split("T")[0]}
                       onChange={(e) => {
                         const nuevaFechaFin = e.target.value;
@@ -2087,6 +2089,7 @@ const ConfiguracionPage = () => {
                     <label>Fecha de Inicio:</label>
                     <input
                       type="date"
+                      min={hoy}
                       value={modalData.fechaInicio?.split("T")[0]}
                       onChange={(e) => {
                         const nuevaFechaInicio = e.target.value;
@@ -2100,6 +2103,7 @@ const ConfiguracionPage = () => {
                     <label>Fecha de Fin:</label>
                     <input
                       type="date"
+                      min={hoy}
                       value={modalData.fechaFin?.split("T")[0]}
                       onChange={(e) => {
                         const nuevaFechaFin = e.target.value;
@@ -2420,7 +2424,6 @@ const ConfiguracionPage = () => {
                     const valor = e.target.value;
                     setNuevaCuentaAdmin({ ...nuevaCuentaAdmin, correo: valor });
 
-                    // Validación inmediata
                     const errorCorreo = validarCorreo(valor);
                     setErrors((prev) => ({ ...prev, correo: errorCorreo }));
                   }}
@@ -2509,6 +2512,7 @@ const ConfiguracionPage = () => {
                 <label>Fecha de Inicio</label>
                 <input
                   type="date"
+                  min={hoy}
                   value={nuevaActividad.fechaInicio}
                   onChange={(e) => {
                     const nuevaFechaInicio = e.target.value;
@@ -2523,6 +2527,7 @@ const ConfiguracionPage = () => {
                 <label>Fecha de Fin</label>
                 <input
                   type="date"
+                  min={hoy}
                   value={nuevaActividad.fechaFin}
                   onChange={(e) => {
                     const nuevaFechaFin = e.target.value;
@@ -2631,6 +2636,7 @@ const ConfiguracionPage = () => {
                 <label>Fecha de Inicio</label>
                 <input
                   type="date"
+                  min={hoy}
                   value={nuevaMision.fechaInicio}
                   onChange={(e) => {
                     const nuevaFechaInicio = e.target.value;
@@ -2645,6 +2651,7 @@ const ConfiguracionPage = () => {
                 <label>Fecha de Fin</label>
                 <input
                   type="date"
+                  min={hoy}
                   value={nuevaMision.fechaFin}
                   onChange={(e) => {
                     const nuevaFechaFin = e.target.value;

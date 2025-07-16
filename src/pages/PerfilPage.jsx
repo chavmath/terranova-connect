@@ -1013,7 +1013,6 @@ const PerfilPage = () => {
                             >
                               <button
                                 onClick={() => {
-                                  // Modo edición: lleva el texto al input principal
                                   setComentarioEditandoId(c.id_comentario);
                                   setNuevoComentario((prev) => ({
                                     ...prev,
@@ -1175,7 +1174,7 @@ const PerfilPage = () => {
                       ) : (
                         "Guardar"
                       )
-                    ) : comentarioCargando ? ( // <--- Aquí el cambio
+                    ) : comentarioCargando ? (
                       <span
                         style={{
                           display: "flex",

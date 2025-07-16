@@ -720,7 +720,6 @@ const PublicProfilePage = () => {
                               >
                                 <button
                                   onClick={() => {
-                                    // Activa edición
                                     setComentarioEditandoId(c.id_comentario);
                                     setNuevoComentario((prev) => ({
                                       ...prev,
