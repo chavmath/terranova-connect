@@ -13,6 +13,7 @@ const ParticiparPage = () => {
   const [idInscripcionActual, setIdInscripcionActual] = useState("");
   const [misionesConEvidencia, setMisionesConEvidencia] = useState(new Set());
   const [loading, setLoading] = useState(false);
+  const [loadingInscripcion, setLoadingInscripcion] = useState(false);
 
   const [formData, setFormData] = useState({
     descripcion: "",
@@ -99,6 +100,7 @@ const ParticiparPage = () => {
   };
 
   const handleInscripcion = async (mision) => {
+    setLoadingInscripcion(true);
     const token = Cookies.get("token");
 
     try {
@@ -135,6 +137,7 @@ const ParticiparPage = () => {
     } catch (err) {
       showToast("❌ No se pudo inscribir. Intenta más tarde.", err);
     }
+    setLoadingInscripcion(false);
   };
 
   const abrirModalEvidencia = (id_inscripcion) => {
@@ -331,9 +334,15 @@ const ParticiparPage = () => {
                   <button
                     className="confirmar-boton"
                     onClick={() => handleInscripcion(actividadSeleccionada)}
+                    disabled={loadingInscripcion}
                   >
-                    Sí, inscribirme
+                    {loadingInscripcion ? (
+                      <span className="loader-button"></span>
+                    ) : (
+                      "Sí, inscribirme"
+                    )}
                   </button>
+
                   <button
                     className="cancelar-boton"
                     onClick={() => setActividadSeleccionada(null)}
