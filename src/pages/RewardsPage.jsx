@@ -117,6 +117,42 @@ const RewardsPage = () => {
     }
   }, [userId]);
 
+  const cargarRecompensasReclamadas = async () => {
+    try {
+      const token = Cookies.get("token");
+
+      const resCanjes = await fetch(
+        "https://kong-0c858408d8us2s9oc.kongcloud.dev/canjes",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      const dataCanjes = await resCanjes.json();
+
+      const nombreCompleto = `${user.nombre}`.trim().toLowerCase();
+
+      const canjesDelUsuario = dataCanjes.filter(
+        (c) =>
+          `${c.nombre ?? ""} ${c.apellido ?? ""}`.trim().toLowerCase() ===
+          nombreCompleto
+      );
+
+      const recompensasFormateadas = canjesDelUsuario.map((c) => ({
+        id: c.idCanje,
+        nombre: c.recompensa,
+        descripcion: c.descripcion,
+      }));
+
+      setRecompensasReclamadas(recompensasFormateadas);
+    } catch (err) {
+      console.error("Error cargando canjes:", err);
+    }
+  };
+
   const lanzarConfeti = () => {
     var end = Date.now() + 1 * 1000;
     (function frame() {
@@ -169,6 +205,7 @@ const RewardsPage = () => {
         lanzarConfeti();
 
         setRecompensaSeleccionada(null);
+        await cargarRecompensasReclamadas();
         setMostrarAnimacion(true);
         setTimeout(() => setMostrarAnimacion(false), 2500);
       } else {
