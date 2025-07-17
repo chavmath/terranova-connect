@@ -80,12 +80,12 @@ const InsigniasPage = () => {
         nombre,
         apellido,
         foto_perfil,
-        puntosAcumulados = 0,
+        historialPuntos = 0,
       } = dataUsuario;
 
       setUser({
         nombre: `${nombre} ${apellido}`,
-        puntos: puntosAcumulados,
+        puntos: historialPuntos,
         avatar:
           foto_perfil?.[0]?.url ||
           "https://cdn-icons-png.flaticon.com/512/149/149071.png",
@@ -143,10 +143,6 @@ const InsigniasPage = () => {
       });
 
       if (res.ok) {
-        setUser((prev) => ({
-          ...prev,
-          puntos: prev.puntos - insigniaSeleccionada.puntosrequeridos,
-        }));
 
         setInsigniaReclamada(insigniaSeleccionada);
         setMostrarOverlayFelicidades(true);
@@ -193,7 +189,7 @@ const InsigniasPage = () => {
             <div>
               <h2 className="insignias-nombre">{user.nombre}</h2>
               <p className="insignias-puntos">
-                Puntos acumulados: <strong>{user.puntos}</strong>
+                Puntos totales acumulados: <strong>{user.puntos}</strong>
               </p>
             </div>
           </div>
@@ -281,7 +277,7 @@ const InsigniasPage = () => {
                 </p>
                 <p>{insigniaSeleccionada.descripcion}</p>
                 <p>
-                  Esto costará{" "}
+                  Esto necesita{" "}
                   <strong>
                     {insigniaSeleccionada.puntosrequeridos} puntos
                   </strong>
