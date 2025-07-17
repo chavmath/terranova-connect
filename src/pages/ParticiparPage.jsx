@@ -371,12 +371,8 @@ const ParticiparPage = () => {
                 </button>
                 <h3>Subir Evidencia</h3>
                 <p className="modal-evidencia-subtitle">
-                  Adjunta una imagen para comprobar tu participación en esta
+                  Adjunta tu evidencia para comprobar tu participación en esta
                   misión.
-                </p>
-                <p className="modal-evidencia-subtitle">
-                  Solo podrás subir un archivo por misión. Asegúrate de que sea
-                  el correcto.
                 </p>
 
                 <form onSubmit={handleSubmit}>
