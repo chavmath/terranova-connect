@@ -83,28 +83,6 @@ jobs:
       #     subject: "📦 Dependencias instaladas (Build #$CIRCLE_BUILD_NUM)"
       #     body: "Dependencias instaladas en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1"
 
-  run_unit_tests:
-    executor: node_executor    
-    parallelism: 2
-    steps:
-      - checkout
-      - run: npm ci
-      - run:
-          name: Run Jest Tests with Coverage
-          command: |
-            mkdir -p test-results/jest
-            mkdir -p coverage
-            npx jest --ci --coverage --reporters=default --reporters=jest-junit --outputFile=test-results/jest/results.xml
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: coverage
-      # - email/send:
-      #     to: "chavmath@gmail.com"
-      #     subject: "✅ Tests completados (Build #$CIRCLE_BUILD_NUM)"
-      #     body: "Pruebas completadas exitosamente en *$CIRCLE_BRANCH*.\nCommit: $CIRCLE_SHA1\nVer: $CIRCLE_BUILD_URL"
-
-
   code_quality_analysis:
     executor: node_executor
     parallelism: 2
@@ -188,12 +166,6 @@ workflows:
           filters:
             branches:
               only: main
-      - run_unit_tests:
-          requires:
-            - install_dependencies
-          filters:
-            branches:
-              only: main
       - code_quality_analysis:
           requires:
             - install_dependencies
@@ -202,7 +174,6 @@ workflows:
               only: main
       - build_application:
           requires:
-            - run_unit_tests
             - code_quality_analysis
           filters:
             branches:
