@@ -14,6 +14,7 @@ const ParticiparPage = () => {
   const [misionesConEvidencia, setMisionesConEvidencia] = useState(new Set());
   const [loading, setLoading] = useState(false);
   const [loadingInscripcion, setLoadingInscripcion] = useState(false);
+  const [loadingProgreso, setLoadingProgreso] = useState(null);
 
   const [formData, setFormData] = useState({
     descripcion: "",
@@ -209,6 +210,7 @@ const ParticiparPage = () => {
   };
 
   const verProgreso = async (id_inscripcion) => {
+    setLoadingProgreso(id_inscripcion);
     const token = Cookies.get("token");
     try {
       const res = await fetch(
@@ -242,6 +244,7 @@ const ParticiparPage = () => {
     } catch (err) {
       showToast("❌ No se pudo cargar el progreso", err);
     }
+    setLoadingProgreso(null);
   };
 
   const handleRemoveArchivo = (index) => {
@@ -302,9 +305,18 @@ const ParticiparPage = () => {
                     else if (m.estado === "Inscribirse")
                       setActividadSeleccionada(m);
                   }}
-                  disabled={m.estado === "Puntos otorgados"}
+                  disabled={
+                    m.estado === "Puntos otorgados" ||
+                    (m.estado === "Ver progreso" &&
+                      loadingProgreso === m.id_inscripcion)
+                  }
                 >
-                  {m.estado}
+                  {m.estado === "Ver progreso" &&
+                  loadingProgreso === m.id_inscripcion ? (
+                    <span className="loader-button"></span>
+                  ) : (
+                    m.estado
+                  )}
                 </button>
               </div>
             ))}
